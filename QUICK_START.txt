@@ -1,0 +1,40 @@
+========================================
+  NAMSA FLORA - QUICK START GUIDE
+========================================
+
+EVERYTHING IS ALREADY SET UP! Just follow these steps:
+
+1. START THE SERVERS:
+   - Double-click START_BOTH.bat (starts both servers)
+   - OR use START.bat for main site only
+   - OR use START_ADMIN.bat for admin only
+
+2. OPEN IN BROWSER:
+   - Frontend: http://localhost:8003
+   - Admin: http://localhost:8004/admin/login
+
+3. ADMIN LOGIN:
+   Email: admin@namsa.com.na
+   Password: admin123
+
+4. WHAT'S READY:
+   ✓ Database created
+   ✓ 8 sample products added
+   ✓ Admin account created
+   ✓ Everything configured
+   ✓ Main site on port 8003
+   ✓ Admin panel on port 8004
+
+5. START TESTING:
+   - Browse products on homepage
+   - Add items to cart
+   - Test checkout
+   - Login as admin
+   - Manage products
+   - Admin: test Gallery and Promotion Catalog (sidebar)
+
+See LOCAL_TEST_AND_DEPLOY.md for full local test + deploy steps.
+See TESTING_GUIDE.md for detailed testing instructions.
+See PORT_SETUP.md for port configuration details.
+
+========================================

@@ -1,0 +1,33 @@
+========================================
+  NAMSA FLORA - SERVER INFORMATION
+========================================
+
+PORT CONFIGURATION:
+-------------------
+Main Site (Customer):  http://localhost:8003
+Admin Panel:           http://localhost:8004/admin/login
+
+STARTUP FILES:
+--------------
+START_BOTH.bat    - Starts both servers (RECOMMENDED)
+START.bat         - Starts main site only (port 8003)
+START_ADMIN.bat   - Starts admin panel only (port 8004)
+
+ADMIN CREDENTIALS:
+------------------
+Email:    admin@namsa.com.na
+Password: admin123
+
+QUICK START:
+------------
+1. Double-click START_BOTH.bat
+2. Wait for both servers to start
+3. Open browser:
+   - Customer site: http://localhost:8003
+   - Admin panel: http://localhost:8004/admin/login
+
+STOPPING SERVERS:
+-----------------
+Press Ctrl+C in each server window, or simply close the windows.
+
+========================================
