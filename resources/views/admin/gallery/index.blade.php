@@ -28,7 +28,7 @@
                         <tr>
                             <td data-label="Image">
                                 @if($item->image)
-                                    <img src="{{ asset('storage/' . $item->image) }}" alt="" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
+                                    <img src="{{ $item->image_url }}" alt="" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
                                 @else
                                     <span class="text-muted">—</span>
                                 @endif

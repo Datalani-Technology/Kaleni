@@ -6,9 +6,14 @@
 @section('content')
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
     <h1 class="mb-0">Orders</h1>
-    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left"></i> Dashboard
-    </a>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ route('admin.orders.export', request()->query()) }}" class="btn btn-outline-success">
+            <i class="bi bi-download"></i> Export CSV
+        </a>
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Dashboard
+        </a>
+    </div>
 </div>
 
 <form method="GET" class="row g-2 mb-4 admin-filters">

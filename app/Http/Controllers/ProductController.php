@@ -41,9 +41,42 @@ class ProductController extends Controller
                 });
             }
         }
-        
-        $products = $query->latest()->paginate(12);
-        return view('products.index', compact('products'));
+
+        $category = $request->filled('category') ? trim((string) $request->category) : '';
+        if ($category !== '') {
+            $query->where('category', $category);
+        }
+
+        if ($request->filled('min_price') && is_numeric($request->min_price)) {
+            $query->where('price', '>=', max(0, (float) $request->min_price));
+        }
+
+        if ($request->filled('max_price') && is_numeric($request->max_price)) {
+            $query->where('price', '<=', max(0, (float) $request->max_price));
+        }
+
+        if ($request->boolean('in_stock')) {
+            $query->where('stock', '>', 0);
+        }
+
+        match ($request->input('sort', 'featured')) {
+            'price_asc' => $query->orderBy('price'),
+            'price_desc' => $query->orderByDesc('price'),
+            'name' => $query->orderBy('name'),
+            'newest' => $query->latest(),
+            default => $query->orderByDesc('is_featured')->latest(),
+        };
+
+        $categories = Product::where('is_active', true)
+            ->whereNotNull('category')
+            ->where('category', '<>', '')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category');
+
+        $products = $query->paginate(12)->withQueryString();
+
+        return view('products.index', compact('products', 'categories'));
     }
 
     public function show($id)
@@ -52,21 +85,28 @@ class ProductController extends Controller
         
         // Get recommendations for this product
         $recommendations = ProductRecommendation::where('product_id', $id)
-            ->with('recommendedProduct')
+            ->where('recommended_product_id', '!=', $id)
+            ->whereHas('recommendedProduct', fn ($query) => $query->where('is_active', true))
+            ->with(['recommendedProduct' => fn ($query) => $query->where('is_active', true)])
             ->orderBy('score', 'desc')
-            ->limit(4)
+            ->limit(8)
             ->get()
             ->pluck('recommendedProduct')
             ->filter()
-            ->where('is_active', true);
+            ->unique('id')
+            ->take(4)
+            ->values();
 
-        // If no recommendations, show similar products by category
-        if ($recommendations->isEmpty()) {
-            $recommendations = Product::where('is_active', true)
-                ->where('category', $product->category)
-                ->where('id', '!=', $product->id)
-                ->limit(4)
+        if ($recommendations->count() < 4) {
+            $excludeIds = $recommendations->pluck('id')->push($product->id);
+            $fallback = Product::where('is_active', true)
+                ->whereNotIn('id', $excludeIds)
+                ->orderByRaw('CASE WHEN category = ? THEN 0 ELSE 1 END', [$product->category])
+                ->orderByDesc('is_featured')
+                ->limit(4 - $recommendations->count())
                 ->get();
+
+            $recommendations = $recommendations->concat($fallback)->values();
         }
 
         return view('products.show', compact('product', 'recommendations'));

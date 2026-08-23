@@ -20,7 +20,7 @@ class LogoController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:6144',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:20480',
             'logo_text' => 'nullable|string|max:100',
             'remove_logo' => 'nullable|boolean',
         ]);

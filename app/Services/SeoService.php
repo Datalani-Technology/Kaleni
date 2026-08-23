@@ -32,7 +32,7 @@ class SeoService
                 'title' => ($data['name'] ?? 'Product') . ' – Buy Online | ' . $brand . ' Namibia',
                 'description' => ($data['description'] ?? '') . ' Order online from ' . $brand . '. Same-day delivery in Windhoek, Namibia. Fresh flowers guaranteed.',
                 'keywords' => ($data['name'] ?? '') . ', flowers namibia, buy flowers online, flower delivery windhoek, namsa florals, namsa',
-                'image' => isset($data['image']) ? asset('storage/' . $data['image']) : $defaults['image'],
+                'image' => $data['image_url'] ?? (isset($data['image']) ? asset('storage/' . $data['image']) : $defaults['image']),
                 'type' => 'product',
             ],
             'contact' => [
@@ -102,7 +102,7 @@ class SeoService
                 '@type' => 'Product',
                 'name' => $data['name'] ?? '',
                 'description' => $data['description'] ?? '',
-                'image' => isset($data['image']) ? $baseUrl . '/storage/' . $data['image'] : '',
+                'image' => $data['image_url'] ?? (isset($data['image']) ? $baseUrl . '/storage/' . $data['image'] : ''),
                 'brand' => [
                     '@type' => 'Brand',
                     'name' => $brand,

@@ -79,9 +79,10 @@ A beautiful and modern flower selling e-commerce website built with Laravel, fea
 
 8. **Access the application**
    - Frontend: http://localhost:8000
-   - Admin Login: http://localhost:8000/admin/login
+   - Admin Login: http://localhost:8000/`{your ADMIN_PATH}`/login (set `ADMIN_PATH` in `.env`)
      - Email: admin@namsa.com.na
-     - Password: admin123
+     - Password: printed once to the terminal when `AdminUserSeeder` runs; set up
+       two-factor authentication on first login (required)
 
 ## Database Structure
 

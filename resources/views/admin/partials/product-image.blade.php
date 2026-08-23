@@ -5,7 +5,7 @@
 @endphp
 @if($product->image ?? null)
     <span class="admin-product-img-wrap d-inline-block">
-        <img src="{{ asset('storage/' . $product->image) }}"
+        <img src="{{ $product->image_url }}"
              alt="{{ $alt }}"
              width="{{ $size }}"
              height="{{ $size }}"

@@ -52,10 +52,27 @@ Server information headers are removed:
 
 ### 3. Admin Panel Security
 
-#### Login Rate Limiting
-- **5 login attempts per 15 minutes** per IP
-- Prevents brute force attacks
-- Clear error messages
+#### Hidden Admin Path
+- The panel is served under a private, unguessable URL prefix (`ADMIN_PATH` in `.env`),
+  not the conventional `/admin`.
+- Not listed in `robots.txt`; every admin response carries `X-Robots-Tag: noindex, nofollow`.
+- Unknown paths return a plain 404, revealing nothing about the panel's existence.
+
+#### Two-Factor Authentication (mandatory)
+- TOTP (Google Authenticator-compatible), required for every admin/editor account.
+- Password is verified first but does **not** create a session — a second, separately
+  rate-limited step is required before login completes.
+- One-time recovery codes for lost-device access.
+
+#### Login Rate Limiting & Lockout
+- **5 login attempts per 15 minutes** per IP (`AuthController`).
+- **5 failed attempts per account** also triggers a 15-minute account-level lockout,
+  independent of the IP throttle.
+- Clear error messages.
+
+#### Audit Log
+- Logins, 2FA events, password resets, and user management actions are recorded with
+  user, IP, user agent, and timestamp — viewable in the admin panel (Security → Audit Log).
 
 #### Session Security
 - Session regeneration on login
@@ -102,10 +119,11 @@ Server information headers are removed:
 
 ### For Administrators
 
-1. **Change Default Password**
-   - Default admin password: `admin123`
-   - Change immediately after first login
-   - Use strong, unique passwords
+1. **Admin credentials**
+   - The seeder generates a random password and prints it once to the terminal — there is
+     no fixed default password.
+   - Two-factor authentication (authenticator app) is required on first login.
+   - Use strong, unique passwords for any additional admin/editor accounts you create.
 
 2. **Keep Laravel Updated**
    - Regularly update Laravel framework

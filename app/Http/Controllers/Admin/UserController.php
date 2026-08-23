@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -12,7 +13,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::orderBy('name')->get();
+        $users = User::orderBy('name')->paginate(20);
         return view('admin.users.index', compact('users'));
     }
 
@@ -30,12 +31,14 @@ class UserController extends Controller
             'role' => 'required|in:admin,editor',
         ]);
 
-        User::create([
+        $newUser = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
         ]);
+
+        AuditLogger::record('user.created', ['target_user_id' => $newUser->id, 'target_email' => $newUser->email, 'role' => $newUser->role]);
 
         return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
@@ -65,13 +68,23 @@ class UserController extends Controller
         }
         $validated = $request->validate($rules);
 
+        $roleChanged = $user->role !== $validated['role'];
+        $passwordChanged = !empty($validated['password']);
+
         $user->name = $validated['name'];
         $user->email = $validated['email'];
         $user->role = $validated['role'];
-        if (!empty($validated['password'])) {
+        if ($passwordChanged) {
             $user->password = Hash::make($validated['password']);
         }
         $user->save();
+
+        AuditLogger::record('user.updated', [
+            'target_user_id' => $user->id,
+            'target_email' => $user->email,
+            'role_changed' => $roleChanged,
+            'password_changed' => $passwordChanged,
+        ]);
 
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
@@ -83,6 +96,7 @@ class UserController extends Controller
             return redirect()->route('admin.users.index')->with('error', 'You cannot delete your own account.');
         }
         $user->delete();
+        AuditLogger::record('user.deleted', ['target_user_id' => $user->id, 'target_email' => $user->email]);
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
 }

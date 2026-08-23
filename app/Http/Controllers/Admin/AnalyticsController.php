@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Visit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -22,6 +24,52 @@ class AnalyticsController extends Controller
             default => $now->copy()->subDays(7)->startOfDay(),
         };
 
+        // --- Sales ---------------------------------------------------------
+        $orders = Order::where('order_status', '!=', 'cancelled')
+            ->whereBetween('created_at', [$from, $now])
+            ->get();
+
+        $revenue = (float) $orders->sum('total_amount');
+        $orderCount = $orders->count();
+        $avgOrderValue = $orderCount > 0 ? $revenue / $orderCount : 0.0;
+
+        $ordersByStatus = Order::whereBetween('created_at', [$from, $now])
+            ->select('order_status', DB::raw('count(*) as c'))
+            ->groupBy('order_status')
+            ->pluck('c', 'order_status');
+
+        $ordersByPaymentMethod = Order::whereBetween('created_at', [$from, $now])
+            ->select('payment_method', DB::raw('count(*) as c'))
+            ->groupBy('payment_method')
+            ->pluck('c', 'payment_method');
+
+        $trendDays = (int) max(1, $from->diffInDays($now)) + 1;
+        $trendDays = min($trendDays, 90);
+        $trendRaw = Order::where('order_status', '!=', 'cancelled')
+            ->where('created_at', '>=', $now->copy()->subDays($trendDays - 1)->startOfDay())
+            ->selectRaw('DATE(created_at) as d, SUM(total_amount) as total')
+            ->groupBy('d')
+            ->pluck('total', 'd');
+        $trendLabels = [];
+        $trendData = [];
+        for ($i = $trendDays - 1; $i >= 0; $i--) {
+            $d = $now->copy()->subDays($i);
+            $trendLabels[] = $d->format('M j');
+            $trendData[] = round((float) ($trendRaw[$d->toDateString()] ?? 0), 2);
+        }
+
+        $topProducts = OrderItem::query()
+            ->whereHas('order', function ($q) use ($from, $now) {
+                $q->where('order_status', '!=', 'cancelled')->whereBetween('created_at', [$from, $now]);
+            })
+            ->with('product:id,name,image')
+            ->select('product_id', DB::raw('SUM(quantity) as units'), DB::raw('SUM(subtotal) as revenue'))
+            ->groupBy('product_id')
+            ->orderByDesc('revenue')
+            ->limit(8)
+            ->get();
+
+        // --- Site traffic (real page-view tracking, kept from before) ------
         $base = Visit::where('visited_at', '>=', $from)->where('visited_at', '<=', $now);
 
         $totalViews = (clone $base)->count();
@@ -39,31 +87,28 @@ class AnalyticsController extends Controller
             ->select('path', DB::raw('count(*) as hits'))
             ->groupBy('path')
             ->orderByDesc('hits')
-            ->limit(15)
+            ->limit(10)
             ->get();
 
-        $recent = Visit::where('visited_at', '>=', $from)
-            ->orderByDesc('visited_at')
-            ->limit(50)
-            ->get();
-
-        $todayViews = Visit::whereDate('visited_at', $now->toDateString())->count();
-        $todayUnique = (int) Visit::whereDate('visited_at', $now->toDateString())
-            ->whereNotNull('session_id')
-            ->selectRaw('count(distinct session_id) as c')
-            ->value('c');
+        $conversionRate = $totalViews > 0 ? ($orderCount / $totalViews) * 100 : 0.0;
 
         return view('admin.analytics.index', [
             'period' => $period,
             'from' => $from,
             'to' => $now,
+            'revenue' => $revenue,
+            'orderCount' => $orderCount,
+            'avgOrderValue' => $avgOrderValue,
+            'ordersByStatus' => $ordersByStatus,
+            'ordersByPaymentMethod' => $ordersByPaymentMethod,
+            'trendLabels' => $trendLabels,
+            'trendData' => $trendData,
+            'topProducts' => $topProducts,
             'totalViews' => $totalViews,
             'uniqueVisitors' => $uniqueVisitors,
-            'todayViews' => $todayViews,
-            'todayUnique' => $todayUnique,
+            'conversionRate' => $conversionRate,
             'byPage' => $byPage,
             'topPaths' => $topPaths,
-            'recent' => $recent,
         ]);
     }
 }

@@ -11,7 +11,7 @@
         @if($product->image)
             <div class="mb-3">
                 <label class="form-label">Current Image</label><br>
-                <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" style="max-width: 200px; border-radius: 5px;">
+                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" style="max-width: 200px; border-radius: 5px;">
             </div>
         @endif
         <form action="{{ route('admin.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">

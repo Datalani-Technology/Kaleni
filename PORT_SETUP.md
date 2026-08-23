@@ -16,7 +16,7 @@ Double-click **`START_BOTH.bat`**
 
 This will start both servers in separate windows:
 - Main site: http://localhost:8003
-- Admin panel: http://localhost:8004/admin/login
+- Admin panel: http://localhost:8004/{your ADMIN_PATH}/login
 
 ### Option 2: Start Main Site Only
 Double-click **`START.bat`**
@@ -37,10 +37,10 @@ This starts only the admin panel on port 8004.
 - **Features**: Browse products, shopping cart, checkout
 
 ### Admin Panel
-- **URL**: http://localhost:8004/admin/login
+- **URL**: http://localhost:8004/{your ADMIN_PATH}/login
 - **Login**: 
   - Email: `admin@namsa.com.na`
-  - Password: `admin123`
+  - Password: printed once to the terminal by `AdminUserSeeder` (then set up 2FA — required)
 
 ---
 
@@ -114,7 +114,7 @@ If you get "Address already in use" error:
 
 ### Can't Access Admin
 - Make sure `START_ADMIN.bat` is running
-- Check the URL: http://localhost:8004/admin/login
+- Check the URL: http://localhost:8004/{your ADMIN_PATH}/login
 - Verify admin user exists: Run `php artisan db:seed --class=AdminUserSeeder`
 
 ### Sessions Not Working
@@ -132,7 +132,7 @@ After starting both servers, verify:
    - Should show product listing
    - Navigation should work
 
-2. **Admin Panel**: Open http://localhost:8004/admin/login
+2. **Admin Panel**: Open http://localhost:8004/{your ADMIN_PATH}/login
    - Should show login page
    - Login with admin credentials
    - Should access dashboard

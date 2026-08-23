@@ -23,7 +23,7 @@ class GalleryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:6144',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:2000',
         ]);
@@ -45,13 +45,13 @@ class GalleryController extends Controller
     public function update(Request $request, GalleryItem $gallery)
     {
         $validated = $request->validate([
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:6144',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:2000',
         ]);
 
         if ($request->hasFile('image')) {
-            if ($gallery->image) {
+            if ($gallery->hasManagedImage()) {
                 Storage::disk('public')->delete($gallery->image);
             }
             $validated['image'] = $request->file('image')->store('gallery', 'public');
@@ -65,7 +65,7 @@ class GalleryController extends Controller
 
     public function destroy(GalleryItem $gallery)
     {
-        if ($gallery->image && Storage::disk('public')->exists($gallery->image)) {
+        if ($gallery->hasManagedImage() && Storage::disk('public')->exists($gallery->image)) {
             Storage::disk('public')->delete($gallery->image);
         }
         $gallery->delete();

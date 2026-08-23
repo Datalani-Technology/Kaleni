@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
@@ -12,147 +13,201 @@ class PaymentController extends Controller
     {
         $orderId = $order ?? $request->order;
         $order = Order::findOrFail($orderId);
-        
+
         if ($order->payment_method !== 'dpo') {
             return redirect()->route('checkout.index')->with('error', 'Invalid payment method.');
         }
 
-        // DPO Payment Gateway Integration - API v6
-        $companyToken = env('DPO_COMPANY_TOKEN', 'your-company-token');
-        $serviceType = env('DPO_SERVICE_TYPE', '1'); // Default service type
-        $testMode = env('DPO_TEST_MODE', true);
-
-        $dpoUrl = 'https://secure.3gdirectpay.com/API/v6/';
-
-        // Build XML request for createToken
-        $xml = '<?xml version="1.0" encoding="utf-8"?>' . "\n";
-        $xml .= '<API3G>' . "\n";
-        $xml .= '<CompanyToken>' . $companyToken . '</CompanyToken>' . "\n";
-        $xml .= '<Request>createToken</Request>' . "\n";
-        $xml .= '<Transaction>' . "\n";
-        $xml .= '<PaymentAmount>' . number_format($order->total_amount, 2, '.', '') . '</PaymentAmount>' . "\n";
-        $xml .= '<PaymentCurrency>NAD</PaymentCurrency>' . "\n";
-        $xml .= '<CompanyRef>' . $order->order_number . '</CompanyRef>' . "\n";
-        $xml .= '<RedirectURL>' . route('payment.dpo.callback') . '</RedirectURL>' . "\n";
-        $xml .= '<BackURL>' . route('checkout.index') . '</BackURL>' . "\n";
-        $xml .= '<CompanyRefUnique>0</CompanyRefUnique>' . "\n";
-        $xml .= '<PTL>5</PTL>' . "\n"; // Payment Time Limit in days
-        $xml .= '</Transaction>' . "\n";
-        $xml .= '<Services>' . "\n";
-        $xml .= '<Service>' . "\n";
-        $xml .= '<ServiceType>' . $serviceType . '</ServiceType>' . "\n";
-        $xml .= '<ServiceDescription>Flower Order - ' . $order->order_number . '</ServiceDescription>' . "\n";
-        $xml .= '<ServiceDate>' . date('Y/m/d H:i') . '</ServiceDate>' . "\n";
-        $xml .= '</Service>' . "\n";
-        $xml .= '</Services>' . "\n";
-        $xml .= '</API3G>';
-
-        // Send XML request
-        $response = Http::withBody($xml, 'application/xml')
-            ->post($dpoUrl);
-
-        if ($response->successful()) {
-            $responseXml = $response->body();
-            $data = $this->parseXmlResponse($responseXml);
-            
-            if (isset($data['Result']) && $data['Result'] == '000' && isset($data['TransToken'])) {
-                $order->update(['dpo_token' => $data['TransToken']]);
-                
-                // Redirect to DPO payment page
-                $paymentUrl = 'https://secure.3gdirectpay.com/payv2.php?ID=' . $data['TransToken'];
-                return redirect($paymentUrl);
-            } else {
-                $errorMsg = $data['ResultExplanation'] ?? 'Failed to create payment token';
-                return redirect()->route('checkout.index')
-                    ->with('error', 'Payment initialization failed: ' . $errorMsg);
-            }
+        $companyToken = config('services.dpo.company_token');
+        if (empty($companyToken)) {
+            Log::warning('DPO payment attempted without a configured company token', ['order' => $order->order_number]);
+            return redirect()->route('checkout.index')
+                ->with('error', 'Card payment isn\'t available yet. Please choose "Pay via WhatsApp" instead.');
         }
 
+        if ($order->payment_status === 'completed') {
+            return redirect()->route('checkout.success', $order->order_number);
+        }
+
+        $xml = '<?xml version="1.0" encoding="utf-8"?>' . "\n"
+            . '<API3G>' . "\n"
+            . '<CompanyToken>' . $this->escapeXml($companyToken) . '</CompanyToken>' . "\n"
+            . '<Request>createToken</Request>' . "\n"
+            . '<Transaction>' . "\n"
+            . '<PaymentAmount>' . number_format((float) $order->total_amount, 2, '.', '') . '</PaymentAmount>' . "\n"
+            . '<PaymentCurrency>' . $this->escapeXml(config('services.dpo.currency', 'NAD')) . '</PaymentCurrency>' . "\n"
+            . '<CompanyRef>' . $this->escapeXml($order->order_number) . '</CompanyRef>' . "\n"
+            . '<RedirectURL>' . $this->escapeXml(route('payment.dpo.callback')) . '</RedirectURL>' . "\n"
+            . '<BackURL>' . $this->escapeXml(route('checkout.index')) . '</BackURL>' . "\n"
+            . '<CompanyRefUnique>0</CompanyRefUnique>' . "\n"
+            . '<PTL>5</PTL>' . "\n"
+            . '<PnURL>' . $this->escapeXml(route('payment.dpo.notify')) . '</PnURL>' . "\n"
+            . '</Transaction>' . "\n"
+            . '<Services>' . "\n"
+            . '<Service>' . "\n"
+            . '<ServiceType>' . $this->escapeXml(config('services.dpo.service_type', '1')) . '</ServiceType>' . "\n"
+            . '<ServiceDescription>Flower Order - ' . $this->escapeXml($order->order_number) . '</ServiceDescription>' . "\n"
+            . '<ServiceDate>' . date('Y/m/d H:i') . '</ServiceDate>' . "\n"
+            . '</Service>' . "\n"
+            . '</Services>' . "\n"
+            . '</API3G>';
+
+        try {
+            $response = Http::timeout(20)->connectTimeout(8)
+                ->withBody($xml, 'application/xml')
+                ->post(config('services.dpo.api_url'));
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            Log::error('DPO createToken connection failed', ['order' => $order->order_number, 'error' => $e->getMessage()]);
+            return redirect()->route('checkout.index')
+                ->with('error', 'Could not reach the payment gateway. Please try "Pay via WhatsApp" or try again shortly.');
+        }
+
+        if (!$response->successful()) {
+            Log::error('DPO createToken HTTP error', ['order' => $order->order_number, 'status' => $response->status()]);
+            return redirect()->route('checkout.index')
+                ->with('error', 'Failed to initialize payment. Please try again.');
+        }
+
+        $data = $this->parseXmlResponse($response->body());
+
+        if (($data['Result'] ?? null) === '000' && !empty($data['TransToken'])) {
+            $order->update(['dpo_token' => $data['TransToken']]);
+
+            return redirect(config('services.dpo.pay_url') . '?ID=' . $data['TransToken']);
+        }
+
+        Log::error('DPO createToken rejected', ['order' => $order->order_number, 'result' => $data['Result'] ?? null, 'explanation' => $data['ResultExplanation'] ?? null]);
+
         return redirect()->route('checkout.index')
-            ->with('error', 'Failed to initialize payment. Please try again.');
+            ->with('error', 'Payment initialization failed: ' . ($data['ResultExplanation'] ?? 'Please try again.'));
     }
 
+    /**
+     * Customer's browser bounces back here after paying (or cancelling) on DPO.
+     */
     public function dpoCallback(Request $request)
     {
         $transToken = $request->input('TransactionToken') ?? $request->input('ID');
-        
+
         if (!$transToken) {
             return redirect()->route('checkout.index')
                 ->with('error', 'Payment verification failed. No transaction token received.');
         }
 
+        $result = $this->verifyAndFinalize($transToken);
+
+        if (!$result['order']) {
+            return redirect()->route('checkout.index')->with('error', 'Order not found.');
+        }
+
+        return match ($result['status']) {
+            'completed' => redirect()->route('checkout.success', $result['order']->order_number)
+                ->with('success', 'Payment completed successfully!'),
+            'pending' => redirect()->route('checkout.index')
+                ->with('error', 'Payment is still pending. Please complete the payment process.'),
+            default => redirect()->route('checkout.index')
+                ->with('error', 'Payment failed: ' . $result['message']),
+        };
+    }
+
+    /**
+     * DPO's server-to-server Payment Notification (PNURL). More reliable than the
+     * browser callback alone — fires even if the customer closes the tab before
+     * being redirected back. Must return a plain 200 OK; DPO does not need a body.
+     */
+    public function dpoNotify(Request $request)
+    {
+        $transToken = $request->input('TransactionToken') ?? $request->input('ID');
+
+        if (!$transToken) {
+            Log::warning('DPO PNURL called without a transaction token', ['ip' => $request->ip()]);
+            return response('missing token', 400);
+        }
+
+        $this->verifyAndFinalize($transToken);
+
+        return response('OK', 200);
+    }
+
+    /**
+     * Shared by the browser callback and the PNURL webhook so a payment is only
+     * ever verified/applied once, regardless of which one arrives first.
+     *
+     * @return array{order: ?Order, status: string, message: string}
+     */
+    private function verifyAndFinalize(string $transToken): array
+    {
         $order = Order::where('dpo_token', $transToken)->first();
-        
+
         if (!$order) {
-            return redirect()->route('checkout.index')
-                ->with('error', 'Order not found.');
+            Log::warning('DPO verify: no order matches transaction token');
+            return ['order' => null, 'status' => 'failed', 'message' => 'Order not found.'];
         }
 
-        // Verify payment with DPO using verifyToken
-        $companyToken = env('DPO_COMPANY_TOKEN', 'your-company-token');
-        $dpoUrl = 'https://secure.3gdirectpay.com/API/v6/';
+        // Already settled by the other channel (callback vs webhook) — don't re-verify.
+        if ($order->payment_status === 'completed') {
+            return ['order' => $order, 'status' => 'completed', 'message' => 'Already confirmed.'];
+        }
 
-        // Build XML request for verifyToken
-        $xml = '<?xml version="1.0" encoding="utf-8"?>' . "\n";
-        $xml .= '<API3G>' . "\n";
-        $xml .= '<CompanyToken>' . $companyToken . '</CompanyToken>' . "\n";
-        $xml .= '<Request>verifyToken</Request>' . "\n";
-        $xml .= '<TransactionToken>' . $transToken . '</TransactionToken>' . "\n";
-        $xml .= '</API3G>';
+        $companyToken = config('services.dpo.company_token');
+        $xml = '<?xml version="1.0" encoding="utf-8"?>' . "\n"
+            . '<API3G>' . "\n"
+            . '<CompanyToken>' . $this->escapeXml($companyToken) . '</CompanyToken>' . "\n"
+            . '<Request>verifyToken</Request>' . "\n"
+            . '<TransactionToken>' . $this->escapeXml($transToken) . '</TransactionToken>' . "\n"
+            . '</API3G>';
 
-        // Send verification request
-        $response = Http::withBody($xml, 'application/xml')
-            ->post($dpoUrl);
+        try {
+            $response = Http::timeout(20)->connectTimeout(8)
+                ->withBody($xml, 'application/xml')
+                ->post(config('services.dpo.api_url'));
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            Log::error('DPO verifyToken connection failed', ['order' => $order->order_number, 'error' => $e->getMessage()]);
+            return ['order' => $order, 'status' => 'pending', 'message' => 'Could not reach payment gateway.'];
+        }
 
-        if ($response->successful()) {
-            $responseXml = $response->body();
-            $data = $this->parseXmlResponse($responseXml);
-            
-            // Check payment status
-            // Result codes: 000 = Paid, 001 = Authorized, 900 = Not paid yet, 901 = Declined
-            if (isset($data['Result'])) {
-                $resultCode = $data['Result'];
-                
-                if ($resultCode == '000' || $resultCode == '001') {
-                    // Payment successful
-                    $order->update([
-                        'payment_status' => 'completed',
-                        'order_status' => 'processing',
-                    ]);
+        if (!$response->successful()) {
+            Log::error('DPO verifyToken HTTP error', ['order' => $order->order_number, 'status' => $response->status()]);
+            return ['order' => $order, 'status' => 'pending', 'message' => 'Gateway error.'];
+        }
 
-                    return redirect()->route('checkout.success', $order->order_number)
-                        ->with('success', 'Payment completed successfully!');
-                } elseif ($resultCode == '900') {
-                    // Payment not completed yet
-                    return redirect()->route('checkout.index')
-                        ->with('error', 'Payment is still pending. Please complete the payment process.');
-                } else {
-                    // Payment failed or declined
-                    $errorMsg = $data['ResultExplanation'] ?? 'Payment verification failed';
-                    $order->update([
-                        'payment_status' => 'failed',
-                    ]);
-                    
-                    return redirect()->route('checkout.index')
-                        ->with('error', 'Payment failed: ' . $errorMsg);
-                }
+        $data = $this->parseXmlResponse($response->body());
+        $resultCode = $data['Result'] ?? null;
+
+        if ($resultCode === '000' || $resultCode === '001') {
+            // Defence in depth: flag (but don't silently trust) an amount mismatch.
+            $paidAmount = isset($data['TransactionAmount']) ? (float) $data['TransactionAmount'] : null;
+            if ($paidAmount !== null && abs($paidAmount - (float) $order->total_amount) > 0.01) {
+                Log::error('DPO amount mismatch', [
+                    'order' => $order->order_number,
+                    'expected' => (float) $order->total_amount,
+                    'paid' => $paidAmount,
+                ]);
+                $order->update(['payment_status' => 'failed']);
+                return ['order' => $order, 'status' => 'failed', 'message' => 'Amount mismatch — contact support.'];
             }
+
+            $order->update(['payment_status' => 'completed', 'order_status' => 'processing']);
+            Log::info('DPO payment confirmed', ['order' => $order->order_number]);
+            return ['order' => $order, 'status' => 'completed', 'message' => 'Paid.'];
         }
 
-        // If verification fails, mark as failed
-        $order->update([
-            'payment_status' => 'failed',
-        ]);
+        if ($resultCode === '900') {
+            return ['order' => $order, 'status' => 'pending', 'message' => 'Payment still pending.'];
+        }
 
-        return redirect()->route('checkout.index')
-            ->with('error', 'Payment verification failed. Please contact support.');
+        $order->update(['payment_status' => 'failed']);
+        $explanation = $data['ResultExplanation'] ?? 'Payment verification failed';
+        Log::warning('DPO payment failed/declined', ['order' => $order->order_number, 'result' => $resultCode, 'explanation' => $explanation]);
+
+        return ['order' => $order, 'status' => 'failed', 'message' => $explanation];
     }
 
     public function whatsappPayment(Request $request, $order = null)
     {
         $orderId = $order ?? $request->order;
         $order = Order::findOrFail($orderId);
-        
+
         if ($order->payment_method !== 'whatsapp') {
             return redirect()->route('checkout.index')->with('error', 'Invalid payment method.');
         }
@@ -167,10 +222,22 @@ class PaymentController extends Controller
         $message .= "Name: {$order->customer_name}\n";
         $message .= "Email: {$order->customer_email}\n";
         $message .= "Phone: {$order->customer_phone}\n";
-        $message .= "Address: {$order->delivery_address}\n\n";
+        $message .= "\n*Delivery:*\n";
+        $message .= "Recipient: " . ($order->recipient_name ?: $order->customer_name) . "\n";
+        $message .= "Recipient phone: " . ($order->recipient_phone ?: $order->customer_phone) . "\n";
+        $message .= "Date: " . optional($order->delivery_date)->format('D, j M Y') . "\n";
+        $message .= "Window: " . ucfirst($order->delivery_window ?: 'anytime') . "\n";
+        $message .= "Address: {$order->delivery_address}\n";
+        if ($order->gift_message) {
+            $message .= "Gift message: {$order->gift_message}\n";
+        }
+        if ($order->delivery_instructions) {
+            $message .= "Instructions: {$order->delivery_instructions}\n";
+        }
+        $message .= "\n";
         $message .= "💰 *Total Amount: N$ " . number_format($order->total_amount, 2) . "*\n\n";
         $message .= "📦 *Order Items:*\n";
-        
+
         foreach ($order->items as $item) {
             $message .= "• {$item->product->name} x{$item->quantity} = N$ " . number_format($item->subtotal, 2) . "\n";
         }
@@ -198,8 +265,13 @@ class PaymentController extends Controller
                 $data = json_decode(json_encode($xmlObject), true);
             }
         } catch (\Exception $e) {
-            \Log::error('DPO XML Parse Error: ' . $e->getMessage());
+            Log::error('DPO XML Parse Error: ' . $e->getMessage());
         }
         return $data;
+    }
+
+    private function escapeXml(?string $value): string
+    {
+        return htmlspecialchars((string) $value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
     }
 }

@@ -3,15 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#fdf1f2">
     <title>Forgot Password - /Namsa Florals Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.css') }}">
     <style>
-        body { background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .card { border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-        .btn-admin { background: #1a1a1a; color: #fff; border: none; }
-        .btn-admin:hover { background: #333 !important; color: #fff !important; }
+        body { background: linear-gradient(160deg, #fffaf6 0%, #fdf1f2 45%, #f6f4ec 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .card { border-radius: 22px; box-shadow: 0 26px 64px rgba(178,66,116,0.18); }
+        .btn-admin { background: linear-gradient(135deg, #c22a70, #b42363); color: #fff; border: none; }
+        .btn-admin:hover { background: linear-gradient(135deg, #b42363, #8d174b) !important; color: #fff !important; }
     </style>
+    <link rel="stylesheet" href="{{ asset('css/admin-auth.css') }}">
 </head>
 <body>
     <div class="container">
@@ -20,7 +25,7 @@
                 <div class="card">
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
-                            <i class="bi bi-key" style="font-size: 2.5rem; color: #333;"></i>
+                            <i class="bi bi-key" style="font-size: 2.5rem; color: #b42363;"></i>
                             <h2 class="mt-3">Forgot password?</h2>
                             <p class="text-muted">Enter your admin email and we’ll send a reset link.</p>
                         </div>
@@ -50,6 +55,6 @@
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
 </body>
 </html>

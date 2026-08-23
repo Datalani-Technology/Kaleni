@@ -63,10 +63,11 @@ Then open your browser to: **http://localhost:8000**
 ### 2. Admin Panel Testing
 
 #### Login
-- [ ] Visit http://localhost:8000/admin/login
+- [ ] Visit http://localhost:8000/{your ADMIN_PATH}/login
 - [ ] Login with:
   - **Email:** admin@namsa.com.na
-  - **Password:** admin123
+  - **Password:** printed once to the terminal when the seeder ran
+- [ ] Set up two-factor authentication (required on first login)
 - [ ] See admin dashboard
 
 #### Dashboard
@@ -145,7 +146,7 @@ Then open your browser to: **http://localhost:8000**
 
 ### Admin Account:
 - **Email:** admin@namsa.com.na
-- **Password:** admin123
+- **Password:** printed once to the terminal when the seeder ran (no fixed default)
 
 ---
 
@@ -186,7 +187,9 @@ Then open your browser to: **http://localhost:8000**
 ### Can't Login to Admin
 - Make sure you ran: `php artisan db:seed`
 - Check database has admin user
-- Default credentials: admin@namsa.com.na / admin123
+- Admin email: admin@namsa.com.na — password was printed once to the terminal when the
+  seeder ran; if you lost it, use "Forgot password" on the login page
+- Make sure you're using the correct `ADMIN_PATH` from your `.env`
 
 ### Database Errors
 - Make sure MySQL is running in XAMPP

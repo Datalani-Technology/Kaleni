@@ -35,4 +35,19 @@ return [
         ],
     ],
 
+    'dpo' => [
+        // Filled in once DPO Group approves the merchant account. Until then
+        // this stays empty and the storefront keeps the DPO option disabled.
+        // Guards against leftover placeholder values (e.g. a stale .env still
+        // carrying the old hardcoded default) being mistaken for a real token.
+        'company_token' => in_array(env('DPO_COMPANY_TOKEN'), [null, '', 'your-company-token', 'your-company-token-here'], true)
+            ? null
+            : env('DPO_COMPANY_TOKEN'),
+        'service_type' => env('DPO_SERVICE_TYPE', '1'),
+        'test_mode' => env('DPO_TEST_MODE', true),
+        'currency' => env('DPO_CURRENCY', 'NAD'),
+        'api_url' => env('DPO_API_URL', 'https://secure.3gdirectpay.com/API/v6/'),
+        'pay_url' => env('DPO_PAY_URL', 'https://secure.3gdirectpay.com/payv2.php'),
+    ],
+
 ];

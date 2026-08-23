@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProductController extends Controller
 {
@@ -13,6 +14,27 @@ class ProductController extends Controller
     {
         $products = Product::latest()->paginate(15);
         return view('admin.products.index', compact('products'));
+    }
+
+    public function export(): StreamedResponse
+    {
+        $products = Product::orderBy('name')->get();
+
+        return response()->streamDownload(function () use ($products) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Name', 'Category', 'Price (N$)', 'Stock', 'Active', 'Featured']);
+            foreach ($products as $p) {
+                fputcsv($out, [
+                    $p->name,
+                    $p->category,
+                    number_format((float) $p->price, 2, '.', ''),
+                    $p->stock,
+                    $p->is_active ? 'Yes' : 'No',
+                    $p->is_featured ? 'Yes' : 'No',
+                ]);
+            }
+            fclose($out);
+        }, 'products-' . now()->format('Y-m-d') . '.csv', ['Content-Type' => 'text/csv']);
     }
 
     public function create()
@@ -26,7 +48,7 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:6144',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'stock' => 'required|integer|min:0',
             'category' => 'nullable|string|max:255',
             'is_active' => 'boolean',
@@ -61,14 +83,14 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:6144',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'stock' => 'required|integer|min:0',
             'category' => 'nullable|string|max:255',
             'is_active' => 'boolean',
         ]);
 
         if ($request->hasFile('image')) {
-            if ($product->image) {
+            if ($product->hasManagedImage()) {
                 Storage::disk('public')->delete($product->image);
             }
             $validated['image'] = $request->file('image')->store('products', 'public');
@@ -85,7 +107,7 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        if ($product->image) {
+        if ($product->hasManagedImage()) {
             Storage::disk('public')->delete($product->image);
         }
         $product->delete();
@@ -105,7 +127,7 @@ class ProductController extends Controller
         foreach ($validated['ids'] as $id) {
             $product = Product::find($id);
             if ($product) {
-                if ($product->image && Storage::disk('public')->exists($product->image)) {
+                if ($product->hasManagedImage() && Storage::disk('public')->exists($product->image)) {
                     Storage::disk('public')->delete($product->image);
                 }
                 $product->delete();

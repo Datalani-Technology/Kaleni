@@ -20,6 +20,8 @@ class SampleProductsSeeder extends Seeder
                 'stock' => 50,
                 'category' => 'Roses',
                 'is_active' => true,
+                'is_featured' => true,
+                'image' => 'site:catalog/namsa-red-rose-v2.webp',
             ],
             [
                 'name' => 'Mixed Flower Arrangement',
@@ -28,6 +30,8 @@ class SampleProductsSeeder extends Seeder
                 'stock' => 30,
                 'category' => 'Bouquets',
                 'is_active' => true,
+                'is_featured' => true,
+                'image' => 'site:catalog/namsa-mixed-arrangement-v2.webp',
             ],
             [
                 'name' => 'White Lily Bouquet',
@@ -36,6 +40,8 @@ class SampleProductsSeeder extends Seeder
                 'stock' => 25,
                 'category' => 'Lilies',
                 'is_active' => true,
+                'is_featured' => false,
+                'image' => 'site:catalog/namsa-white-lilies-v2.webp',
             ],
             [
                 'name' => 'Sunflower Bouquet',
@@ -44,14 +50,18 @@ class SampleProductsSeeder extends Seeder
                 'stock' => 40,
                 'category' => 'Sunflowers',
                 'is_active' => true,
+                'is_featured' => true,
+                'image' => 'site:catalog/namsa-sunflowers-v2.webp',
             ],
             [
                 'name' => 'Orchid Plant',
-                'description' => 'Exotic purple orchid plant in a decorative pot. A long-lasting gift that brings beauty to any space.',
+                'description' => 'An elegant white phalaenopsis orchid in a charcoal ceramic pot. A lasting, sculptural gift for home or office.',
                 'price' => 450.00,
                 'stock' => 15,
                 'category' => 'Plants',
                 'is_active' => true,
+                'is_featured' => true,
+                'image' => 'site:catalog/namsa-orchid-v2.webp',
             ],
             [
                 'name' => 'Pink Rose Bouquet',
@@ -60,6 +70,8 @@ class SampleProductsSeeder extends Seeder
                 'stock' => 35,
                 'category' => 'Roses',
                 'is_active' => true,
+                'is_featured' => false,
+                'image' => 'site:catalog/namsa-pink-rose-v2.webp',
             ],
             [
                 'name' => 'Tulip Bouquet',
@@ -68,19 +80,33 @@ class SampleProductsSeeder extends Seeder
                 'stock' => 28,
                 'category' => 'Tulips',
                 'is_active' => true,
+                'is_featured' => false,
+                'image' => 'site:catalog/namsa-tulips-v2.webp',
             ],
             [
                 'name' => 'Carnation Arrangement',
-                'description' => 'Beautiful carnations in a variety of colors. Long-lasting flowers that stay fresh for weeks.',
+                'description' => 'A lush bowl of wine, blush, and cream carnations with restrained eucalyptus. Rich in texture and made to last beautifully.',
                 'price' => 180.00,
                 'stock' => 45,
                 'category' => 'Carnations',
                 'is_active' => true,
+                'is_featured' => false,
+                'image' => 'site:catalog/namsa-carnations-v2.webp',
             ],
         ];
 
-        foreach ($products as $product) {
-            Product::create($product);
+        foreach ($products as $productData) {
+            $product = Product::where('name', $productData['name'])->oldest()->first();
+
+            if ($product) {
+                $product->update($productData);
+            } else {
+                $product = Product::create($productData);
+            }
+
+            Product::where('name', $productData['name'])
+                ->where('id', '!=', $product->id)
+                ->update(['is_active' => false, 'is_featured' => false]);
         }
     }
 }

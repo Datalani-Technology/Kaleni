@@ -87,11 +87,11 @@ Then open **http://localhost:8003** in your browser.
 
 | Field    | Value                    |
 |----------|--------------------------|
-| **URL**  | http://localhost:8003/admin/login |
+| **URL**  | http://localhost:8003/`{ADMIN_PATH from .env}`/login |
 | **Email**| `admin@namsa.com.na`     |
-| **Password** | `admin123`           |
+| **Password** | shown once in the terminal when `AdminUserSeeder` runs |
 
-*(Change this password after you deploy to production.)*
+*(Set up two-factor authentication on first login — required before you can use the rest of the panel.)*
 
 ### 7. What to test locally
 
@@ -107,7 +107,7 @@ Then open **http://localhost:8003** in your browser.
   - With `MAIL_MAILER=log`, no email is sent; the form should succeed and you’ll see “Thank you for your message!”  
   - Check **`storage/logs/laravel.log`** for the logged “email”.
 
-**Admin** (after login at http://localhost:8003/admin/login)
+**Admin** (after login at your `ADMIN_PATH` URL)
 
 - [ ] **Dashboard**: stats, quick actions  
 - [ ] **Orders**: list, open one, update status  
@@ -122,7 +122,8 @@ Then open **http://localhost:8003** in your browser.
 ### 8. Optional: two ports (main + “admin”)
 
 - **`START_BOTH.bat`**: main on **8003**, second server on **8004**.  
-- Use **http://localhost:8004** for “admin” if you like; same app, same admin login.
+- Use **http://localhost:8004** for “admin” if you like; same app, same admin login, at your
+  configured `ADMIN_PATH`.
 
 ---
 
@@ -188,8 +189,9 @@ php build-deploy.php
 
 ### 5. After deploy
 
-- Visit **https://namsa.com.na** and **https://namsa.com.na/admin/login**.  
-- Log in with **admin@namsa.com.na** / **admin123**, then **change the admin password**.  
+- Visit **https://namsa.com.na** and **https://namsa.com.na/`{your ADMIN_PATH}`/login**.  
+- Log in with **admin@namsa.com.na** and the password printed once by the seeder, then set up
+  **two-factor authentication** (required before the panel is usable).  
 - Test **Gallery**, **Promotion**, **Contact form**, and **Products** again on the live site.
 
 ---
@@ -199,9 +201,9 @@ php build-deploy.php
 | Item | Local | Production |
 |------|--------|------------|
 | **Site** | http://localhost:8003 | https://namsa.com.na |
-| **Admin** | http://localhost:8003/admin/login | https://namsa.com.na/admin/login |
-| **Admin email** | admin@namsa.com.na | *(same; change password after deploy)* |
-| **Admin password** | admin123 | *(change after first login)* |
+| **Admin** | http://localhost:8003/`{ADMIN_PATH}`/login | https://namsa.com.na/`{ADMIN_PATH}`/login |
+| **Admin email** | admin@namsa.com.na | *(same; rotate password after deploy)* |
+| **Admin password** | printed once by `AdminUserSeeder` | *(same, or reset via "Forgot password")* |
 | **Mail** | `MAIL_MAILER=log` (no send) | `MAIL_MAILER=smtp` + host SMTP |
 | **DB** | Local MySQL `namsa_flora` | cPanel MySQL |
 

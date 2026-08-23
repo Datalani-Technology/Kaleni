@@ -7,11 +7,11 @@ echo Starting main site on port 8003...
 echo Starting admin panel on port 8004...
 echo.
 echo Frontend: http://localhost:8003
-echo Admin: http://localhost:8004/admin/login
+echo Admin: http://localhost:8004/{your ADMIN_PATH from .env}/login
 echo.
 echo Admin Credentials:
 echo   Email: admin@namsa.com.na
-echo   Password: admin123
+echo   Password: shown once in the terminal when the seeder ran (no fixed default)
 echo.
 echo Both servers will open in separate windows...
 echo Press any key to continue...

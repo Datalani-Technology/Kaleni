@@ -56,6 +56,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Force HTTPS
+    |--------------------------------------------------------------------------
+    |
+    | When true, generated URLs use https:// and plain-HTTP requests are
+    | redirected to their https:// equivalent. Only enable this once a valid
+    | SSL certificate is installed for the domain (see DEPLOY_SHARED_HOSTING.md)
+    | — leave it false for local development over http://.
+    |
+    */
+
+    'force_https' => (bool) env('FORCE_HTTPS', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

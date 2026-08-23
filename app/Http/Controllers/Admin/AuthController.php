@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\AdminPasswordResetMail;
 use App\Models\User;
+use App\Support\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,9 @@ class AuthController extends Controller
     private const RESET_THROTTLE = 3;
     private const RESET_DECAY = 600; // 10 min
     private const TOKEN_EXPIRE_MIN = 60;
+    private const MAX_FAILED_ATTEMPTS = 5;
+    private const LOCKOUT_MINUTES = 15;
+    private const TWO_FACTOR_PENDING_MINUTES = 5;
 
     public function showLogin()
     {
@@ -42,22 +46,59 @@ class AuthController extends Controller
             'password' => 'required|min:8',
         ]);
 
-        if (Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
-            $user = Auth::user();
-            if (in_array($user->role, ['admin', 'editor'], true)) {
-                $request->session()->regenerate();
-                RateLimiter::clear($key);
-                return redirect()->intended(route('admin.dashboard'));
+        $user = User::where('email', $request->email)->first();
+
+        if ($user && $user->locked_until && $user->locked_until->isFuture()) {
+            $minutes = max(1, now()->diffInMinutes($user->locked_until, false) + 1);
+            RateLimiter::hit($key, 900);
+            return back()
+                ->withErrors(['email' => "Account temporarily locked. Try again in {$minutes} minute(s)."])
+                ->withInput();
+        }
+
+        $isEligible = $user && in_array($user->role, ['admin', 'editor'], true);
+
+        if ($isEligible && Auth::validate(['email' => $request->email, 'password' => $request->password])) {
+            RateLimiter::clear($key);
+            $user->forceFill(['failed_login_attempts' => 0, 'locked_until' => null])->save();
+
+            if ($user->hasEnabledTwoFactor()) {
+                $request->session()->put('admin_2fa_pending', [
+                    'user_id' => $user->id,
+                    'remember' => $request->boolean('remember'),
+                    'expires_at' => now()->addMinutes(self::TWO_FACTOR_PENDING_MINUTES)->timestamp,
+                ]);
+                AuditLogger::record('login.password_ok', ['email' => $user->email]);
+                return redirect()->route('admin.2fa.challenge');
             }
-            Auth::logout();
+
+            Auth::login($user, $request->boolean('remember'));
+            $request->session()->regenerate();
+            $user->establishAdminSession($request);
+            AuditLogger::record('login.success', ['email' => $user->email]);
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        if ($isEligible) {
+            $user->failed_login_attempts++;
+            if ($user->failed_login_attempts >= self::MAX_FAILED_ATTEMPTS) {
+                $user->locked_until = now()->addMinutes(self::LOCKOUT_MINUTES);
+                $user->failed_login_attempts = 0;
+            }
+            $user->save();
         }
 
         RateLimiter::hit($key, 900);
+        AuditLogger::record('login.failed', ['email' => $request->email]);
         return back()->withErrors(['email' => 'Invalid credentials.'])->withInput();
     }
 
     public function logout(Request $request)
     {
+        AuditLogger::record('logout');
+        if ($user = Auth::user()) {
+            $user->forceFill(['current_session_id' => null])->save();
+        }
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -99,6 +140,7 @@ class AuthController extends Controller
         }
 
         RateLimiter::hit($key, self::RESET_DECAY);
+        AuditLogger::record('password.reset_requested', ['email' => $user->email]);
         return redirect()->route('admin.login')->with('status', 'If that email exists, we sent a password reset link.');
     }
 
@@ -133,8 +175,12 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->firstOrFail();
         $user->password = Hash::make($request->password);
+        $user->failed_login_attempts = 0;
+        $user->locked_until = null;
         $user->save();
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        AuditLogger::record('password.reset', ['email' => $user->email]);
 
         return redirect()->route('admin.login')->with('status', 'Password updated. You can log in now.');
     }

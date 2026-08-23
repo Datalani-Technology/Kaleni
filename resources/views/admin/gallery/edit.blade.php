@@ -11,7 +11,7 @@
         @if($item->image)
             <div class="mb-3">
                 <label class="form-label">Current Image</label><br>
-                <img src="{{ asset('storage/' . $item->image) }}" alt="" style="max-width: 200px; max-height: 200px; object-fit: cover; border-radius: 8px;">
+                <img src="{{ $item->image_url }}" alt="" style="max-width: 200px; max-height: 200px; object-fit: cover; border-radius: 8px;">
             </div>
         @endif
         <form action="{{ route('admin.gallery.update', $item) }}" method="POST" enctype="multipart/form-data">

@@ -5,7 +5,7 @@
     $seoData = [
         'name' => $product->name,
         'description' => $product->description ?? $product->name . ' - Fresh flowers from /Namsa Florals, Namibia\'s premier flower shop. Order online with same-day delivery in Windhoek.',
-        'image' => $product->image,
+        'image_url' => $product->image_url,
         'price' => $product->price,
         'stock' => $product->stock,
         'url' => route('products.show', $product->id),
@@ -15,7 +15,7 @@
         \App\Services\SeoService::generateStructuredData('product', [
             'name' => $product->name,
             'description' => $product->description ?? '',
-            'image' => $product->image ? asset('storage/' . $product->image) : '',
+            'image_url' => $product->image_url,
             'price' => $product->price,
             'stock' => $product->stock,
             'url' => route('products.show', $product->id),
@@ -34,34 +34,110 @@
 
 @push('styles')
 <style>
+    .product-detail-page { max-width: 1240px; padding-inline: 24px; }
     .product-detail-image-wrap {
-        max-width: 100%;
-        max-height: 70vh;
+        position: sticky;
+        top: 125px;
+        width: 100%;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: center;
-        margin-bottom: 1rem;
+        overflow: hidden;
+        background: #f6eef2;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        box-shadow: var(--shadow-sm);
     }
     .product-detail-page .product-detail-image {
-        max-width: 100%;
-        max-height: 70vh;
-        width: auto;
+        width: 100%;
+        aspect-ratio: 1 / 1.04;
         height: auto;
-        object-fit: contain;
+        object-fit: cover;
         display: block;
     }
+    .product-detail-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(340px, .82fr);
+        gap: clamp(38px, 7vw, 90px);
+        align-items: start;
+    }
+    .product-detail-copy { padding-top: 16px; }
+    .product-category-label {
+        display: inline-flex;
+        margin-bottom: 14px;
+        padding: 7px 10px;
+        color: var(--primary-dark);
+        background: var(--primary-soft);
+        border-radius: 999px;
+        font-size: .69rem;
+        font-weight: 800;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+    .product-detail-title {
+        margin-bottom: 12px;
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        font-weight: 800;
+        line-height: 1.08;
+    }
+    .product-detail-price {
+        margin-bottom: 22px;
+        color: var(--primary-dark);
+        font-size: 1.4rem;
+        font-weight: 800;
+    }
+    .product-stock {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: .73rem;
+        font-weight: 800;
+    }
+    .product-stock-in { color: #176741; background: #e8f6ef; }
+    .product-stock-out { color: #97313b; background: #fbecef; }
+    .product-stock-dot { width: 7px; height: 7px; background: currentColor; border-radius: 50%; }
+    .product-description {
+        margin: 22px 0;
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.8;
+        white-space: pre-line;
+    }
+    .product-order-panel {
+        margin-top: 26px;
+        padding: 20px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+    }
+    .product-order-row { display: grid; grid-template-columns: 92px 1fr; align-items: end; gap: 12px; }
+    .product-order-row .buy-now-btn { width: 100%; min-height: 48px; }
+    .product-order-row .form-control { width: 100%; }
+    .product-detail-meta {
+        margin-top: 18px;
+        padding-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        border-top: 1px solid var(--border);
+    }
+    .product-detail-meta span { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .75rem; font-weight: 650; }
+    .product-detail-meta i { color: var(--primary-color); }
+    .product-back-link { margin-top: 20px; }
+    .recommendations-section { margin-top: 84px; }
     @media (max-width: 768px) {
-        .product-detail-page .display-5 { font-size: 1.5rem; }
-        .product-detail-page .h3 { font-size: 1.25rem; }
-        .product-detail-image-wrap,
-        .product-detail-page .product-detail-image { max-height: 55vh; }
+        .product-detail-page { padding-inline: 16px; }
+        .product-detail-shell { grid-template-columns: 1fr; gap: 28px; }
+        .product-detail-image-wrap { position: static; }
+        .product-detail-copy { padding-top: 0; }
+        .recommendations-section { margin-top: 58px; }
     }
     @media (max-width: 400px) {
-        .product-detail-page .display-5 { font-size: 1.35rem; }
-        .product-detail-page .quantity-input-wrap input { max-width: 100% !important; }
-        .product-detail-page .btn-back { max-width: 100%; text-align: center; }
-        .product-detail-image-wrap,
-        .product-detail-page .product-detail-image { max-height: 50vh; }
+        .product-order-row { grid-template-columns: 1fr; }
+        .product-detail-meta { grid-template-columns: 1fr; }
     }
 </style>
 @endpush
@@ -77,80 +153,78 @@
 @include('components.breadcrumbs', ['breadcrumbs' => $breadcrumbs])
 
 <div class="container my-5 product-detail-page">
-    <div class="row">
-        <div class="col-md-6">
+    <div class="product-detail-shell">
+        <div class="product-detail-gallery">
             <div class="product-detail-image-wrap">
-                @if($product->image)
-                    <img src="{{ asset('storage/' . $product->image) }}" class="product-detail-image img-fluid rounded" alt="{{ $product->name }} - Fresh Flowers from /Namsa Florals Namibia" title="{{ $product->name }}">
-                @else
-                    <img src="https://via.placeholder.com/600x500?text={{ urlencode($product->name) }}" class="product-detail-image img-fluid rounded" alt="{{ $product->name }} - Fresh Flowers from /Namsa Florals Namibia" title="{{ $product->name }}">
-                @endif
+                <x-product-image :product="$product" img-class="product-detail-image" alt="{{ $product->name }} - Fresh Flowers from /Namsa Florals Namibia" />
             </div>
         </div>
-        <div class="col-md-6">
-            <h1 class="display-5">{{ $product->name }}</h1>
-            <p class="h3 mb-4" style="color: #333;">N$ {{ number_format($product->price, 2) }}</p>
-            
-            <div class="mb-4">
-                <p>{{ $product->description }}</p>
-                <p><strong>Category:</strong> {{ $product->category ?? 'Uncategorized' }}</p>
-                <p><strong>Stock:</strong> 
-                    @if($product->stock > 0)
-                        <span class="badge bg-success">{{ $product->stock }} available</span>
-                    @else
-                        <span class="badge bg-danger">Out of Stock</span>
-                    @endif
-                </p>
-            </div>
+        <div class="product-detail-copy">
+            @if($product->category)
+                <span class="product-category-label">{{ $product->category }}</span>
+            @endif
+            <h1 class="product-detail-title">{{ $product->name }}</h1>
+            <p class="product-detail-price">N$ {{ number_format($product->price, 2) }}</p>
 
             @if($product->stock > 0)
-                <form action="{{ route('cart.add') }}" method="POST" class="mb-4" data-add-to-cart>
-                    @csrf
-                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                    <div class="mb-3 quantity-input-wrap">
-                        <label for="quantity" class="form-label">Quantity</label>
-                        <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" max="{{ $product->stock }}" style="max-width: 100px;">
-                    </div>
-                    <button type="submit" class="buy-now-btn" style="background: #333; color: white; padding: 15px 30px; font-size: 1.1rem;">
-                        Add to Cart
-                    </button>
-                </form>
+                <span class="product-stock product-stock-in"><span class="product-stock-dot"></span>{{ $product->stock }} available</span>
             @else
-                <button class="btn btn-secondary btn-lg" disabled>Out of Stock</button>
+                <span class="product-stock product-stock-out"><span class="product-stock-dot"></span>Out of stock</span>
             @endif
 
-            <a href="{{ route('products.index') }}" class="buy-now-btn btn-back" style="background: #666; color: white; max-width: 200px; text-decoration: none; display: inline-block; margin-top: 15px;">
-                Back to Products
+            <p class="product-description">{{ $product->description ?: 'A thoughtfully prepared floral arrangement, made fresh by /Namsa Florals.' }}</p>
+
+            @if($product->stock > 0)
+                <form action="{{ route('cart.add') }}" method="POST" class="product-order-panel" data-add-to-cart>
+                    @csrf
+                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    <div class="product-order-row">
+                        <div class="quantity-input-wrap">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" max="{{ $product->stock }}">
+                        </div>
+                        <button type="submit" class="buy-now-btn">
+                            <i class="bi bi-bag-plus" aria-hidden="true"></i> Add to cart
+                        </button>
+                    </div>
+                    <div class="product-detail-meta">
+                        <span><i class="bi bi-truck" aria-hidden="true"></i> Same-day Windhoek delivery</span>
+                        <span><i class="bi bi-flower2" aria-hidden="true"></i> Freshly hand-arranged</span>
+                    </div>
+                </form>
+            @else
+                <a href="{{ route('contact') }}" class="buy-now-btn mt-4 text-decoration-none"><i class="bi bi-chat-heart" aria-hidden="true"></i> Ask about availability</a>
+            @endif
+
+            <a href="{{ route('products.index') }}" class="text-link product-back-link">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i> Back to all flowers
             </a>
         </div>
     </div>
 
     @if($recommendations->count() > 0)
-        <div class="row mt-5">
-            <div class="col-12">
-                <h3 class="mb-4">You May Also Like</h3>
-                <div class="row">
-                    @foreach($recommendations as $recommended)
-                        <div class="col-md-3 mb-4">
-                            <div class="card product-card h-100">
-                                @if($recommended->image)
-                                    <img src="{{ asset('storage/' . $recommended->image) }}" class="product-image" alt="{{ $recommended->name }} - Related Flowers Namibia" title="{{ $recommended->name }}">
-                                @else
-                                    <img src="https://via.placeholder.com/300x250?text={{ urlencode($recommended->name) }}" class="product-image" alt="{{ $recommended->name }} - Related Flowers Namibia" title="{{ $recommended->name }}">
-                                @endif
-                                <div class="card-body d-flex flex-column">
-                                    <h6 class="card-title">{{ $recommended->name }}</h6>
-                                    <p class="h5 mb-3" style="color: #333;">N$ {{ number_format($recommended->price, 2) }}</p>
-                                    <a href="{{ route('products.show', $recommended->id) }}" class="buy-now-btn" style="background: #333; color: white; text-decoration: none; display: block; text-align: center; font-size: 0.9rem; padding: 8px;">
-                                        View Details
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
+        <section class="recommendations-section" aria-labelledby="recommendations-title">
+            <div class="section-heading">
+                <div>
+                    <span class="section-kicker">More to love</span>
+                    <h2 class="section-title" id="recommendations-title">You may also like</h2>
                 </div>
             </div>
-        </div>
+            <div class="products-grid">
+                @foreach($recommendations as $recommended)
+                    <article class="product-card">
+                        <a href="{{ route('products.show', $recommended->id) }}" class="product-media-link">
+                            <x-product-image :product="$recommended" alt="{{ $recommended->name }} - Related Flowers Namibia" />
+                        </a>
+                        <div class="product-info">
+                            <h3 class="product-name"><a href="{{ route('products.show', $recommended->id) }}" class="product-name-link">{{ $recommended->name }}</a></h3>
+                            <p class="product-price">N$ {{ number_format($recommended->price, 2) }}</p>
+                            <a href="{{ route('products.show', $recommended->id) }}" class="buy-now-btn text-decoration-none">View details</a>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        </section>
     @endif
 </div>
 @endsection

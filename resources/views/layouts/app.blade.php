@@ -68,8 +68,11 @@
     @endif
     
     <!-- Stylesheets -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.css') }}">
     
     <!-- Structured Data -->
     @if(isset($structuredData))
@@ -80,24 +83,46 @@
     <style>
         :root {
             --primary-color: #d63384;
+            --primary-dark: #ad2765;
             --secondary-color: #ffc107;
             --success-color: #28a745;
+            --ink: #221c22;
+            --muted: #726a72;
+            --bg: #faf7f8;
+            --surface: #ffffff;
+            --radius: 14px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 2px 10px rgba(34, 28, 34, 0.06);
+            --shadow-md: 0 10px 30px rgba(34, 28, 34, 0.10);
+            --font-display: 'Manrope', 'Segoe UI', Arial, sans-serif;
+            --font-body: 'Manrope', 'Segoe UI', Arial, sans-serif;
         }
+        html { scroll-behavior: smooth; }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
+            font-family: var(--font-body);
+            color: var(--ink);
+            background-color: var(--bg);
             overflow-x: hidden;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-display);
+            letter-spacing: -0.01em;
         }
         /* Simple Header */
         .header {
-            background: white;
-            padding: 20px 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 16px 0;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
         }
         .header-content {
             display: flex;
@@ -108,9 +133,10 @@
             padding: 0 20px;
         }
         .logo {
+            font-family: var(--font-display);
             font-size: 26px;
-            font-weight: bold;
-            color: #333;
+            font-weight: 600;
+            color: var(--ink);
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -219,20 +245,36 @@
             gap: 30px;
         }
         .product-card {
-            background: white;
-            border-radius: 8px;
+            background: var(--surface);
+            border-radius: var(--radius);
             overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(34, 28, 34, 0.05);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
         .product-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
         }
         .product-image {
             width: 100%;
             height: 280px;
             object-fit: cover;
             display: block;
+        }
+        .product-image-placeholder {
+            background: linear-gradient(135deg, #fdf0f6 0%, #fbe4ee 100%);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+        .product-detail-image-placeholder {
+            width: 100%;
+            aspect-ratio: 6 / 5;
+            border-radius: var(--radius);
+            font-size: 5rem;
         }
         .product-info {
             padding: 20px;
@@ -241,37 +283,44 @@
         .product-name {
             font-size: 16px;
             font-weight: 500;
-            color: #333;
+            color: var(--ink);
             margin-bottom: 10px;
         }
         .product-price {
-            font-size: 18px;
+            font-family: var(--font-display);
+            font-size: 19px;
             font-weight: 600;
-            color: #333;
+            color: var(--primary-color);
             margin-bottom: 15px;
         }
         .buy-now-btn {
             width: 100%;
             padding: 12px;
-            background: #333;
+            background: var(--ink);
             border: none;
-            border-radius: 4px;
+            border-radius: var(--radius-sm);
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
+            letter-spacing: 0.01em;
             color: white;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
             text-decoration: none;
             display: block;
             text-align: center;
         }
         .buy-now-btn:hover {
-            background: #222;
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(173, 39, 101, 0.25);
+            color: white;
         }
         .buy-now-btn:disabled {
             background: #f0f0f0;
             color: #999;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
         footer {
             background: #333;
@@ -526,10 +575,23 @@
             .mobile-cart-link { display: none !important; }
         }
     </style>
+    <link rel="stylesheet" href="{{ asset('css/storefront.css') }}">
     @stack('styles')
 </head>
 <body>
-    <header class="header">
+    <div class="announcement-bar" role="region" aria-label="Store information">
+        <div class="announcement-inner">
+            <span class="announcement-item">
+                <i class="bi bi-truck" aria-hidden="true"></i>
+                Same-day delivery available in Windhoek
+            </span>
+            <a href="{{ config('social.whatsapp') }}" target="_blank" rel="noopener noreferrer" class="announcement-item announcement-link">
+                <i class="bi bi-whatsapp" aria-hidden="true"></i>
+                Need help? Chat with our florist
+            </a>
+        </div>
+    </div>
+    <header class="header" role="banner">
         <div class="header-content">
             @php
                 $logoPath = \App\Models\Setting::get('logo_path');
@@ -559,25 +621,32 @@
             <div class="mobile-search-bar" id="mobileSearchBar" role="search">
                 <form action="{{ route('products.index') }}" method="GET" class="search-form">
                     <input type="text" name="search" placeholder="Search products..." value="{{ request('search') }}" class="search-input" aria-label="Search products">
-                    <button type="submit" class="search-btn">Search</button>
+                    <button type="submit" class="search-btn">
+                        <i class="bi bi-search" aria-hidden="true"></i>
+                        <span class="search-btn-label">Search</span>
+                    </button>
                 </form>
             </div>
             <div class="nav-group" id="navGroup">
                 <ul class="nav-links">
-                    <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a></li>
-                    <li><a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? 'active' : '' }}">Products</a></li>
-                    <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Contact Us</a></li>
-                    <li><a href="{{ route('promotion') }}" class="{{ request()->routeIs('promotion') ? 'active' : '' }}">Promotion</a></li>
-                    <li><a href="{{ route('gallery') }}" class="{{ request()->routeIs('gallery') ? 'active' : '' }}">Gallery</a></li>
-                    <li><a href="{{ route('terms') }}" class="{{ request()->routeIs('terms') ? 'active' : '' }}">Terms and Conditions</a></li>
+                    <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}" @if(request()->routeIs('home')) aria-current="page" @endif>Home</a></li>
+                    <li><a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? 'active' : '' }}" @if(request()->routeIs('products.*')) aria-current="page" @endif>Flowers</a></li>
+                    <li><a href="{{ route('promotion') }}" class="{{ request()->routeIs('promotion') ? 'active' : '' }}" @if(request()->routeIs('promotion')) aria-current="page" @endif>Promotions</a></li>
+                    <li><a href="{{ route('gallery') }}" class="{{ request()->routeIs('gallery') ? 'active' : '' }}" @if(request()->routeIs('gallery')) aria-current="page" @endif>Gallery</a></li>
+                    <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}" @if(request()->routeIs('contact')) aria-current="page" @endif>Contact</a></li>
+                    <li><a href="{{ route('terms') }}" class="{{ request()->routeIs('terms') ? 'active' : '' }}" @if(request()->routeIs('terms')) aria-current="page" @endif>Terms</a></li>
                 </ul>
                 <div class="search-cart">
                     <form action="{{ route('products.index') }}" method="GET" class="search-form">
                         <input type="text" name="search" placeholder="Search products..." value="{{ request('search') }}" class="search-input">
-                        <button type="submit" class="search-btn">Search</button>
+                        <button type="submit" class="search-btn" aria-label="Search products">
+                            <i class="bi bi-search" aria-hidden="true"></i>
+                            <span class="search-btn-label">Search</span>
+                        </button>
                     </form>
                     <a href="{{ route('cart.index') }}" class="cart-link" id="cartLink">
-                        Cart
+                        <i class="bi bi-bag" aria-hidden="true"></i>
+                        <span>Cart</span>
                         <span class="cart-badge {{ $headerCartCount > 0 ? '' : 'd-none' }}" id="cartBadgeNav">{{ $headerCartCount }}</span>
                     </a>
                 </div>
@@ -603,60 +672,63 @@
         @yield('content')
     </main>
 
-    <footer>
+    <footer role="contentinfo">
         <div class="footer-content">
-            <div class="row">
-                <div class="col-md-4 footer-section">
+            <div class="row g-4">
+                <div class="col-lg-4 footer-section">
                     <h5>/Namsa Florals</h5>
-                    <p style="color: #ccc; line-height: 1.6;">
+                    <p class="footer-description">
                         Your premier destination for personalized flowers in Namibia. Fresh, hand-picked flowers for every occasion.
                     </p>
                 </div>
-                <div class="col-md-4 footer-section">
+                <div class="col-sm-6 col-lg-4 footer-section">
                     <h5>Quick Links</h5>
-                    <ul style="list-style: none; padding: 0; color: #ccc;">
-                        <li style="margin-bottom: 8px;">
-                            <a href="{{ route('home') }}" style="color: #ccc; text-decoration: none;">Home</a>
-                        </li>
-                        <li style="margin-bottom: 8px;">
-                            <a href="{{ route('products.index') }}" style="color: #ccc; text-decoration: none;">Products</a>
-                        </li>
-                        <li style="margin-bottom: 8px;">
-                            <a href="{{ route('contact') }}" style="color: #ccc; text-decoration: none;">Contact Us</a>
-                        </li>
-                        <li style="margin-bottom: 8px;">
-                            <a href="{{ route('promotion') }}" style="color: #ccc; text-decoration: none;">Promotion</a>
-                        </li>
-                        <li style="margin-bottom: 8px;">
-                            <a href="{{ route('gallery') }}" style="color: #ccc; text-decoration: none;">Gallery</a>
-                        </li>
-                        <li style="margin-bottom: 8px;">
-                            <a href="{{ route('terms') }}" style="color: #ccc; text-decoration: none;">Terms & Conditions</a>
-                        </li>
+                    <ul class="footer-links">
+                        <li><a href="{{ route('home') }}">Home</a></li>
+                        <li><a href="{{ route('products.index') }}">Flowers</a></li>
+                        <li><a href="{{ route('promotion') }}">Promotions</a></li>
+                        <li><a href="{{ route('gallery') }}">Gallery</a></li>
+                        <li><a href="{{ route('contact') }}">Contact</a></li>
+                        <li><a href="{{ route('terms') }}">Terms</a></li>
+                        <li><a href="{{ route('privacy') }}">Privacy Policy</a></li>
+                        <li><a href="{{ route('delivery') }}">Delivery Guide</a></li>
+                        <li><a href="{{ route('returns') }}">Returns &amp; Care</a></li>
                     </ul>
                 </div>
-                <div class="col-md-4 footer-section">
-                    <h5>Follow Us</h5>
-                    <p style="color: #ccc; margin-bottom: 15px;">Connect with us on social media</p>
+                <div class="col-sm-6 col-lg-4 footer-section">
+                    <h5>Contact &amp; social</h5>
+                    <div class="footer-contact">
+                        <a href="tel:{{ preg_replace('/[^+0-9]/', '', config('contact.phone')) }}">
+                            <i class="bi bi-telephone" aria-hidden="true"></i>{{ config('contact.phone') }}
+                        </a>
+                        <a href="mailto:{{ config('contact.email_info') }}">
+                            <i class="bi bi-envelope" aria-hidden="true"></i>{{ config('contact.email_info') }}
+                        </a>
+                    </div>
                     <div class="social-links">
-                        <a href="{{ config('social.facebook') }}" target="_blank" class="social-link" title="Facebook">
+                        <a href="{{ config('social.facebook') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="Facebook" aria-label="Facebook">
                             <i class="bi bi-facebook"></i>
                         </a>
-                        <a href="https://www.instagram.com/namsa.florals" target="_blank" class="social-link" title="Instagram">
+                        <a href="{{ config('social.instagram') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="Instagram" aria-label="Instagram">
                             <i class="bi bi-instagram"></i>
                         </a>
-                        <a href="{{ config('social.tiktok') }}" target="_blank" class="social-link" title="TikTok">
-                            <i class="bi bi-tiktok"></i>
+                        <a href="{{ config('social.tiktok') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="TikTok" aria-label="TikTok">
+                            <svg viewBox="0 0 448 512" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z"/></svg>
                         </a>
-                        <a href="{{ config('social.whatsapp') }}" target="_blank" class="social-link" title="WhatsApp">
+                        <a href="{{ config('social.whatsapp') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="WhatsApp" aria-label="WhatsApp">
                             <i class="bi bi-whatsapp"></i>
                         </a>
+                        @if(config('social.whatsapp_channel'))
+                            <a href="{{ config('social.whatsapp_channel') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="WhatsApp Channel" aria-label="Follow our WhatsApp Channel">
+                                <i class="bi bi-broadcast"></i>
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p style="margin: 0; color: #ccc; text-align: center;">
-                    &copy; {{ date('Y') }} /Namsa Florals. All rights reserved. | Beautiful flowers for every occasion | Website by <a href="https://datalani.com" target="_blank" class="footer-credit" style="color: #ccc; text-decoration: underline;">Datalani Technology</a>
+                <p style="margin: 0; text-align: center;">
+                    &copy; {{ date('Y') }} /Namsa Florals. All rights reserved. &middot; Beautiful flowers for every occasion &middot; Website by <a href="https://datalani.com" target="_blank" rel="noopener noreferrer" class="footer-credit">Datalani Technology</a>
                 </p>
             </div>
         </div>
@@ -669,7 +741,7 @@
         <i class="bi bi-whatsapp"></i>
     </a>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
     <script>
         (function() {
             var toggle = document.getElementById('navToggle');

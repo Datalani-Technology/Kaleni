@@ -5,4 +5,5 @@ return [
     'instagram' => env('SOCIAL_INSTAGRAM', 'https://www.instagram.com/namsa.florals'),
     'tiktok' => env('SOCIAL_TIKTOK', 'https://www.tiktok.com/@namsa.florals'),
     'whatsapp' => env('SOCIAL_WHATSAPP', 'https://wa.me/264815574680'),
+    'whatsapp_channel' => env('SOCIAL_WHATSAPP_CHANNEL'),
 ];

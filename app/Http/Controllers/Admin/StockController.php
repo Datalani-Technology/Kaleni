@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\LowStockAlertMail;
 use App\Models\Product;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class StockController extends Controller
 {
@@ -101,6 +104,15 @@ class StockController extends Controller
                 'reason' => $validated['reason'] ?? null,
             ]);
         });
+
+        $threshold = config('inventory.low_stock_threshold', 5);
+        if ($before > $threshold && $after <= $threshold) {
+            try {
+                Mail::to(config('contact.email_orders'))->send(new LowStockAlertMail(collect([$product]), $threshold));
+            } catch (\Throwable $e) {
+                Log::warning('Low stock alert email failed', ['error' => $e->getMessage()]);
+            }
+        }
 
         $msg = $action === 'set'
             ? "Stock set to {$after}."

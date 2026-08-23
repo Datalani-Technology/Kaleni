@@ -61,7 +61,7 @@
                     <p>We strive to provide fresh, high-quality flowers. However, due to the nature of fresh products, slight variations may occur.</p>
                     
                     <h4 class="mt-4 mb-3">7. Privacy Policy</h4>
-                    <p>Your personal information will be used solely for order processing and delivery. We do not share your information with third parties.</p>
+                    <p>Your personal information will be used solely for order processing and delivery. We do not share your information with third parties. Read our full <a href="{{ route('privacy') }}">Privacy Policy</a> for details on what we collect, why, and your rights.</p>
                     
                     <h4 class="mt-4 mb-3">8. Limitation of Liability</h4>
                     <p>/Namsa Florals shall not be liable for any indirect, incidental, special, or consequential damages arising from the use of our products or services.</p>

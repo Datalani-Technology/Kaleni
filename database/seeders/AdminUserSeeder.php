@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AdminUserSeeder extends Seeder
 {
@@ -13,13 +14,21 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::firstOrCreate(
-            ['email' => 'admin@namsa.com.na'],
-            [
-                'name' => 'Admin User',
-                'password' => Hash::make('admin123'),
-                'role' => 'admin',
-            ]
-        );
+        $existing = User::where('email', 'admin@namsa.com.na')->first();
+        if ($existing) {
+            return;
+        }
+
+        $password = Str::password(16);
+
+        User::create([
+            'name' => 'Admin User',
+            'email' => 'admin@namsa.com.na',
+            'password' => Hash::make($password),
+            'role' => 'admin',
+        ]);
+
+        $this->command?->info("Admin account created: admin@namsa.com.na / {$password}");
+        $this->command?->warn('Save this password now — it will not be shown again. Log in and set up two-factor authentication immediately.');
     }
 }

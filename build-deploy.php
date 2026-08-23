@@ -252,10 +252,10 @@ DEPLOY TO PUBLIC_HTML (cPanel shared hosting)
 
 4. DONE
    - Visit https://namsa.com.na
-   - Admin: https://namsa.com.na/admin/login
+   - Admin: https://namsa.com.na/{your ADMIN_PATH from .env}/login
      Email: admin@namsa.com.na
-     Password: admin123
-   - Change admin password after first login.
+     Password: shown once in the terminal when the seeder ran (php artisan db:seed --class=AdminUserSeeder)
+   - Log in and set up two-factor authentication immediately (required).
 
 If you use existing product images, logo, gallery images, or promotion PDF, also upload
 them into uploads/products, uploads/logos, uploads/gallery, uploads/promotion (same

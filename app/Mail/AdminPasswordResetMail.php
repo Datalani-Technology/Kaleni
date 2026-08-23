@@ -26,7 +26,7 @@ class AdminPasswordResetMail extends Mailable
 
     public function content(): Content
     {
-        $url = url('/admin/reset-password?token=' . urlencode($this->token) . '&email=' . urlencode($this->email));
+        $url = route('admin.reset-password', ['token' => $this->token, 'email' => $this->email]);
         return new Content(
             view: 'emails.admin-password-reset',
             with: ['url' => $url],

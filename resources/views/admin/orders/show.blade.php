@@ -13,6 +13,7 @@
         @endphp
         <a href="{{ $wa }}" target="_blank" rel="noopener" class="btn btn-success"><i class="bi bi-whatsapp"></i> WhatsApp</a>
         <a href="tel:{{ $order->customer_phone }}" class="btn btn-outline-primary"><i class="bi bi-telephone"></i> Call</a>
+        <button type="button" onclick="openAdminDocument('{{ route('admin.orders.invoice', $order) }}')" class="btn btn-outline-dark"><i class="bi bi-receipt"></i> Invoice</button>
     </div>
 </div>
 
@@ -64,7 +65,13 @@
                 <p class="mb-2"><strong>Name:</strong> {{ $order->customer_name }}</p>
                 <p class="mb-2"><strong>Email:</strong> <a href="mailto:{{ $order->customer_email }}">{{ $order->customer_email }}</a></p>
                 <p class="mb-2"><strong>Phone:</strong> <a href="tel:{{ $order->customer_phone }}">{{ $order->customer_phone }}</a></p>
-                <p class="mb-0"><strong>Delivery address:</strong><br>{{ nl2br(e($order->delivery_address)) }}</p>
+                <hr>
+                <p class="mb-2"><strong>Recipient:</strong> {{ $order->recipient_name ?: $order->customer_name }}</p>
+                <p class="mb-2"><strong>Recipient phone:</strong> <a href="tel:{{ $order->recipient_phone ?: $order->customer_phone }}">{{ $order->recipient_phone ?: $order->customer_phone }}</a></p>
+                <p class="mb-2"><strong>Delivery:</strong> {{ $order->delivery_date?->format('D, j M Y') ?: 'To be confirmed' }} · {{ ucfirst($order->delivery_window ?: 'anytime') }}</p>
+                <p class="mb-2"><strong>Delivery address:</strong><br>{{ nl2br(e($order->delivery_address)) }}</p>
+                @if($order->delivery_instructions)<p class="mb-2"><strong>Instructions:</strong><br>{{ nl2br(e($order->delivery_instructions)) }}</p>@endif
+                @if($order->gift_message)<p class="mb-0"><strong>Card message:</strong><br>{{ nl2br(e($order->gift_message)) }}</p>@endif
             </div>
         </div>
     </div>

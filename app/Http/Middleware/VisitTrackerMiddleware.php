@@ -34,7 +34,7 @@ class VisitTrackerMiddleware
             return false;
         }
         $path = $request->path();
-        if (str_starts_with($path, 'admin')) {
+        if (str_starts_with($path, config('admin.path'))) {
             return false;
         }
         if (in_array($path, ['sitemap.xml', 'robots.txt'], true)) {

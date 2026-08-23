@@ -3,18 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#1a1a1a">
+    <meta name="theme-color" content="#211a20">
     <title>@yield('title', 'Admin') - /Namsa Florals</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.css') }}">
     <style>
+        :root { --admin-accent: #d63384; }
+        body { font-family: 'Manrope', 'Segoe UI', Arial, sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Manrope', 'Segoe UI', Arial, sans-serif; }
         .admin-sidebar {
             min-height: 100vh;
             background: linear-gradient(180deg, #1a1a1a 0%, #2d2d2d 100%);
             color: #eee;
         }
         .admin-sidebar a {
-            color: #eee;
+            color: #d8d3d6;
             text-decoration: none;
             padding: 12px 16px;
             display: flex;
@@ -22,10 +28,28 @@
             border-radius: 8px;
             margin: 4px 0;
             min-height: 44px;
+            border-left: 3px solid transparent;
             -webkit-tap-highlight-color: transparent;
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
         }
-        .admin-sidebar a:hover { background: rgba(255,255,255,0.12); color: #fff; }
-        .admin-sidebar a.active { background: rgba(255,255,255,0.2); color: #fff; }
+        .admin-sidebar a i { margin-right: 10px; }
+        .admin-sidebar a:hover { background: rgba(214, 51, 132, 0.14); color: #fff; }
+        .admin-sidebar a.active {
+            background: rgba(214, 51, 132, 0.18);
+            border-left-color: var(--admin-accent);
+            color: #fff;
+        }
+        .btn-primary {
+            background-color: var(--admin-accent) !important;
+            border-color: var(--admin-accent) !important;
+        }
+        .btn-primary:hover { background-color: #ad2765 !important; border-color: #ad2765 !important; }
+        .btn-outline-primary {
+            color: var(--admin-accent) !important;
+            border-color: var(--admin-accent) !important;
+        }
+        .btn-outline-primary:hover { background-color: var(--admin-accent) !important; color: #fff !important; }
+        a { color: var(--admin-accent); }
 
         /* Mobile */
         .admin-mobile-header {
@@ -84,6 +108,15 @@
         }
         .admin-sidebar-close {
             display: none;
+        }
+        /* Desktop: sidebar stays fully reachable and scrolls independently of
+           long content pages instead of scrolling away with the page. */
+        .admin-sidebar-wrap {
+            position: sticky;
+            top: 0;
+            align-self: flex-start;
+            max-height: 100vh;
+            overflow-y: auto;
         }
 
         @media (max-width: 991.98px) {
@@ -178,21 +211,22 @@
             .admin-content .card { overflow: hidden; }
             .admin-table-cards .btn { min-height: 40px; padding: 0.4rem 0.75rem; }
         }
-        @stack('styles')
     </style>
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    @stack('styles')
 </head>
 <body>
-    <header class="admin-mobile-header d-md-none">
+    <header class="admin-mobile-header d-lg-none">
         <button type="button" class="admin-menu-btn" id="adminMenuBtn" aria-label="Open menu">
             <i class="bi bi-list"></i>
         </button>
         <h1>@yield('title', 'Admin')</h1>
     </header>
-    <div class="admin-overlay d-md-none" id="adminOverlay" aria-hidden="true"></div>
+    <div class="admin-overlay d-lg-none" id="adminOverlay" aria-hidden="true"></div>
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-12 col-md-2 admin-sidebar-wrap px-0" id="adminSidebarWrap">
+            <div class="col-12 col-lg-2 admin-sidebar-wrap px-0" id="adminSidebarWrap">
                 <div class="admin-sidebar p-4">
                     <button type="button" class="admin-sidebar-close d-md-none" id="adminSidebarClose" aria-label="Close menu">
                         <i class="bi bi-x-lg"></i>
@@ -200,7 +234,7 @@
                     @include('admin.partials.sidebar', ['active' => trim(strip_tags((string) ($__env->yieldContent('sidebar_active') ?? ''))) ?: ''])
                 </div>
             </div>
-            <div class="col-12 col-md-10 admin-main-wrap">
+            <div class="col-12 col-lg-10 admin-main-wrap">
                 <main class="p-4 admin-content">
                     @if(session('success'))
                         <div class="alert alert-success alert-dismissible fade show">
@@ -214,14 +248,38 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
+                    @if(session('warning'))
+                        <div class="alert alert-warning alert-dismissible fade show">
+                            {{ session('warning') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
                     @yield('content')
                 </main>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
     <script>
+        // Opens a document (invoice/report) in a blank tab without ever navigating the
+        // visible address bar to the real admin URL — fetched in the background and
+        // written into an already-open blank window instead of following the link.
+        function openAdminDocument(url) {
+            var win = window.open('', '_blank');
+            if (!win) { window.location.href = url; return; }
+            win.document.write('<p style="font-family:sans-serif;padding:40px;color:#666;">Loading…</p>');
+            fetch(url, { credentials: 'same-origin' })
+                .then(function (r) { return r.text(); })
+                .then(function (html) {
+                    win.document.open();
+                    win.document.write(html);
+                    win.document.close();
+                })
+                .catch(function () {
+                    win.document.body.innerHTML = '<p style="font-family:sans-serif;padding:40px;color:#c00;">Failed to load document.</p>';
+                });
+        }
         (function() {
             var btn = document.getElementById('adminMenuBtn');
             var closeBtn = document.getElementById('adminSidebarClose');

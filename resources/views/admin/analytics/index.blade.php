@@ -5,7 +5,17 @@
 
 @push('styles')
 <style>
-    .analytics-card { min-height: 90px; }
+    .analytics-stat { border: 0; border-radius: 12px; }
+    .analytics-stat .stat-icon {
+        width: 44px; height: 44px; border-radius: 10px;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 1.25rem; margin-bottom: 10px;
+    }
+    .analytics-stat.tone-pink .stat-icon { background: rgba(214, 51, 132, .12); color: #d63384; }
+    .analytics-stat.tone-green .stat-icon { background: rgba(25, 135, 84, .12); color: #198754; }
+    .analytics-stat.tone-blue .stat-icon { background: rgba(13, 110, 253, .12); color: #0d6efd; }
+    .analytics-stat.tone-amber .stat-icon { background: rgba(255, 153, 0, .14); color: #b36b00; }
+    .status-badge-row .badge { font-weight: 600; }
     @media (max-width: 575.98px) {
         .analytics-period-form { width: 100%; }
         .analytics-period-form .form-select { flex: 1; min-width: 0; }
@@ -15,7 +25,7 @@
 
 @section('content')
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-    <h1 class="mb-0"><i class="bi bi-graph-up"></i> Visit analytics</h1>
+    <h1 class="mb-0"><i class="bi bi-graph-up" style="color: #d63384;"></i> Analytics</h1>
     <form action="{{ route('admin.analytics.index') }}" method="GET" class="d-flex gap-2 analytics-period-form">
         <select name="period" class="form-select form-select-sm" style="min-width: 140px;" onchange="this.form.submit()">
             <option value="today" {{ $period === 'today' ? 'selected' : '' }}>Today</option>
@@ -26,39 +36,128 @@
     </form>
 </div>
 
+<h2 class="h6 text-uppercase text-muted mb-3" style="letter-spacing: .04em;">Sales</h2>
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
-        <div class="card border-0 bg-primary text-white analytics-card">
+        <div class="card analytics-stat tone-pink h-100">
             <div class="card-body">
-                <h6 class="card-title text-white-50">Page views</h6>
-                <h3 class="mb-0">{{ number_format($totalViews) }}</h3>
-                <small class="opacity-75">in period</small>
+                <div class="stat-icon"><i class="bi bi-cash-coin"></i></div>
+                <div class="text-muted small">Revenue</div>
+                <div class="h4 mb-0">N$ {{ number_format($revenue, 2) }}</div>
             </div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card border-0 bg-success text-white analytics-card">
+        <div class="card analytics-stat tone-blue h-100">
             <div class="card-body">
-                <h6 class="card-title text-white-50">Unique visitors</h6>
-                <h3 class="mb-0">{{ number_format($uniqueVisitors) }}</h3>
-                <small class="opacity-75">by session</small>
+                <div class="stat-icon"><i class="bi bi-cart-check"></i></div>
+                <div class="text-muted small">Orders</div>
+                <div class="h4 mb-0">{{ number_format($orderCount) }}</div>
             </div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card border-0 bg-info text-white analytics-card">
+        <div class="card analytics-stat tone-green h-100">
             <div class="card-body">
-                <h6 class="card-title text-white-50">Today · views</h6>
-                <h3 class="mb-0">{{ number_format($todayViews) }}</h3>
+                <div class="stat-icon"><i class="bi bi-receipt"></i></div>
+                <div class="text-muted small">Avg. order value</div>
+                <div class="h4 mb-0">N$ {{ number_format($avgOrderValue, 2) }}</div>
             </div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card border-0 bg-secondary text-white analytics-card">
+        <div class="card analytics-stat tone-amber h-100">
             <div class="card-body">
-                <h6 class="card-title text-white-50">Today · unique</h6>
-                <h3 class="mb-0">{{ number_format($todayUnique) }}</h3>
+                <div class="stat-icon"><i class="bi bi-signpost-split"></i></div>
+                <div class="text-muted small">Visit → order rate</div>
+                <div class="h4 mb-0">{{ number_format($conversionRate, 1) }}%</div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-3">Revenue trend</h5>
+        <canvas id="analyticsRevenueChart" height="90"></canvas>
+    </div>
+</div>
+
+<div class="row mb-4 g-3">
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header"><strong>Orders by status</strong></div>
+            <div class="card-body d-flex flex-wrap gap-2 status-badge-row">
+                @forelse(['pending' => 'warning text-dark', 'processing' => 'info', 'completed' => 'success', 'cancelled' => 'secondary'] as $status => $badgeClass)
+                    @php $count = $ordersByStatus[$status] ?? 0; @endphp
+                    @if($count > 0)
+                        <span class="badge bg-{{ $badgeClass }} py-2 px-3">{{ ucfirst($status) }}: {{ $count }}</span>
+                    @endif
+                @empty
+                @endforelse
+                @if($ordersByStatus->sum() === 0)
+                    <span class="text-muted small">No orders in this period.</span>
+                @endif
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header"><strong>Payment method</strong></div>
+            <div class="card-body">
+                @forelse($ordersByPaymentMethod as $method => $count)
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span><i class="bi {{ $method === 'dpo' ? 'bi-credit-card' : 'bi-whatsapp' }}"></i> {{ $method === 'dpo' ? 'DPO (card)' : 'WhatsApp' }}</span>
+                        <strong>{{ $count }}</strong>
+                    </div>
+                @empty
+                    <span class="text-muted small">No orders in this period.</span>
+                @endforelse
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header"><strong>Site traffic</strong></div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span><i class="bi bi-eye"></i> Page views</span>
+                    <strong>{{ number_format($totalViews) }}</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-people"></i> Unique visitors</span>
+                    <strong>{{ number_format($uniqueVisitors) }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><strong>Top-selling products</strong></div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead><tr><th>Product</th><th class="text-end">Units sold</th><th class="text-end">Revenue</th></tr></thead>
+                <tbody>
+                    @forelse($topProducts as $row)
+                        <tr>
+                            <td>
+                                @if($row->product)
+                                    @include('admin.partials.product-image', ['product' => $row->product, 'size' => 36])
+                                    {{ $row->product->name }}
+                                @else
+                                    <span class="text-muted">Deleted product</span>
+                                @endif
+                            </td>
+                            <td class="text-end">{{ number_format($row->units) }}</td>
+                            <td class="text-end">N$ {{ number_format($row->revenue, 2) }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="3" class="text-muted">No sales in this period.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -85,7 +184,7 @@
     </div>
     <div class="col-lg-6 mb-4">
         <div class="card">
-            <div class="card-header"><strong>Top paths</strong></div>
+            <div class="card-header"><strong>Top pages</strong></div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
@@ -104,27 +203,35 @@
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header"><strong>Recent visits</strong> <span class="text-muted small">(last 50)</span></div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead>
-                    <tr><th>When</th><th>Path</th><th>Page type</th></tr>
-                </thead>
-                <tbody>
-                    @forelse($recent as $v)
-                        <tr>
-                            <td class="text-nowrap">{{ $v->visited_at?->format('M j, H:i') }}</td>
-                            <td><code class="small">{{ \Illuminate\Support\Str::limit($v->path, 50) }}</code></td>
-                            <td>{{ $v->page_type ?? '—' }}</td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="3" class="text-muted">No visits yet.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+    (function () {
+        var ctx = document.getElementById('analyticsRevenueChart');
+        if (!ctx || typeof Chart === 'undefined') return;
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($trendLabels) !!},
+                datasets: [{
+                    label: 'Revenue (N$)',
+                    data: {!! json_encode($trendData) !!},
+                    borderColor: '#d63384',
+                    backgroundColor: 'rgba(214, 51, 132, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { callback: function (v) { return 'N$ ' + v; } } }
+                }
+            }
+        });
+    })();
+</script>
+@endpush
 @endsection

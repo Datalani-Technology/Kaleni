@@ -3,8 +3,117 @@
 @section('title', 'Dashboard')
 @section('sidebar_active', 'dashboard')
 
+@php
+    $now = \Carbon\Carbon::now();
+    $baseSales = fn ($from, $to) => (float) \App\Models\Order::where('order_status', '!=', 'cancelled')
+        ->whereBetween('created_at', [$from, $to])->sum('total_amount');
+    $baseExpenses = fn ($from, $to) => (float) \App\Models\Expense::whereBetween('spent_at', [$from->toDateString(), $to->toDateString()])->sum('amount');
+
+    $salesToday = $baseSales($now->copy()->startOfDay(), $now->copy()->endOfDay());
+    $salesWeek = $baseSales($now->copy()->startOfWeek(), $now->copy()->endOfWeek());
+    $salesMonth = $baseSales($now->copy()->startOfMonth(), $now->copy()->endOfMonth());
+    $salesAllTime = (float) \App\Models\Order::where('order_status', '!=', 'cancelled')->sum('total_amount');
+
+    $expensesToday = $baseExpenses($now->copy()->startOfDay(), $now->copy()->endOfDay());
+    $expensesWeek = $baseExpenses($now->copy()->startOfWeek(), $now->copy()->endOfWeek());
+    $expensesMonth = $baseExpenses($now->copy()->startOfMonth(), $now->copy()->endOfMonth());
+    $expensesAllTime = (float) \App\Models\Expense::sum('amount');
+
+    $orderCount = \App\Models\Order::where('order_status', '!=', 'cancelled')->count();
+    $avgOrderValue = $salesAllTime / max(1, $orderCount);
+
+    $trendRaw = \App\Models\Order::where('order_status', '!=', 'cancelled')
+        ->where('created_at', '>=', $now->copy()->subDays(29)->startOfDay())
+        ->selectRaw('DATE(created_at) as d, SUM(total_amount) as total')
+        ->groupBy('d')
+        ->pluck('total', 'd');
+    $trendLabels = [];
+    $trendData = [];
+    for ($i = 29; $i >= 0; $i--) {
+        $d = $now->copy()->subDays($i);
+        $trendLabels[] = $d->format('M j');
+        $trendData[] = round((float) ($trendRaw[$d->toDateString()] ?? 0), 2);
+    }
+@endphp
+
 @section('content')
 <h1 class="mb-4">Admin Dashboard</h1>
+
+<h2 class="h5 text-muted mb-3"><i class="bi bi-cash-coin"></i> Earnings</h2>
+<div class="row mb-3 g-3">
+    <div class="col-6 col-md-3">
+        <div class="card h-100 border-0" style="background: #eef7f0;">
+            <div class="card-body">
+                <div class="text-muted small">Today</div>
+                <div class="h4 mb-0 text-success">N$ {{ number_format($salesToday, 2) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card h-100 border-0" style="background: #eef7f0;">
+            <div class="card-body">
+                <div class="text-muted small">This week</div>
+                <div class="h4 mb-0 text-success">N$ {{ number_format($salesWeek, 2) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card h-100 border-0" style="background: #eef7f0;">
+            <div class="card-body">
+                <div class="text-muted small">This month</div>
+                <div class="h4 mb-0 text-success">N$ {{ number_format($salesMonth, 2) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card h-100 border-0" style="background: #eef7f0;">
+            <div class="card-body">
+                <div class="text-muted small">All-time revenue</div>
+                <div class="h4 mb-0 text-success">N$ {{ number_format($salesAllTime, 2) }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4 g-3">
+    <div class="col-md-4">
+        <div class="card h-100 border-danger">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Total expenses (all-time)</h5>
+                <p class="mb-0 small text-muted">Money out · <a href="{{ route('admin.expenses.index') }}">view all</a></p>
+                <h2 class="text-danger mt-1">N$ {{ number_format($expensesAllTime, 2) }}</h2>
+                <a href="{{ route('admin.expenses.create') }}" class="btn btn-sm btn-outline-danger mt-2">Log an expense</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-primary">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Net profit (all-time)</h5>
+                <p class="mb-0 small text-muted">Revenue &minus; expenses</p>
+                @php $netAllTime = $salesAllTime - $expensesAllTime; @endphp
+                <h2 class="mt-1 {{ $netAllTime >= 0 ? 'text-primary' : 'text-danger' }}">N$ {{ number_format($netAllTime, 2) }}</h2>
+                <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-outline-primary mt-2">Full report</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-secondary">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Average order value</h5>
+                <p class="mb-0 small text-muted">{{ $orderCount }} completed/active {{ \Illuminate\Support\Str::plural('order', $orderCount) }}</p>
+                <h2 class="text-dark mt-1">N$ {{ number_format($avgOrderValue, 2) }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-3">Revenue — last 30 days</h5>
+        <canvas id="revenueTrendChart" height="90"></canvas>
+    </div>
+</div>
 
 <div class="row mb-4 g-3 admin-dashboard-stats">
     <div class="col-6 col-md-3">
@@ -86,25 +195,15 @@
 @endif
 @php
     $potentialFromStock = \App\Models\Product::get()->sum(fn ($p) => $p->stock * (float) $p->price);
-    $totalSales = (float) \App\Models\Order::where('order_status', '!=', 'cancelled')->sum('total_amount');
 @endphp
 <div class="row mb-4 g-3">
-    <div class="col-md-6">
-        <div class="card border-primary">
+    <div class="col-md-12">
+        <div class="card border-secondary">
             <div class="card-body">
                 <h5 class="card-title text-muted">Potential from current stock</h5>
-                <p class="mb-0 small text-muted">If all current stock were sold at listed prices</p>
-                <h2 class="text-primary mt-1">N$ {{ number_format($potentialFromStock, 2) }}</h2>
-                <a href="{{ route('admin.stock.index') }}" class="btn btn-sm btn-outline-primary mt-2">View stock</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card border-success">
-            <div class="card-body">
-                <h5 class="card-title text-muted">Total sales (orders)</h5>
-                <p class="mb-0 small text-muted">Sum of all order totals · updates as customers buy</p>
-                <h2 class="text-success mt-1">N$ {{ number_format($totalSales, 2) }}</h2>
+                <p class="mb-0 small text-muted">Inventory value if all current stock were sold at listed prices (not earnings)</p>
+                <h2 class="text-secondary mt-1">N$ {{ number_format($potentialFromStock, 2) }}</h2>
+                <a href="{{ route('admin.stock.index') }}" class="btn btn-sm btn-outline-secondary mt-2">View stock</a>
             </div>
         </div>
     </div>
@@ -122,6 +221,12 @@
             </a>
             <a href="{{ route('admin.stock.index') }}" class="btn btn-outline-primary">
                 <i class="bi bi-boxes"></i> Stock Count & Inventory
+            </a>
+            <a href="{{ route('admin.expenses.create') }}" class="btn btn-outline-primary">
+                <i class="bi bi-cash-stack"></i> Log Expense
+            </a>
+            <a href="{{ route('admin.reports.index') }}" class="btn btn-outline-primary">
+                <i class="bi bi-file-earmark-bar-graph"></i> Reports
             </a>
             <a href="{{ route('admin.analytics.index') }}" class="btn btn-outline-primary">
                 <i class="bi bi-graph-up"></i> Analytics
@@ -189,4 +294,36 @@
     </div>
 </div>
 @endif
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+    (function () {
+        var ctx = document.getElementById('revenueTrendChart');
+        if (!ctx || typeof Chart === 'undefined') return;
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($trendLabels) !!},
+                datasets: [{
+                    label: 'Revenue (N$)',
+                    data: {!! json_encode($trendData) !!},
+                    borderColor: '#d63384',
+                    backgroundColor: 'rgba(214, 51, 132, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { callback: function (v) { return 'N$ ' + v; } } }
+                }
+            }
+        });
+    })();
+</script>
+@endpush
 @endsection

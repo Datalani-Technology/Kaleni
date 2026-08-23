@@ -42,8 +42,9 @@ Step-by-step guide to host this Laravel app on **cPanel** (or similar) **shared 
 ### 6. Done
 
 - Visit **https://namsa.com.na**  
-- Admin: **https://namsa.com.na/admin/login** (email: `admin@namsa.com.na`, password: `admin123`).  
-- Change the admin password after first login.
+- Admin: **https://namsa.com.na/{your `ADMIN_PATH`}/login** (email: `admin@namsa.com.na`, password: shown once in the
+  terminal when `AdminUserSeeder` runs).
+- Log in and set up two-factor authentication immediately — it's required before the rest of the panel is reachable.
 
 A **`README_DEPLOY.txt`** inside **`public_html_ready/`** repeats these steps.
 
@@ -70,6 +71,7 @@ If you prefer the usual Laravel structure and can set the document root to a sub
 - **PHP**: 8.2+ (Laravel 12). In cPanel → **Select PHP Version** / **MultiPHP INI Editor**.
 - **Extensions**: `ctype`, `curl`, `dom`, `fileinfo`, `json`, `mbstring`, `openssl`, `pdo`, `tokenizer`, `xml`, `zip`. Enable any missing ones.
 - **Domain**: `namsa.com.na` pointed to your hosting (A record or nameservers).
+- **Upload size for product/gallery photos**: `.htaccess` already raises `upload_max_filesize`/`post_max_size` to 25M/30M, but hosts running PHP-FPM ignore `php_value` in `.htaccess`. If large photo uploads still fail, go to cPanel → **MultiPHP INI Editor** → select the domain → raise `upload_max_filesize` and `post_max_size` there directly (25M+ recommended).
 
 ---
 
@@ -223,7 +225,8 @@ php artisan view:cache
 - **storage:link**: links `public/storage` → `storage/app/public` (product images, logo).
 - **config/route/view cache**: faster production.
 
-**Admin login** (from seeder): `admin@namsa.com.na` / `admin123`. Change the password after first login.
+**Admin login** (from seeder): `admin@namsa.com.na`, password shown once in the terminal when the seeder runs. Set up
+two-factor authentication immediately after first login (mandatory).
 
 ---
 
@@ -263,7 +266,9 @@ RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 ```
 
-### Cron (if you add scheduled tasks later)
+### Cron (required — hourly abandoned-card-payment reminder)
+
+The app schedules an hourly job (`orders:remind-pending`, see `routes/console.php`) that emails customers whose DPO card payment never completed. Laravel's scheduler needs cron to call it every minute; it only actually runs the job on its own schedule.
 
 In cPanel → **Cron Jobs**:
 

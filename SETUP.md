@@ -30,6 +30,12 @@
    ```
    Domain: **namsa.com.na**. Set `APP_URL=https://namsa.com.na` for production.
 
+4. Admin panel URL: set a private, unguessable `ADMIN_PATH` (never the default `admin`) —
+   this becomes the only entry point to the admin panel and isn't listed anywhere public.
+   ```
+   ADMIN_PATH=your-own-secret-slug
+   ```
+
 ### Step 3: Run Migrations and Seeders
 Open terminal/command prompt in the project directory and run:
 
@@ -42,7 +48,7 @@ This will:
 - Create all database tables
 - Create an admin user with:
   - Email: `admin@namsa.com.na`
-  - Password: `admin123`
+  - Password: randomly generated and printed once to the terminal — copy it now
 
 ### Step 4: Create Storage Link
 Run this command to enable image uploads:
@@ -61,15 +67,15 @@ The application will be available at: http://localhost:8000
 ## Access Points
 
 - **Frontend (Customer)**: http://localhost:8000
-- **Admin Login**: http://localhost:8000/admin/login
+- **Admin Login**: http://localhost:8000/`{your ADMIN_PATH}`/login
   - Email: `admin@namsa.com.na`
-  - Password: `admin123`
+  - Password: printed once by the seeder (see Step 3)
 
 ## First Steps After Setup
 
 1. **Login as Admin**
-   - Go to http://localhost:8000/admin/login
-   - Use the credentials above
+   - Go to http://localhost:8000/`{your ADMIN_PATH}`/login
+   - Use the credentials above, then set up two-factor authentication (required)
 
 2. **Add Products**
    - Click on "Products" in the sidebar

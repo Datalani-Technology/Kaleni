@@ -10,4 +10,14 @@ class TermsController extends Controller
     {
         return view('terms');
     }
+
+    public function delivery()
+    {
+        return view('delivery');
+    }
+
+    public function returns()
+    {
+        return view('returns');
+    }
 }

@@ -20,7 +20,13 @@
                     </div>
 
                     <p>You will receive a confirmation email shortly.</p>
-                    
+
+                    <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+                        <a href="{{ route('checkout.receipt', $order->order_number) }}" target="_blank" class="buy-now-btn" style="background: #d63384; color: white; max-width: 250px; display: inline-block; text-decoration: none;">
+                            <i class="bi bi-receipt"></i> View / Print Receipt
+                        </a>
+                    </div>
+
                     <a href="{{ route('products.index') }}" class="buy-now-btn" style="background: #333; color: white; max-width: 250px; margin: 0 auto; display: block; text-decoration: none;">
                         Continue Shopping
                     </a>

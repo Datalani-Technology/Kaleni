@@ -11,11 +11,12 @@ EVERYTHING IS ALREADY SET UP! Just follow these steps:
 
 2. OPEN IN BROWSER:
    - Frontend: http://localhost:8003
-   - Admin: http://localhost:8004/admin/login
+   - Admin: http://localhost:8004/{your ADMIN_PATH from .env}/login
 
 3. ADMIN LOGIN:
    Email: admin@namsa.com.na
-   Password: admin123
+   Password: printed once to the terminal when the AdminUserSeeder runs (no fixed default).
+   Two-factor authentication is required on first login.
 
 4. WHAT'S READY:
    ✓ Database created

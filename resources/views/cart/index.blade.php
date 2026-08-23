@@ -18,10 +18,23 @@
     .cart-mobile-item:last-of-type { border-bottom: none; }
     .cart-mobile-img { width: 56px; height: 56px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
     .cart-mobile-qty { width: 64px; padding: 6px 8px; font-size: 0.9rem; }
+    .cart-page-header { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 28px; }
+    .cart-page-header h1 { margin: 4px 0 0; font-size: clamp(2rem, 4vw, 3.1rem); font-weight: 800; }
+    .cart-page-header p { max-width: 390px; margin: 0; color: var(--muted); text-align: right; }
+    .empty-cart-card { position: relative; overflow: hidden; padding: clamp(48px, 8vw, 86px) 24px; text-align: center; background: linear-gradient(145deg, #fff 0%, #fdf1f6 100%); border: 1px solid var(--border); border-radius: 26px; box-shadow: 0 18px 55px rgba(52,27,40,.08); }
+    .empty-cart-card::after { content: ''; position: absolute; width: 240px; height: 240px; right: -95px; top: -105px; border: 36px solid rgba(180,35,99,.055); border-radius: 50%; }
+    .empty-cart-icon { display: grid; width: 74px; height: 74px; margin: 0 auto 20px; place-items: center; color: var(--primary-dark); background: #fff; border: 1px solid var(--border); border-radius: 50%; box-shadow: 0 14px 32px rgba(52,27,40,.1); font-size: 1.8rem; }
+    .empty-cart-card h2 { margin-bottom: 10px; font-size: clamp(1.65rem, 3vw, 2.3rem); font-weight: 800; }
+    .empty-cart-card p { max-width: 500px; margin: 0 auto 24px; color: var(--muted); }
+    .cart-recommendations { margin-top: 64px; }
+    .cart-recommendations-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+    .cart-recommendations h2 { margin: 4px 0 0; font-size: clamp(1.65rem, 3vw, 2.35rem); font-weight: 800; }
     @media (max-width: 768px) {
         .cart-table-wrap { display: none; }
         .cart-mobile-list { display: block; }
         .cart-summary-card { margin-top: 1rem; }
+        .cart-page-header, .cart-recommendations-head { align-items: flex-start; flex-direction: column; }
+        .cart-page-header p { text-align: left; }
     }
     @media (max-width: 400px) {
         .cart-inner { padding: 0 12px; }
@@ -34,21 +47,13 @@
 
 @section('content')
 <div class="cart-inner my-5 cart-page">
-    <h1 class="mb-4">Shopping Cart</h1>
-    
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" style="max-width: 1200px; margin: 0 auto 20px;">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="cart-page-header">
+        <div>
+            <span class="section-kicker">Your selection</span>
+            <h1>Shopping cart</h1>
         </div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" style="max-width: 1200px; margin: 0 auto 20px;">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
+        <p>Review your flowers, then choose the recipient and preferred delivery time at checkout.</p>
+    </div>
 
     @if($cartItems->count() > 0)
         <div class="row">
@@ -72,7 +77,7 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     @if($item->product->image)
-                                                        <img src="{{ asset('storage/' . $item->product->image) }}" alt="{{ $item->product->name }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px; margin-right: 15px;">
+                                                        <img src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px; margin-right: 15px;">
                                                     @endif
                                                     <div>
                                                         <strong>{{ $item->product->name }}</strong>
@@ -106,7 +111,7 @@
                                 <div class="cart-mobile-item">
                                     <div class="d-flex align-items-start gap-2">
                                         @if($item->product->image)
-                                            <img src="{{ asset('storage/' . $item->product->image) }}" alt="{{ $item->product->name }}" class="cart-mobile-img">
+                                            <img src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}" class="cart-mobile-img">
                                         @endif
                                         <div class="flex-grow-1 min-w-0">
                                             <strong class="d-block">{{ $item->product->name }}</strong>
@@ -160,13 +165,46 @@
             </div>
         </div>
     @else
-        <div class="text-center" style="padding: 40px 20px;">
-            <i class="bi bi-cart-x" style="font-size: 3rem; color: #ccc;"></i>
-            <p style="font-size: 1.1rem; color: #666; margin-top: 15px; margin-bottom: 20px;">Your cart is empty</p>
-            <a href="{{ route('products.index') }}" class="buy-now-btn" style="background: #333; color: white; max-width: 200px; margin: 0 auto; display: block; text-decoration: none;">
-                Browse Products
+        <div class="empty-cart-card">
+            <span class="empty-cart-icon"><i class="bi bi-bag-heart" aria-hidden="true"></i></span>
+            <h2>Something beautiful belongs here.</h2>
+            <p>Begin with one of our florist-curated arrangements. Every order can include a recipient, delivery window, and personal message.</p>
+            <a href="{{ route('products.index') }}" class="buy-now-btn" style="max-width: 220px; margin: 0 auto; display: block; text-decoration: none;">
+                Explore the collection
             </a>
         </div>
+    @endif
+
+    @if($suggestedProducts->isNotEmpty())
+        <section class="cart-recommendations" aria-labelledby="cartRecommendationsTitle">
+            <div class="cart-recommendations-head">
+                <div>
+                    <span class="section-kicker">Florist favourites</span>
+                    <h2 id="cartRecommendationsTitle">A beautiful place to start</h2>
+                </div>
+                <a href="{{ route('products.index') }}" class="text-link">View all flowers <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+            </div>
+            <div class="products-grid">
+                @foreach($suggestedProducts as $product)
+                    <article class="product-card">
+                        <a href="{{ route('products.show', $product) }}" class="product-media-link">
+                            @if($product->category)<span class="product-card-badge">{{ $product->category }}</span>@endif
+                            <x-product-image :product="$product" />
+                        </a>
+                        <div class="product-info">
+                            <h3 class="product-name"><a href="{{ route('products.show', $product) }}" class="product-name-link">{{ $product->name }}</a></h3>
+                            <div class="product-price">N$ {{ number_format($product->price, 2) }}</div>
+                            <form action="{{ route('cart.add') }}" method="POST" data-add-to-cart>
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="buy-now-btn"><i class="bi bi-bag-plus" aria-hidden="true"></i> Add to cart</button>
+                            </form>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        </section>
     @endif
 </div>
 @endsection
