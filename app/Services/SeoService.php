@@ -45,6 +45,21 @@ class SeoService
                 'description' => 'Terms for flower orders and delivery in Namibia. Payment, delivery, returns. /Namsa Florals.',
                 'keywords' => 'terms and conditions namsa florals, flower shop terms namibia, namsa',
             ],
+            'privacy' => [
+                'title' => 'Privacy Policy – ' . $brand . ' Namibia',
+                'description' => 'How /Namsa Florals collects, uses, and protects your information when you order flowers online in Namibia.',
+                'keywords' => 'privacy policy namsa florals, flower shop privacy namibia, namsa',
+            ],
+            'delivery' => [
+                'title' => 'Delivery Guide – ' . $brand . ' | Windhoek Flower Delivery',
+                'description' => 'Delivery areas, windows, and fees for /Namsa Florals flower delivery in Windhoek and surrounding areas, Namibia.',
+                'keywords' => 'flower delivery windhoek, namsa florals delivery, same day flower delivery namibia, namsa',
+            ],
+            'returns' => [
+                'title' => 'Returns & Flower Care – ' . $brand . ' Namibia',
+                'description' => 'What to do if your flowers arrive damaged or incorrect, plus tips to keep your bouquet fresh for longer. /Namsa Florals.',
+                'keywords' => 'flower returns namibia, namsa florals refund policy, flower care tips, namsa',
+            ],
             'promotion' => [
                 'title' => 'Promotions & Specials – ' . $brand . ' | Flower Deals Windhoek',
                 'description' => 'Flower specials and promotions from /Namsa Florals. Download our catalog. Fresh flowers, same-day delivery Windhoek.',

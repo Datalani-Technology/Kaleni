@@ -80,11 +80,11 @@
         <div class="card mb-4">
             <div class="card-header bg-light fw-semibold">Update order</div>
             <div class="card-body">
-                <form action="{{ route('admin.orders.update', $order) }}" method="POST">
+                <form action="{{ route('admin.orders.update', $order) }}" method="POST" id="orderUpdateForm" data-original-status="{{ $order->order_status }}" data-confirm-mode="order-status">
                     @csrf
                     <div class="mb-3">
                         <label class="form-label">Order status</label>
-                        <select name="order_status" class="form-select">
+                        <select name="order_status" class="form-select" id="orderStatusSelect">
                             <option value="pending" {{ $order->order_status === 'pending' ? 'selected' : '' }}>Pending</option>
                             <option value="processing" {{ $order->order_status === 'processing' ? 'selected' : '' }}>Processing</option>
                             <option value="completed" {{ $order->order_status === 'completed' ? 'selected' : '' }}>Completed</option>
@@ -120,4 +120,5 @@
         </div>
     </div>
 </div>
+
 @endsection

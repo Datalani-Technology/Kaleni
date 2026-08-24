@@ -45,7 +45,7 @@
                                 <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required autofocus>
                                 @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
-                            <button type="submit" class="btn btn-admin w-100 btn-lg"><i class="bi bi-send"></i> Send reset link</button>
+                            <button type="submit" class="btn btn-admin w-100 btn-lg"><i class="bi bi-envelope-fill"></i> Send reset link</button>
                         </form>
                         <p class="text-center mt-3 mb-0">
                             <a href="{{ route('admin.login') }}" class="text-decoration-none"><i class="bi bi-arrow-left"></i> Back to login</a>

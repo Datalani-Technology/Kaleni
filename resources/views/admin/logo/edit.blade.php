@@ -12,7 +12,7 @@
 
 <div class="card">
     <div class="card-body">
-        <form action="{{ route('admin.logo.update') }}" method="POST" enctype="multipart/form-data" onsubmit="var r=document.getElementById('remove_logo'); return !r || !r.checked || confirm('Remove the custom logo? The site will revert to icon + text.');">
+        <form action="{{ route('admin.logo.update') }}" method="POST" enctype="multipart/form-data" data-confirm-mode="remove-logo">
             @csrf
             <div class="mb-4">
                 <label class="form-label">Current logo</label>

@@ -19,7 +19,7 @@
 
         <h3 class="h6 mt-4">Regenerate recovery codes</h3>
         <p class="text-muted small">Your old codes stop working immediately. Requires your current password.</p>
-        <form action="{{ route('admin.2fa.regenerate-codes') }}" method="POST" class="row g-2 align-items-end" style="max-width: 420px;">
+        <form action="{{ route('admin.2fa.regenerate-codes') }}" method="POST" class="row g-2 align-items-end" style="max-width: 420px;" data-confirm-title="Regenerate recovery codes?" data-confirm-message="Your existing recovery codes will stop working immediately." data-confirm-label="Regenerate codes" data-confirm-variant="warning">
             @csrf
             <div class="col">
                 <label for="regen_password" class="form-label">Current password</label>
@@ -36,7 +36,7 @@
         <h3 class="h6 text-danger">Reset two-factor authentication</h3>
         <p class="text-muted small">Clears your current authenticator and recovery codes. You'll be required to set
             up two-factor authentication again immediately, with a new device if needed.</p>
-        <form action="{{ route('admin.2fa.reset') }}" method="POST" class="row g-2 align-items-end" style="max-width: 420px;" onsubmit="return confirm('Reset two-factor authentication? You will need to set it up again right away.');">
+        <form action="{{ route('admin.2fa.reset') }}" method="POST" class="row g-2 align-items-end" style="max-width: 420px;" data-confirm-title="Reset two-factor authentication?" data-confirm-message="Your authenticator and recovery codes will be cleared. You will need to set up two-factor authentication again immediately." data-confirm-label="Reset 2FA" data-confirm-variant="danger">
             @csrf
             <div class="col">
                 <label for="reset_password" class="form-label">Current password</label>

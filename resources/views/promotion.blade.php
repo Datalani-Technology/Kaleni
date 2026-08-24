@@ -10,7 +10,7 @@
     .promotion-hero { display: grid; grid-template-columns: minmax(0,1fr) minmax(340px,.78fr); overflow: hidden; background: #21171d; border-radius: 30px; box-shadow: 0 24px 70px rgba(42,20,32,.16); }
     .promotion-copy { align-self: center; padding: clamp(36px,6vw,74px); color: #fff; }
     .promotion-copy .section-kicker { color: #ff8dbd; }
-    .promotion-copy h1 { max-width: 680px; margin: 12px 0 18px; font-size: clamp(2.5rem,5.5vw,5.2rem); font-weight: 800; line-height: .98; letter-spacing: -.055em; }
+    .promotion-copy h1 { max-width: 680px; margin: 12px 0 18px; color: #fff; font-size: clamp(2.5rem,5.5vw,5.2rem); font-weight: 800; line-height: .98; letter-spacing: -.055em; }
     .promotion-copy p { max-width: 600px; margin: 0 0 26px; color: rgba(255,255,255,.7); line-height: 1.75; }
     .promotion-actions { display: flex; flex-wrap: wrap; gap: 10px; }
     .promotion-actions .buy-now-btn { width: auto; min-width: 180px; text-decoration: none; }
@@ -54,7 +54,7 @@
 
     <section class="promotion-benefits" aria-label="Current florist perks">
         <article class="promotion-benefit"><i class="bi bi-truck"></i><h2>Same-day, when available</h2><p>Order early for the best chance of same-day delivery within Windhoek.</p></article>
-        <article class="promotion-benefit"><i class="bi bi-chat-heart"></i><h2>A personal note, included</h2><p>Add a card message at checkout and we will prepare it with your flowers.</p></article>
+        <article class="promotion-benefit"><i class="bi bi-chat-dots"></i><h2>A personal note, included</h2><p>Add a card message at checkout and we will prepare it with your flowers.</p></article>
         <article class="promotion-benefit"><i class="bi bi-flower1"></i><h2>Made for the moment</h2><p>Every arrangement is prepared to order, with thoughtful seasonal substitutions when needed.</p></article>
     </section>
 

@@ -1,92 +1,29 @@
 @extends('layouts.app')
 
-@php
-    $seoPage = 'privacy';
-@endphp
+@php($seoPage = 'privacy')
 
 @section('title', 'Privacy Policy - /Namsa Florals Namibia')
 
-@push('styles')
-<style>
-    @media (max-width: 768px) { .terms-page .card-body { padding: 1.5rem !important; } }
-    @media (max-width: 400px) {
-        .terms-page h1 { font-size: 1.5rem; }
-        .terms-page .card-body { padding: 1.25rem !important; }
-        .terms-page h4 { font-size: 1.1rem; }
-        .terms-page p { font-size: 0.9rem; }
-    }
-</style>
-@endpush
-
 @section('content')
-<div class="container my-5 terms-page">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <h1 class="mb-4">Privacy Policy</h1>
-
-            <div class="card">
-                <div class="card-body p-5">
-                    <p class="text-muted">Last updated: {{ date('F d, Y') }}</p>
-
-                    <h4 class="mt-4 mb-3">1. What we collect</h4>
-                    <p>
-                        When you place an order or contact us, we collect: your name, email address, phone
-                        number, and delivery address. We do not require you to create an account or log in
-                        to shop with us.
-                    </p>
-
-                    <h4 class="mt-4 mb-3">2. Why we collect it</h4>
-                    <p>
-                        - To process, fulfil, and deliver your order.<br>
-                        - To send you an order confirmation and, where relevant, your receipt.<br>
-                        - To respond to enquiries submitted through our contact form.<br>
-                        - To keep a record of your order history, so our team can assist you faster if you
-                        order again or need support.
-                    </p>
-
-                    <h4 class="mt-4 mb-3">3. Who can see it</h4>
-                    <p>
-                        Your information is only accessible to authorised /Namsa Florals staff who manage
-                        orders, delivery, and customer support. Staff accounts are protected by two-factor
-                        authentication, and access to customer records is logged. We do not sell, rent, or
-                        share your personal information with third parties for marketing purposes.
-                    </p>
-                    <p>
-                        Payments made via the DPO payment gateway are processed directly by DPO Group under
-                        their own privacy and security terms — we do not store your card details.
-                    </p>
-
-                    <h4 class="mt-4 mb-3">4. How long we keep it</h4>
-                    <p>
-                        We retain order and contact records for as long as needed to fulfil orders, handle
-                        support requests, and meet our accounting and legal obligations.
-                    </p>
-
-                    <h4 class="mt-4 mb-3">5. Your rights</h4>
-                    <p>
-                        You can ask us what information we hold about you, ask us to correct it, or ask us
-                        to delete it (subject to what we're legally required to keep, e.g. for tax records).
-                        Contact us using the details below to make a request.
-                    </p>
-
-                    <h4 class="mt-4 mb-3">6. Cookies</h4>
-                    <p>
-                        We use a session cookie to remember your shopping cart while you browse. We don't
-                        use tracking or advertising cookies.
-                    </p>
-
-                    <h4 class="mt-4 mb-3">7. Changes to this policy</h4>
-                    <p>We may update this policy from time to time. Changes take effect immediately upon posting on this page.</p>
-
-                    <h4 class="mt-4 mb-3">8. Contact us</h4>
-                    <p>
-                        For any questions about this policy or your personal information, contact us:<br>
-                        Email: {{ config('contact.email_info') }}<br>
-                        Phone: {{ config('contact.phone') }}
-                    </p>
-                </div>
-            </div>
-        </div>
+<div class="legal-page">
+    <header class="legal-hero">
+        <div><span class="section-kicker">Your information</span><h1>Privacy policy</h1></div>
+        <span class="legal-updated">Last updated {{ now()->format('F j, Y') }}</span>
+    </header>
+    <div class="legal-layout">
+        <nav class="legal-nav" aria-label="Privacy sections">
+            <strong>On this page</strong>
+            <a href="#collect">What we collect</a><a href="#use">How we use it</a><a href="#access">Access</a><a href="#retention">Retention</a><a href="#cookies">Cookies</a><a href="#rights">Your choices</a>
+        </nav>
+        <article class="legal-content">
+            <section class="legal-section" id="collect"><h2>1. What we collect</h2><p>When you order or contact us, we may collect your name, email address, phone number, recipient details, delivery address, preferred delivery date, gift message, delivery instructions, and the contents of your enquiry. You can shop without creating a customer account.</p></section>
+            <section class="legal-section" id="use"><h2>2. How we use information</h2><ul><li>Prepare, confirm, and deliver orders.</li><li>Contact you or the recipient about access, timing, substitutions, and payment.</li><li>Send order confirmations and receipts.</li><li>Respond to contact-form enquiries and provide support.</li><li>Maintain order, stock, accounting, and security records.</li></ul></section>
+            <section class="legal-section" id="access"><h2>3. Who can access it</h2><p>Authorised /Namsa Florals staff can access the information needed for orders, delivery, and customer support. Administrative accounts use security controls including two-factor authentication and activity logging. We do not sell or rent personal information for advertising.</p><p>When payment is arranged through WhatsApp or another enabled provider, that service handles information under its own privacy terms. This website does not collect or store card numbers.</p></section>
+            <section class="legal-section" id="retention"><h2>4. How long we keep it</h2><p>Order and contact records are retained only as long as reasonably needed for fulfilment, support, security, accounting, and legal obligations. Records that are no longer required should be deleted or anonymised.</p></section>
+            <section class="legal-section" id="cookies"><h2>5. Cookies and measurement</h2><p>A session cookie keeps your cart connected while you browse. The system may also record basic visit information for operational analytics and security. We do not use third-party advertising cookies on the storefront.</p></section>
+            <section class="legal-section" id="rights"><h2>6. Your choices</h2><p>You can ask what personal information we hold, request a correction, or request deletion where we are not legally required to retain a record. Email <a href="mailto:{{ config('contact.email_info') }}">{{ config('contact.email_info') }}</a> or call <a href="tel:{{ preg_replace('/[^+0-9]/', '', config('contact.phone')) }}">{{ config('contact.phone') }}</a>.</p><div class="legal-callout">For privacy requests, include enough information for us to identify the relevant order or enquiry. We may need to verify that the request is genuinely yours.</div></section>
+            <section class="legal-section"><h2>7. Policy changes</h2><p>We may revise this policy when our services or legal obligations change. The current version and update date will always appear on this page.</p></section>
+        </article>
     </div>
 </div>
 @endsection

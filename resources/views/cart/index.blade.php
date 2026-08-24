@@ -166,7 +166,7 @@
         </div>
     @else
         <div class="empty-cart-card">
-            <span class="empty-cart-icon"><i class="bi bi-bag-heart" aria-hidden="true"></i></span>
+            <span class="empty-cart-icon"><i class="bi bi-heart" aria-hidden="true"></i></span>
             <h2>Something beautiful belongs here.</h2>
             <p>Begin with one of our florist-curated arrangements. Every order can include a recipient, delivery window, and personal message.</p>
             <a href="{{ route('products.index') }}" class="buy-now-btn" style="max-width: 220px; margin: 0 auto; display: block; text-decoration: none;">

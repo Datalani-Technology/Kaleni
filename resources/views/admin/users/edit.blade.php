@@ -7,7 +7,7 @@
 <h1 class="mb-4">Edit user</h1>
 <div class="card" style="max-width: 500px;">
     <div class="card-body">
-        <form method="POST" action="{{ route('admin.users.update', $user) }}">
+        <form method="POST" action="{{ route('admin.users.update', $user) }}" id="userUpdateForm" data-original-role="{{ $user->role }}" data-confirm-mode="user-role">
             @csrf
             @method('PUT')
             <div class="mb-3">
@@ -45,4 +45,5 @@
         </form>
     </div>
 </div>
+
 @endsection

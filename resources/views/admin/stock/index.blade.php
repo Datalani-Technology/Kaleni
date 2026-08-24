@@ -21,7 +21,7 @@
 @endpush
 
 @section('content')
-<h1 class="mb-4"><i class="bi bi-boxes"></i> Stock Count & Inventory</h1>
+<h1 class="mb-4"><i class="bi bi-box-seam"></i> Stock Count & Inventory</h1>
 
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
@@ -111,7 +111,7 @@
                             </td>
                             <td data-label="Value">N$ {{ number_format($p->stock * (float) $p->price, 2) }}</td>
                             <td data-label="Adjust">
-                                <form action="{{ route('admin.stock.adjust') }}" method="POST" class="adjust-form">
+                                <form action="{{ route('admin.stock.adjust') }}" method="POST" class="adjust-form" data-product-name="{{ $p->name }}" data-current-stock="{{ $p->stock }}" data-confirm-mode="stock-adjust">
                                     @csrf
                                     <input type="hidden" name="product_id" value="{{ $p->id }}">
                                     <select name="action" class="form-select form-select-sm" style="width: 95px;">
@@ -161,4 +161,5 @@
         </div>
     </div>
 @endif
+
 @endsection

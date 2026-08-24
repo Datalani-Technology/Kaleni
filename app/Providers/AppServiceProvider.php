@@ -2,9 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\Contact;
+use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rules\Password;
 
@@ -40,6 +44,28 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.force_https')) {
             URL::forceScheme('https');
         }
+
+        View::composer('admin.layout', function ($view) {
+            $threshold = (int) config('inventory.low_stock_threshold', 5);
+
+            $pendingOrdersQuery = Order::where('order_status', 'pending');
+            $lowStockQuery = Product::where('is_active', true)->where('stock', '<=', $threshold);
+            $unreadContactsQuery = Contact::where('is_read', false);
+
+            $pendingOrderCount = (clone $pendingOrdersQuery)->count();
+            $lowStockCount = (clone $lowStockQuery)->count();
+            $unreadContactCount = (clone $unreadContactsQuery)->count();
+
+            $view->with('adminNotifications', [
+                'total' => $pendingOrderCount + $lowStockCount + $unreadContactCount,
+                'pending_order_count' => $pendingOrderCount,
+                'low_stock_count' => $lowStockCount,
+                'unread_contact_count' => $unreadContactCount,
+                'orders' => $pendingOrdersQuery->latest()->limit(5)->get(['id', 'order_number', 'customer_name', 'total_amount', 'created_at']),
+                'products' => $lowStockQuery->orderBy('stock')->limit(5)->get(['id', 'name', 'stock', 'updated_at']),
+                'contacts' => $unreadContactsQuery->latest()->limit(5)->get(['id', 'name', 'subject', 'created_at']),
+            ]);
+        });
 
         // Applies everywhere Password::defaults() is used (admin password
         // reset/change forms). uncompromised() checks the password against the

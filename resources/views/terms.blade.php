@@ -1,83 +1,30 @@
 @extends('layouts.app')
 
-@php
-    $seoPage = 'terms';
-@endphp
+@php($seoPage = 'terms')
 
 @section('title', 'Terms and Conditions - /Namsa Florals Namibia')
 
-@push('styles')
-<style>
-    @media (max-width: 768px) { .terms-page .card-body { padding: 1.5rem !important; } }
-    @media (max-width: 400px) {
-        .terms-page h1 { font-size: 1.5rem; }
-        .terms-page .card-body { padding: 1.25rem !important; }
-        .terms-page h4 { font-size: 1.1rem; }
-        .terms-page p { font-size: 0.9rem; }
-    }
-</style>
-@endpush
-
 @section('content')
-<div class="container my-5 terms-page">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <h1 class="mb-4">Terms and Conditions</h1>
-            
-            <div class="card">
-                <div class="card-body p-5">
-                    <p class="text-muted">Last updated: {{ date('F d, Y') }}</p>
-                    
-                    <h4 class="mt-4 mb-3">1. Acceptance of Terms</h4>
-                    <p>By accessing and using the /Namsa Florals website, you accept and agree to be bound by the terms and provision of this agreement.</p>
-                    
-                    <h4 class="mt-4 mb-3">2. Products and Services</h4>
-                    <p>All products displayed on our website are subject to availability. We reserve the right to discontinue any product at any time. Prices are subject to change without notice.</p>
-                    
-                    <h4 class="mt-4 mb-3">3. Orders and Payment</h4>
-                    <p>
-                        - All orders are subject to product availability and acceptance by /Namsa Florals.<br>
-                        - Payment can be made via DPO payment gateway or WhatsApp payment.<br>
-                        - We accept payments in Namibian Dollars (NAD).<br>
-                        - Orders will be processed only after payment confirmation.
-                    </p>
-                    
-                    <h4 class="mt-4 mb-3">4. Delivery</h4>
-                    <p>
-                        - Delivery times are estimates and not guaranteed.<br>
-                        - Delivery charges may apply depending on location.<br>
-                        - We deliver within Windhoek and surrounding areas.<br>
-                        - Customers are responsible for providing accurate delivery addresses.
-                    </p>
-                    
-                    <h4 class="mt-4 mb-3">5. Returns and Refunds</h4>
-                    <p>
-                        - Fresh flowers are perishable items and cannot be returned unless damaged or incorrect.<br>
-                        - Refunds will be processed within 5-7 business days.<br>
-                        - Contact us within 24 hours of delivery for any issues.
-                    </p>
-                    
-                    <h4 class="mt-4 mb-3">6. Product Quality</h4>
-                    <p>We strive to provide fresh, high-quality flowers. However, due to the nature of fresh products, slight variations may occur.</p>
-                    
-                    <h4 class="mt-4 mb-3">7. Privacy Policy</h4>
-                    <p>Your personal information will be used solely for order processing and delivery. We do not share your information with third parties. Read our full <a href="{{ route('privacy') }}">Privacy Policy</a> for details on what we collect, why, and your rights.</p>
-                    
-                    <h4 class="mt-4 mb-3">8. Limitation of Liability</h4>
-                    <p>/Namsa Florals shall not be liable for any indirect, incidental, special, or consequential damages arising from the use of our products or services.</p>
-                    
-                    <h4 class="mt-4 mb-3">9. Changes to Terms</h4>
-                    <p>We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting on the website.</p>
-                    
-                    <h4 class="mt-4 mb-3">10. Contact Information</h4>
-                    <p>
-                        For any questions regarding these terms, please contact us:<br>
-                        Email: {{ config('contact.email_info') }}<br>
-                        Phone: {{ config('contact.phone') }}
-                    </p>
-                </div>
-            </div>
-        </div>
+<div class="legal-page">
+    <header class="legal-hero">
+        <div><span class="section-kicker">Clear, human terms</span><h1>Terms &amp; conditions</h1></div>
+        <span class="legal-updated">Last updated {{ now()->format('F j, Y') }}</span>
+    </header>
+    <div class="legal-layout">
+        <nav class="legal-nav" aria-label="Terms sections">
+            <strong>On this page</strong>
+            <a href="#orders">Orders</a><a href="#payment">Payment</a><a href="#delivery">Delivery</a><a href="#flowers">Fresh flowers</a><a href="#returns">Returns</a><a href="#privacy">Privacy</a><a href="#contact">Contact</a>
+        </nav>
+        <article class="legal-content">
+            <section class="legal-section" id="orders"><h2>1. Orders and availability</h2><p>By placing an order, you ask /Namsa Florals to prepare and deliver the selected products. Orders are subject to acceptance, flower availability, delivery capacity, and confirmation from our team.</p><p>Prices are shown in Namibian dollars (NAD) and may change before an order is placed. A confirmed order keeps the price shown in its order summary unless you approve a requested change.</p></section>
+            <section class="legal-section" id="payment"><h2>2. Payment and confirmation</h2><p>Checkout currently creates an order and opens WhatsApp so our florist can confirm delivery availability and arrange payment. An order is processed after payment and delivery details are confirmed.</p><div class="legal-callout">Card or gateway payment will only be offered when it appears as an enabled option during checkout. A future payment option is not considered available merely because it is mentioned elsewhere.</div></section>
+            <section class="legal-section" id="delivery"><h2>3. Delivery</h2><p>We deliver within Windhoek and selected surrounding areas. Delivery windows are preferences rather than guarantees and depend on traffic, recipient availability, weather, and florist capacity.</p><ul><li>Provide a complete address, working recipient phone number, and any access instructions.</li><li>Same-day requests are subject to the day’s cutoff and capacity.</li><li>Additional delivery charges may apply depending on location and will be confirmed before payment.</li></ul><p class="mt-3 mb-0">Read the full <a href="{{ route('delivery') }}">delivery guide</a>.</p></section>
+            <section class="legal-section" id="flowers"><h2>4. Fresh flowers and substitutions</h2><p>Flowers are natural, seasonal products. Colour, bloom stage, stem count, wrapping, and foliage may vary slightly from photography. If a flower is unavailable, we may propose a substitution of similar style and value before fulfilment. Major changes will be discussed with you.</p></section>
+            <section class="legal-section" id="returns"><h2>5. Problems, returns, and refunds</h2><p>Fresh flowers are perishable and cannot normally be returned because of a change of mind. If an order arrives damaged, materially incorrect, or in poor condition, contact us within 24 hours with the order number and clear photographs so we can assess a replacement, store credit, or refund.</p><p class="mb-0">See <a href="{{ route('returns') }}">returns &amp; flower care</a> for the complete process.</p></section>
+            <section class="legal-section" id="privacy"><h2>6. Privacy</h2><p>We use personal information to manage orders, delivery, payment confirmation, and support. Read our <a href="{{ route('privacy') }}">privacy policy</a> for details about information, access, and retention.</p></section>
+            <section class="legal-section"><h2>7. Liability and changes</h2><p>To the extent permitted by applicable law, /Namsa Florals is not responsible for indirect or consequential loss. Nothing in these terms removes rights that cannot legally be excluded. We may update these terms, with changes applying from the date published on this page.</p></section>
+            <section class="legal-section" id="contact"><h2>8. Contact</h2><p>Questions about an order or these terms? Email <a href="mailto:{{ config('contact.email_info') }}">{{ config('contact.email_info') }}</a> or call <a href="tel:{{ preg_replace('/[^+0-9]/', '', config('contact.phone')) }}">{{ config('contact.phone') }}</a>.</p></section>
+        </article>
     </div>
 </div>
 @endsection

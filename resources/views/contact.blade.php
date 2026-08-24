@@ -58,7 +58,7 @@
                 <div class="contact-item"><span class="contact-item-icon"><i class="bi bi-geo-alt"></i></span><span><small>Visit</small><span>{{ config('contact.address.name') }}<br>{{ config('contact.address.city') }}, {{ config('contact.address.country') }}</span></span></div>
                 <a class="contact-item" href="tel:{{ preg_replace('/[^+0-9]/', '', config('contact.phone')) }}"><span class="contact-item-icon"><i class="bi bi-telephone"></i></span><span><small>Call</small><span>{{ config('contact.phone') }}</span></span></a>
                 <a class="contact-item" href="mailto:{{ config('contact.email_info') }}"><span class="contact-item-icon"><i class="bi bi-envelope"></i></span><span><small>General enquiries</small><span>{{ config('contact.email_info') }}</span></span></a>
-                <a class="contact-item" href="mailto:{{ config('contact.email_orders') }}"><span class="contact-item-icon"><i class="bi bi-bag-heart"></i></span><span><small>Order support</small><span>{{ config('contact.email_orders') }}</span></span></a>
+                <a class="contact-item" href="mailto:{{ config('contact.email_orders') }}"><span class="contact-item-icon"><i class="bi bi-heart"></i></span><span><small>Order support</small><span>{{ config('contact.email_orders') }}</span></span></a>
             </div>
             <div class="contact-hours">
                 <h3>Business hours</h3>

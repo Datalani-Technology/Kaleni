@@ -185,7 +185,7 @@
         <a href="{{ route('admin.contacts.index', ['unread' => 1]) }}" class="text-decoration-none d-block" style="min-height: 48px; -webkit-tap-highlight-color: transparent;">
             <div class="card border-primary bg-primary bg-opacity-10">
                 <div class="card-body py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <span><i class="bi bi-envelope-exclamation text-primary"></i> <strong>{{ $unreadEnquiries }}</strong> unread {{ $unreadEnquiries === 1 ? 'enquiry' : 'enquiries' }}</span>
+                    <span><i class="bi bi-envelope-fill text-primary"></i> <strong>{{ $unreadEnquiries }}</strong> unread {{ $unreadEnquiries === 1 ? 'enquiry' : 'enquiries' }}</span>
                     <span class="text-primary">View →</span>
                 </div>
             </div>
@@ -220,7 +220,7 @@
                 <i class="bi bi-plus-circle"></i> Add New Product
             </a>
             <a href="{{ route('admin.stock.index') }}" class="btn btn-outline-primary">
-                <i class="bi bi-boxes"></i> Stock Count & Inventory
+                <i class="bi bi-box-seam"></i> Stock Count & Inventory
             </a>
             <a href="{{ route('admin.expenses.create') }}" class="btn btn-outline-primary">
                 <i class="bi bi-cash-stack"></i> Log Expense

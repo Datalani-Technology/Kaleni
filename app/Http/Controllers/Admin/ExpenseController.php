@@ -16,10 +16,21 @@ class ExpenseController extends Controller
         $expenses = (clone $query)->paginate(20)->withQueryString();
         $totalFiltered = $query->sum('amount');
 
+        $now = now();
+        $totalWeek = Expense::whereBetween('spent_at', [$now->copy()->startOfWeek()->toDateString(), $now->copy()->endOfWeek()->toDateString()])->sum('amount');
+        $totalMonth = Expense::whereBetween('spent_at', [$now->copy()->startOfMonth()->toDateString(), $now->copy()->endOfMonth()->toDateString()])->sum('amount');
+        $totalYear = Expense::whereBetween('spent_at', [$now->copy()->startOfYear()->toDateString(), $now->copy()->endOfYear()->toDateString()])->sum('amount');
+        $totalAllTime = Expense::sum('amount');
+
         return view('admin.expenses.index', [
             'expenses' => $expenses,
             'totalFiltered' => $totalFiltered,
             'categories' => Expense::CATEGORIES,
+            'totalWeek' => $totalWeek,
+            'totalMonth' => $totalMonth,
+            'totalYear' => $totalYear,
+            'totalAllTime' => $totalAllTime,
+            'period' => $request->get('period', ''),
         ]);
     }
 
@@ -50,11 +61,24 @@ class ExpenseController extends Controller
         if ($request->filled('category')) {
             $query->where('category', $request->category);
         }
-        if ($request->filled('from')) {
-            $query->whereDate('spent_at', '>=', $request->date('from'));
-        }
-        if ($request->filled('to')) {
-            $query->whereDate('spent_at', '<=', $request->date('to'));
+
+        $now = now();
+        [$periodFrom, $periodTo] = match ($request->get('period')) {
+            'week' => [$now->copy()->startOfWeek(), $now->copy()->endOfWeek()],
+            'month' => [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()],
+            'year' => [$now->copy()->startOfYear(), $now->copy()->endOfYear()],
+            default => [null, null],
+        };
+
+        if ($periodFrom) {
+            $query->whereBetween('spent_at', [$periodFrom->toDateString(), $periodTo->toDateString()]);
+        } else {
+            if ($request->filled('from')) {
+                $query->whereDate('spent_at', '>=', $request->date('from'));
+            }
+            if ($request->filled('to')) {
+                $query->whereDate('spent_at', '<=', $request->date('to'));
+            }
         }
 
         return $query;

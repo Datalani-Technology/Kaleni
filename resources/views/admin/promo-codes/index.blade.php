@@ -50,7 +50,7 @@
                             <td data-label="">
                                 <div class="d-flex gap-1">
                                     <a href="{{ route('admin.promo-codes.edit', $p) }}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
-                                    <form action="{{ route('admin.promo-codes.destroy', $p) }}" method="POST" onsubmit="return confirm('Delete this promo code?');">
+                                    <form action="{{ route('admin.promo-codes.destroy', $p) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>

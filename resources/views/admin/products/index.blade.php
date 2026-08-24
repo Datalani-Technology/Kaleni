@@ -28,7 +28,7 @@
     <div class="card mb-3" id="bulk-actions-bar" style="display: none;">
         <div class="card-body py-2 d-flex flex-wrap align-items-center gap-2">
             <span class="me-2" id="bulk-count">0 selected</span>
-            <button type="submit" class="btn btn-danger btn-sm" id="bulk-delete-btn" onclick="return confirm('Delete selected products? This cannot be undone.');">
+            <button type="submit" class="btn btn-danger btn-sm" id="bulk-delete-btn">
                 <i class="bi bi-trash"></i> Delete selected
             </button>
             <button type="button" class="btn btn-outline-secondary btn-sm" id="bulk-clear-btn">Clear selection</button>
@@ -82,7 +82,7 @@
                                         <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-sm btn-warning" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this product? This cannot be undone.');">
+                                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger" title="Delete">

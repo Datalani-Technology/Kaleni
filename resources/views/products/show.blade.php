@@ -193,7 +193,7 @@
                     </div>
                 </form>
             @else
-                <a href="{{ route('contact') }}" class="buy-now-btn mt-4 text-decoration-none"><i class="bi bi-chat-heart" aria-hidden="true"></i> Ask about availability</a>
+                <a href="{{ route('contact') }}" class="buy-now-btn mt-4 text-decoration-none"><i class="bi bi-chat-dots" aria-hidden="true"></i> Ask about availability</a>
             @endif
 
             <a href="{{ route('products.index') }}" class="text-link product-back-link">

@@ -83,10 +83,61 @@
         }
         .admin-mobile-header .admin-menu-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
         .admin-mobile-header h1 {
+            flex: 1;
             font-size: 1.1rem;
             font-weight: 600;
             margin: 0;
         }
+        .admin-notification-btn {
+            position: relative;
+            width: 44px;
+            min-width: 44px;
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,.14);
+            border-radius: 12px;
+            background: rgba(255,255,255,.1);
+            color: #fff;
+            font-size: 1.08rem;
+        }
+        .admin-notification-btn:hover { background: rgba(255,255,255,.18); color: #fff; }
+        .admin-notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #211a20;
+            border-radius: 999px;
+            background: #e64276;
+            color: #fff;
+            font-size: .64rem;
+            font-weight: 800;
+        }
+        .admin-desktop-toolbar {
+            min-height: 66px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 10px 1.5rem;
+            border-bottom: 1px solid #ebe5e8;
+            background: rgba(255,255,255,.9);
+            backdrop-filter: blur(14px);
+        }
+        .admin-desktop-toolbar .admin-notification-btn {
+            border-color: #e4dce1;
+            background: #fff;
+            color: #2b2027;
+            box-shadow: 0 8px 22px rgba(33,26,32,.08);
+        }
+        .admin-desktop-toolbar .admin-notification-btn:hover { border-color: #d63384; color: #b5276b; }
+        .admin-desktop-toolbar .admin-notification-badge { border-color: #fff; }
         .admin-sidebar-wrap {
             position: static;
         }
@@ -221,8 +272,16 @@
             <i class="bi bi-list"></i>
         </button>
         <h1>@yield('title', 'Admin')</h1>
+        <button type="button" class="admin-notification-btn" data-bs-toggle="offcanvas" data-bs-target="#adminNotificationPanel" aria-controls="adminNotificationPanel" aria-label="Open notifications">
+            <i class="bi bi-bell"></i>
+            @if(($adminNotifications['total'] ?? 0) > 0)
+                <span class="admin-notification-badge">{{ $adminNotifications['total'] > 99 ? '99+' : $adminNotifications['total'] }}</span>
+            @endif
+        </button>
     </header>
     <div class="admin-overlay d-lg-none" id="adminOverlay" aria-hidden="true"></div>
+
+    @include('admin.partials.notification-centre')
 
     <div class="container-fluid">
         <div class="row">
@@ -235,27 +294,48 @@
                 </div>
             </div>
             <div class="col-12 col-lg-10 admin-main-wrap">
+                <div class="admin-desktop-toolbar d-none d-lg-flex">
+                    <button type="button" class="admin-notification-btn" data-bs-toggle="offcanvas" data-bs-target="#adminNotificationPanel" aria-controls="adminNotificationPanel" aria-label="Open notifications">
+                        <i class="bi bi-bell"></i>
+                        @if(($adminNotifications['total'] ?? 0) > 0)
+                            <span class="admin-notification-badge">{{ $adminNotifications['total'] > 99 ? '99+' : $adminNotifications['total'] }}</span>
+                        @endif
+                    </button>
+                </div>
                 <main class="p-4 admin-content">
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show">
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    @endif
-                    @if(session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show">
-                            {{ session('error') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    @endif
-                    @if(session('warning'))
-                        <div class="alert alert-warning alert-dismissible fade show">
-                            {{ session('warning') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    @endif
                     @yield('content')
                 </main>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container position-fixed top-0 end-0 p-3 admin-toast-container" aria-live="polite" aria-atomic="true">
+        @foreach(['success' => ['success', 'check-circle'], 'error' => ['danger', 'exclamation-octagon'], 'warning' => ['warning', 'exclamation-triangle'], 'status' => ['dark', 'info-circle']] as $flashKey => [$flashTone, $flashIcon])
+            @if(session($flashKey))
+                <div class="toast admin-toast border-0 text-bg-{{ $flashTone }}" role="status" data-bs-delay="6500" data-bs-autohide="{{ in_array($flashKey, ['error', 'warning']) ? 'false' : 'true' }}">
+                    <div class="d-flex">
+                        <div class="toast-body"><i class="bi bi-{{ $flashIcon }} me-2"></i>{{ session($flashKey) }}</div>
+                        <button type="button" class="btn-close {{ $flashTone === 'warning' ? '' : 'btn-close-white' }} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            @endif
+        @endforeach
+    </div>
+
+    <div class="modal fade" id="adminConfirmModal" tabindex="-1" aria-labelledby="adminConfirmTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content admin-confirm-card">
+                <div class="modal-body p-4 p-md-5">
+                    <div class="admin-confirm-icon" id="adminConfirmIcon"><i class="bi bi-exclamation-triangle"></i></div>
+                    <span class="admin-confirm-eyebrow">Please review</span>
+                    <h2 class="h4 mb-2" id="adminConfirmTitle">Confirm this action</h2>
+                    <p class="text-muted mb-2" id="adminConfirmMessage">This change may be difficult or impossible to reverse.</p>
+                    <p class="admin-confirm-note mb-4"><i class="bi bi-shield-exclamation"></i> Some actions cannot be reversed.</p>
+                    <div class="d-flex flex-column-reverse flex-sm-row justify-content-sm-end gap-2">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Go back</button>
+                        <button type="button" class="btn btn-danger" id="adminConfirmButton">Yes, continue</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -298,6 +378,125 @@
             if (overlay) overlay.addEventListener('click', closeMenu);
             document.querySelectorAll('.admin-sidebar a:not([target="_blank"])').forEach(function(a) {
                 a.addEventListener('click', closeMenu);
+            });
+        })();
+
+        (function () {
+            document.querySelectorAll('.admin-toast').forEach(function (element) {
+                bootstrap.Toast.getOrCreateInstance(element).show();
+            });
+
+            var modalElement = document.getElementById('adminConfirmModal');
+            var confirmButton = document.getElementById('adminConfirmButton');
+            if (!modalElement || !confirmButton) return;
+
+            var modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+            var pendingForm = null;
+            var pendingSubmitter = null;
+            var confirmedForms = new WeakSet();
+
+            function confirmationCopy(form) {
+                var copy = {
+                    title: form.dataset.confirmTitle || 'Confirm this action',
+                    message: form.dataset.confirmMessage || 'This item will be permanently removed. This cannot be undone.',
+                    label: form.dataset.confirmLabel || 'Yes, continue',
+                    variant: form.dataset.confirmVariant || 'danger'
+                };
+
+                if (form.dataset.confirmMode === 'order-status') {
+                    var originalStatus = form.dataset.originalStatus;
+                    var newStatus = form.querySelector('[name="order_status"]')?.value;
+                    var paymentStatus = form.querySelector('[name="payment_status"]')?.value;
+                    copy.title = newStatus === 'cancelled' && originalStatus !== 'cancelled' ? 'Cancel this order?' : 'Save order changes?';
+                    copy.message = newStatus === 'cancelled' && originalStatus !== 'cancelled'
+                        ? 'The order will be cancelled. The customer is not notified automatically, so contact them separately.'
+                        : 'Order status and payment status will be updated immediately to ' + newStatus + ' / ' + paymentStatus + '.';
+                    copy.label = newStatus === 'cancelled' ? 'Cancel order' : 'Save changes';
+                    copy.variant = newStatus === 'cancelled' ? 'danger' : 'warning';
+                } else if (form.dataset.confirmMode === 'user-role') {
+                    var originalRole = form.dataset.originalRole;
+                    var newRole = form.querySelector('[name="role"]')?.value;
+                    var passwordChanged = Boolean(form.querySelector('[name="password"]')?.value);
+                    if (newRole === originalRole && !passwordChanged) return null;
+                    copy.title = newRole !== originalRole ? 'Change this user’s access?' : 'Change this user’s password?';
+                    copy.message = newRole !== originalRole
+                        ? (newRole === 'admin' ? 'This grants full access to users, security settings, orders, and store management.' : 'This removes full admin access and limits the account to editor permissions.')
+                        : 'The current password will stop working as soon as this is saved.';
+                    copy.label = 'Update user';
+                    copy.variant = 'warning';
+                } else if (form.dataset.confirmMode === 'stock-adjust') {
+                    var name = form.dataset.productName || 'this product';
+                    var current = parseInt(form.dataset.currentStock, 10) || 0;
+                    var action = form.querySelector('[name="action"]')?.value;
+                    var quantity = parseInt(form.querySelector('[name="quantity"]')?.value, 10) || 0;
+                    var next = action === 'set' ? quantity : (action === 'add' ? current + quantity : current - quantity);
+                    copy.title = 'Update inventory?';
+                    copy.message = action === 'set'
+                        ? 'Set “' + name + '” from ' + current + ' to ' + next + ' units? This overwrites the current count.'
+                        : (action === 'add' ? 'Add ' + quantity + ' unit(s) to “' + name + '”? New stock: ' + next + '.' : 'Subtract ' + quantity + ' unit(s) from “' + name + '”? New stock: ' + next + '.');
+                    if (next <= 0) copy.message += ' The product will be shown as out of stock.';
+                    copy.label = 'Update stock';
+                    copy.variant = next <= 0 ? 'danger' : 'warning';
+                } else if (form.dataset.confirmMode === 'remove-logo') {
+                    if (!form.querySelector('#remove_logo')?.checked) return null;
+                    copy.title = 'Remove the custom logo?';
+                    copy.message = 'The current uploaded logo will be removed and the storefront will revert to its default brand mark.';
+                    copy.label = 'Remove logo';
+                    copy.variant = 'danger';
+                } else if (form.dataset.confirmMode === 'remove-catalog') {
+                    if (!form.querySelector('#remove_catalog')?.checked) return null;
+                    copy.title = 'Remove the promotion catalogue?';
+                    copy.message = 'Visitors will no longer be able to open or download the current promotion catalogue.';
+                    copy.label = 'Remove catalogue';
+                    copy.variant = 'danger';
+                }
+
+                return copy;
+            }
+
+            document.addEventListener('submit', function (event) {
+                var form = event.target;
+                if (!(form instanceof HTMLFormElement) || confirmedForms.has(form)) {
+                    if (form instanceof HTMLFormElement) confirmedForms.delete(form);
+                    return;
+                }
+
+                var method = form.querySelector('input[name="_method"]')?.value?.toUpperCase();
+                var needsConfirmation = method === 'DELETE' || form.dataset.confirmMessage || form.dataset.confirmMode;
+                if (!needsConfirmation) return;
+
+                var copy = confirmationCopy(form);
+                if (!copy) return;
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                pendingForm = form;
+                pendingSubmitter = event.submitter || null;
+                document.getElementById('adminConfirmTitle').textContent = copy.title;
+                document.getElementById('adminConfirmMessage').textContent = copy.message;
+                confirmButton.textContent = copy.label;
+                confirmButton.className = 'btn btn-' + copy.variant;
+                modal.show();
+            }, true);
+
+            confirmButton.addEventListener('click', function () {
+                if (!pendingForm) return;
+                var form = pendingForm;
+                var submitter = pendingSubmitter;
+                pendingForm = null;
+                pendingSubmitter = null;
+                confirmedForms.add(form);
+                modal.hide();
+                if (form.requestSubmit) {
+                    if (submitter) form.requestSubmit(submitter);
+                    else form.requestSubmit();
+                }
+                else form.submit();
+            });
+
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                pendingForm = null;
+                pendingSubmitter = null;
             });
         })();
     </script>

@@ -40,7 +40,7 @@
                                     <a href="{{ route('admin.gallery.edit', $item) }}" class="btn btn-sm btn-warning" title="Edit">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <form action="{{ route('admin.gallery.destroy', $item) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove this gallery item?');">
+                                    <form action="{{ route('admin.gallery.destroy', $item) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-danger" title="Delete">

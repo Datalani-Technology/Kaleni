@@ -10,7 +10,7 @@
     <div class="card-body">
         <p class="text-muted">Upload a PDF catalog for your promotions and specials. It will be shown on the public <a href="{{ route('promotion') }}" target="_blank">Promotions</a> page.</p>
 
-        <form action="{{ route('admin.promotion.update') }}" method="POST" enctype="multipart/form-data" onsubmit="var r=document.getElementById('remove_catalog'); return !r || !r.checked || confirm('Remove the promotion catalog?');">
+        <form action="{{ route('admin.promotion.update') }}" method="POST" enctype="multipart/form-data" data-confirm-mode="remove-catalog">
             @csrf
             <div class="mb-4">
                 <label class="form-label">Current catalog</label>

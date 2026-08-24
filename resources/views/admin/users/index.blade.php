@@ -31,7 +31,7 @@
                                 <div class="d-flex flex-wrap gap-1">
                                     <a href="{{ route('admin.users.edit', $u) }}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
                                     @if($u->id !== auth()->id())
-                                        <form action="{{ route('admin.users.destroy', $u) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this user? This cannot be undone.');">
+                                        <form action="{{ route('admin.users.destroy', $u) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
