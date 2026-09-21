@@ -15,7 +15,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'can_manage_users' => \App\Http\Middleware\CanManageUsers::class,
             'security.headers' => \App\Http\Middleware\SecurityHeadersMiddleware::class,
-            'two_factor' => \App\Http\Middleware\EnsureTwoFactorEnabled::class,
             'noindex' => \App\Http\Middleware\NoIndexHeader::class,
             'admin.session' => \App\Http\Middleware\AdminSessionSecurity::class,
         ]);

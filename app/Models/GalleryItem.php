@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class GalleryItem extends Model
 {
+    public const OCCASIONS = ['Wedding', 'Corporate', 'Birthday', 'Braai', 'Baby Shower', 'Funeral', 'Other'];
+
     protected $fillable = [
         'image',
         'title',
         'description',
+        'occasion',
         'sort_order',
     ];
 

@@ -23,25 +23,25 @@
 @section('content')
 <h1 class="mb-4"><i class="bi bi-box-seam"></i> Stock Count & Inventory</h1>
 
-<div class="row g-3 mb-4">
+<div class="row g-3 mb-4 admin-stat-cards">
     <div class="col-6 col-md-3">
         <div class="card border-0 bg-primary text-white">
             <div class="card-body"><h6 class="card-title text-white-50">Total units</h6><h3 class="mb-0">{{ number_format($totalUnits) }}</h3></div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card border-0 bg-warning text-dark">
-            <div class="card-body"><h6 class="card-title">Low stock (≤{{ $threshold }})</h6><h3 class="mb-0">{{ $lowStockCount }}</h3></div>
+        <div class="card border-0 admin-stat-white">
+            <div class="card-body"><h6 class="card-title text-muted">Low stock (≤{{ $threshold }})</h6><h3 class="mb-0 {{ $lowStockCount > 0 ? 'text-danger' : 'text-muted' }}">{{ $lowStockCount }}</h3></div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card border-0 bg-danger text-white">
+        <div class="card border-0 bg-primary text-white">
             <div class="card-body"><h6 class="card-title text-white-50">Out of stock</h6><h3 class="mb-0">{{ $outOfStockCount }}</h3></div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card border-0 bg-success text-white">
-            <div class="card-body"><h6 class="card-title text-white-50">Products</h6><h3 class="mb-0">{{ $productsCount }}</h3></div>
+        <div class="card border-0 admin-stat-white">
+            <div class="card-body"><h6 class="card-title text-muted">Menu items</h6><h3 class="mb-0 text-primary">{{ $menuItemsCount }}</h3></div>
         </div>
     </div>
 </div>
@@ -50,7 +50,7 @@
         <div class="card border-primary">
             <div class="card-body">
                 <h6 class="card-title text-muted">Potential from stock</h6>
-                <p class="mb-0 small text-muted">Stock × price for each product</p>
+                <p class="mb-0 small text-muted">Stock × price for each menu item</p>
                 <h3 class="text-primary mt-1 mb-0">N$ {{ number_format($potentialValue, 2) }}</h3>
             </div>
         </div>
@@ -58,8 +58,8 @@
     <div class="col-md-6">
         <div class="card border-success">
             <div class="card-body">
-                <h6 class="card-title text-muted">Total sales (orders)</h6>
-                <p class="mb-0 small text-muted">Sum of order totals · counts as customers buy</p>
+                <h6 class="card-title text-muted">Total sales (bookings)</h6>
+                <p class="mb-0 small text-muted">Sum of booking totals · counts as customers order</p>
                 <h3 class="text-success mt-1 mb-0">N$ {{ number_format($totalSales, 2) }}</h3>
             </div>
         </div>
@@ -68,7 +68,7 @@
 
 <div class="card mb-4">
     <div class="card-header d-flex flex-wrap align-items-center gap-2">
-        <span class="fw-bold">All products</span>
+        <span class="fw-bold">All menu items</span>
         <span class="text-muted small d-none d-md-inline">Set to = new total · Add/Subtract = amount</span>
         <form action="{{ route('admin.stock.index') }}" method="GET" class="d-flex flex-wrap gap-2 ms-md-auto stock-header-form">
             <input type="text" name="search" class="form-control form-control-sm" placeholder="Search..." value="{{ request('search') }}" style="min-width: 120px;">
@@ -85,7 +85,7 @@
             <table class="table table-hover mb-0 admin-table-cards">
                 <thead>
                     <tr>
-                        <th>Product</th>
+                        <th>Menu item</th>
                         <th>Category</th>
                         <th>Stock</th>
                         <th>Value</th>
@@ -94,26 +94,26 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($products as $p)
-                        @php $rowClass = $p->stock <= 0 ? 'stock-out' : ($p->stock <= $threshold ? 'stock-low' : 'stock-ok'); @endphp
+                    @forelse($menuItems as $item)
+                        @php $rowClass = $item->stock <= 0 ? 'stock-out' : ($item->stock <= $threshold ? 'stock-low' : 'stock-ok'); @endphp
                         <tr class="{{ $rowClass }}">
                             <td data-label="">
                                 <div class="d-flex align-items-center gap-2">
-                                    @include('admin.partials.product-image', ['product' => $p, 'size' => 40])
-                                    <span>{{ $p->name }}</span>
+                                    @include('admin.partials.menu-item-image', ['menuItem' => $item, 'size' => 40])
+                                    <span>{{ $item->name }}</span>
                                 </div>
                             </td>
-                            <td data-label="Category">{{ $p->category ?? '–' }}</td>
+                            <td data-label="Category">{{ $item->category ?? 'N/A' }}</td>
                             <td data-label="Stock">
-                                <strong>{{ $p->stock }}</strong>
-                                @if($p->stock <= 0)<span class="badge bg-danger ms-1">Out</span>
-                                @elseif($p->stock <= $threshold)<span class="badge bg-warning text-dark ms-1">Low</span>@endif
+                                <strong>{{ $item->stock }}</strong>
+                                @if($item->stock <= 0)<span class="badge bg-danger ms-1">Out</span>
+                                @elseif($item->stock <= $threshold)<span class="badge bg-warning text-dark ms-1">Low</span>@endif
                             </td>
-                            <td data-label="Value">N$ {{ number_format($p->stock * (float) $p->price, 2) }}</td>
+                            <td data-label="Value">N$ {{ number_format($item->stock * (float) $item->price, 2) }}</td>
                             <td data-label="Adjust">
-                                <form action="{{ route('admin.stock.adjust') }}" method="POST" class="adjust-form" data-product-name="{{ $p->name }}" data-current-stock="{{ $p->stock }}" data-confirm-mode="stock-adjust">
+                                <form action="{{ route('admin.stock.adjust') }}" method="POST" class="adjust-form" data-item-name="{{ $item->name }}" data-current-stock="{{ $item->stock }}" data-confirm-mode="stock-adjust">
                                     @csrf
-                                    <input type="hidden" name="product_id" value="{{ $p->id }}">
+                                    <input type="hidden" name="menu_item_id" value="{{ $item->id }}">
                                     <select name="action" class="form-select form-select-sm" style="width: 95px;">
                                         <option value="set">Set to</option>
                                         <option value="add">Add</option>
@@ -125,18 +125,18 @@
                                 </form>
                             </td>
                             <td data-label="">
-                                <a href="{{ route('admin.products.edit', $p->id) }}" class="btn btn-sm btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></a>
+                                <a href="{{ route('admin.menu-items.edit', $item->id) }}" class="btn btn-sm btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></a>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="text-center text-muted py-4" data-label="">No products match.</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted py-4" data-label="">No menu items match.</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
-    @if($products->hasPages())
-        <div class="card-footer">{{ $products->links() }}</div>
+    @if($menuItems->hasPages())
+        <div class="card-footer">{{ $menuItems->links() }}</div>
     @endif
 </div>
 
@@ -148,7 +148,7 @@
                 @foreach($recentMovements as $m)
                     <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-1">
                         <span>
-                            <strong>{{ $m->product->name }}</strong>
+                            <strong>{{ $m->menuItem->name ?? 'Deleted item' }}</strong>
                             @if($m->type === 'set') set to <strong>{{ $m->quantity_after }}</strong>
                             @elseif($m->type === 'add') +{{ $m->delta }} → <strong>{{ $m->quantity_after }}</strong>
                             @else {{ $m->delta }} → <strong>{{ $m->quantity_after }}</strong> @endif

@@ -29,7 +29,7 @@
                         <tr>
                             <td data-label="Code"><strong>{{ $p->code }}</strong>@if($p->description)<br><span class="text-muted small">{{ $p->description }}</span>@endif</td>
                             <td data-label="Discount">{{ $p->type === 'percent' ? number_format($p->value, 0) . '%' : 'N$ ' . number_format($p->value, 2) }}</td>
-                            <td data-label="Scope">{{ $p->scope === 'all' ? 'All products' : $p->products_count . ' product(s)' }}</td>
+                            <td data-label="Scope">{{ $p->scope === 'all' ? 'All menu items' : $p->menu_items_count . ' menu item(s)' }}</td>
                             <td data-label="Window">
                                 @if($p->starts_at || $p->ends_at)
                                     {{ $p->starts_at?->format('d M Y') ?: 'now' }} &rarr; {{ $p->ends_at?->format('d M Y') ?: 'no end' }}

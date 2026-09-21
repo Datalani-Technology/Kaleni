@@ -112,9 +112,9 @@
                         <tr>
                             <td data-label="Date">{{ $e->spent_at->format('d M Y') }}</td>
                             <td data-label="Category"><span class="badge bg-secondary">{{ $e->category }}</span></td>
-                            <td data-label="Description">{{ $e->description ?: '—' }}</td>
+                            <td data-label="Description">{{ $e->description ?: 'N/A' }}</td>
                             <td data-label="Amount">N$ {{ number_format($e->amount, 2) }}</td>
-                            <td data-label="Logged by">{{ $e->user->name ?? '—' }}</td>
+                            <td data-label="Logged by">{{ $e->user->name ?? 'N/A' }}</td>
                             <td data-label="">
                                 <form action="{{ route('admin.expenses.destroy', $e) }}" method="POST">
                                     @csrf

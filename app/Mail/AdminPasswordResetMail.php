@@ -20,7 +20,7 @@ class AdminPasswordResetMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reset your /Namsa Florals admin password',
+            subject: 'Reset your Kaleni Catering Services admin password',
         );
     }
 

@@ -19,7 +19,7 @@
     @if(!empty($seo['abstract']))
     <meta name="abstract" content="{{ $seo['abstract'] }}">
     @endif
-    <meta name="author" content="/Namsa Florals">
+    <meta name="author" content="Kaleni Catering Services">
     <meta name="robots" content="index, follow">
     <meta name="language" content="English">
     <meta name="revisit-after" content="7 days">
@@ -37,7 +37,7 @@
     <meta property="og:title" content="{{ $seo['title'] }}">
     <meta property="og:description" content="{{ $seo['description'] }}">
     <meta property="og:image" content="{{ $seo['image'] }}">
-    <meta property="og:site_name" content="/Namsa Florals">
+    <meta property="og:site_name" content="Kaleni Catering Services">
     <meta property="og:locale" content="en_NA">
     
     <!-- Twitter -->
@@ -70,10 +70,12 @@
     <!-- Stylesheets -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">
     <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.css') }}">
-    
+    <!-- Kaleni brand color tokens — single source of truth for :root, shared with admin.css/admin-auth.css -->
+    <link rel="stylesheet" href="{{ asset('css/kaleni-theme.css') }}">
+
     <!-- Structured Data -->
     @if(isset($structuredData))
         <script type="application/ld+json">
@@ -82,18 +84,10 @@
     @endif
     <style>
         :root {
-            --primary-color: #d63384;
-            --primary-dark: #ad2765;
-            --secondary-color: #ffc107;
-            --success-color: #28a745;
-            --ink: #221c22;
-            --muted: #726a72;
-            --bg: #faf7f8;
-            --surface: #ffffff;
             --radius: 14px;
             --radius-sm: 8px;
-            --shadow-sm: 0 2px 10px rgba(34, 28, 34, 0.06);
-            --shadow-md: 0 10px 30px rgba(34, 28, 34, 0.10);
+            --shadow-sm: 0 2px 10px rgba(41, 33, 31, 0.06);
+            --shadow-md: 0 10px 30px rgba(41, 33, 31, 0.10);
             --font-display: 'Manrope', 'Segoe UI', Arial, sans-serif;
             --font-body: 'Manrope', 'Segoe UI', Arial, sans-serif;
         }
@@ -241,7 +235,11 @@
         }
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            /* auto-fit (not auto-fill/a fixed column count): fewer cards than
+               a full row centre and size evenly instead of packing left with
+               an empty, lopsided gap on the right. */
+            grid-template-columns: repeat(auto-fit, minmax(240px, 280px));
+            justify-content: center;
             gap: 30px;
         }
         .product-card {
@@ -263,8 +261,8 @@
             display: block;
         }
         .product-image-placeholder {
-            background: linear-gradient(135deg, #fdf0f6 0%, #fbe4ee 100%);
-            color: var(--primary-color);
+            background: linear-gradient(135deg, #241b17 0%, #14100e 100%);
+            color: var(--secondary-color);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -312,7 +310,7 @@
         .buy-now-btn:hover {
             background: var(--primary-dark);
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(173, 39, 101, 0.25);
+            box-shadow: 0 6px 16px rgba(104, 11, 28, 0.3);
             color: white;
         }
         .buy-now-btn:disabled {
@@ -322,65 +320,7 @@
             transform: none;
             box-shadow: none;
         }
-        footer {
-            background: #333;
-            color: white;
-            padding: 40px 0 20px;
-            margin-top: 60px;
-        }
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        .footer-section {
-            margin-bottom: 30px;
-        }
-        .footer-section h5 {
-            color: #fff;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-        .social-links {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .social-link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border-radius: 50%;
-            text-decoration: none;
-            transition: all 0.3s;
-            font-size: 1.2rem;
-        }
-        .social-link:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-3px);
-            color: white;
-        }
-        .footer-bottom {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: 30px;
-        }
-        .footer-credit {
-            color: #888;
-            text-decoration: none;
-            border-bottom: 1px dotted #888;
-            transition: color 0.3s;
-        }
-        .footer-credit:hover {
-            color: #fff;
-            border-bottom-color: #fff;
-        }
+        /* Footer styling lives in storefront.css (footer.site-footer and friends) */
         /* Floating buttons */
         .scroll-top-btn,
         .float-whatsapp {
@@ -434,20 +374,14 @@
             max-width: 1200px;
             border-radius: 5px;
         }
-        @media (max-width: 1024px) {
-            .products-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
         @media (max-width: 768px) {
             .products-grid {
-                grid-template-columns: repeat(2, 1fr);
                 gap: 20px;
             }
         }
         @media (max-width: 480px) {
             .products-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: minmax(0, 340px);
             }
         }
         /* Small phones (e.g. 320px–400px) */
@@ -465,12 +399,7 @@
             .product-price { font-size: 16px; }
             .product-image { height: 220px; }
             .buy-now-btn { padding: 10px; font-size: 13px; }
-            footer { padding: 24px 0 16px; margin-top: 40px; }
-            .footer-content { padding: 0 12px; }
-            .footer-section { margin-bottom: 20px; }
-            .footer-section h5 { font-size: 1rem; }
-            .footer-bottom { padding-top: 16px; margin-top: 20px; }
-            .footer-bottom p { font-size: 0.85rem; line-height: 1.5; }
+            /* Footer responsive rules live in storefront.css */
         }
 
         /* Mobile nav toggle (small screens) */
@@ -523,7 +452,7 @@
         .mobile-search-bar .search-form { width: 100%; gap: 8px; display: flex; align-items: center; }
         .mobile-search-bar .search-input { flex: 1; min-width: 0; height: 40px; font-size: 16px; }
         .mobile-search-bar .search-btn { padding: 8px 14px; background: #333; color: #fff; border-radius: 6px; }
-        @media (max-width: 767px) {
+        @media (max-width: 991px) {
             .header-content {
                 flex-wrap: wrap;
                 justify-content: space-between;
@@ -562,7 +491,7 @@
             .mobile-search-bar { order: 5; width: 100%; }
             .nav-group { order: 6; }
         }
-        @media (min-width: 768px) {
+        @media (min-width: 992px) {
             .nav-group {
                 display: flex !important;
                 flex-direction: row;
@@ -583,11 +512,11 @@
         <div class="announcement-inner">
             <span class="announcement-item">
                 <i class="bi bi-truck" aria-hidden="true"></i>
-                Same-day delivery available in Windhoek
+                Free delivery around Windhoek
             </span>
             <a href="{{ config('social.whatsapp') }}" target="_blank" rel="noopener noreferrer" class="announcement-item announcement-link">
                 <i class="bi bi-whatsapp" aria-hidden="true"></i>
-                Need help? Chat with our florist
+                Need help? Chat with Chef K
             </a>
         </div>
     </div>
@@ -595,23 +524,22 @@
         <div class="header-content">
             @php
                 $logoPath = \App\Models\Setting::get('logo_path');
-                $logoText = \App\Models\Setting::get('logo_text', '/Namsa Florals');
+                $logoText = \App\Models\Setting::get('logo_text', 'Kaleni Catering Services');
             @endphp
-            <a href="{{ route('home') }}" class="logo {{ $logoPath ? 'logo--image-only' : '' }}">
+            <a href="{{ route('home') }}" class="logo logo--image-only">
                 @if($logoPath)
                     <img src="{{ asset('storage/' . $logoPath) }}" alt="{{ $logoText }}" class="logo-img">
                 @else
-                    <i class="bi bi-flower1"></i>
-                    <span>{{ $logoText }}</span>
+                    <img src="{{ asset('images/kaleni/brand/kaleni-logo.jpg') }}" alt="{{ $logoText }}" class="logo-img">
                 @endif
             </a>
-            <button type="button" class="mobile-search-toggle" id="mobileSearchToggle" aria-label="Search" title="Search products">
+            <button type="button" class="mobile-search-toggle" id="mobileSearchToggle" aria-label="Search" title="Search the menu">
                 <i class="bi bi-search"></i>
             </button>
             @php
                 $headerCartCount = \App\Models\CartItem::where('session_id', session()->getId())->sum('quantity');
             @endphp
-            <a href="{{ route('cart.index') }}" class="mobile-cart-link" id="mobileCartLink" aria-label="Cart" title="View cart">
+            <a href="{{ route('cart.index') }}" class="mobile-cart-link" id="mobileCartLink" aria-label="My order" title="View my order">
                 <i class="bi bi-cart3"></i>
                 <span class="cart-badge {{ $headerCartCount > 0 ? '' : 'd-none' }}" id="cartBadgeMobile">{{ $headerCartCount }}</span>
             </a>
@@ -619,8 +547,8 @@
                 <i class="bi bi-list"></i>
             </button>
             <div class="mobile-search-bar" id="mobileSearchBar" role="search">
-                <form action="{{ route('products.index') }}" method="GET" class="search-form">
-                    <input type="text" name="search" placeholder="Search products..." value="{{ request('search') }}" class="search-input" aria-label="Search products">
+                <form action="{{ route('menu.index') }}" method="GET" class="search-form">
+                    <input type="text" name="search" placeholder="Search the menu..." value="{{ request('search') }}" class="search-input" aria-label="Search the menu">
                     <button type="submit" class="search-btn">
                         <i class="bi bi-search" aria-hidden="true"></i>
                         <span class="search-btn-label">Search</span>
@@ -630,23 +558,24 @@
             <div class="nav-group" id="navGroup">
                 <ul class="nav-links">
                     <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}" @if(request()->routeIs('home')) aria-current="page" @endif>Home</a></li>
-                    <li><a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? 'active' : '' }}" @if(request()->routeIs('products.*')) aria-current="page" @endif>Flowers</a></li>
-                    <li><a href="{{ route('promotion') }}" class="{{ request()->routeIs('promotion') ? 'active' : '' }}" @if(request()->routeIs('promotion')) aria-current="page" @endif>Promotions</a></li>
+                    <li><a href="{{ route('menu.index') }}" class="{{ request()->routeIs('menu.*') ? 'active' : '' }}" @if(request()->routeIs('menu.*')) aria-current="page" @endif>Menu</a></li>
+                    <li><a href="{{ route('food-of-the-day.index') }}" class="{{ request()->routeIs('food-of-the-day.*') ? 'active' : '' }}" @if(request()->routeIs('food-of-the-day.*')) aria-current="page" @endif>Food of the Day</a></li>
+                    <li><a href="{{ route('special-requests.create') }}" class="{{ request()->routeIs('special-requests.*') ? 'active' : '' }}" @if(request()->routeIs('special-requests.*')) aria-current="page" @endif>Special Request</a></li>
+                    <li><a href="{{ route('promotion') }}" class="{{ request()->routeIs('promotion') ? 'active' : '' }}" @if(request()->routeIs('promotion')) aria-current="page" @endif>Packages</a></li>
                     <li><a href="{{ route('gallery') }}" class="{{ request()->routeIs('gallery') ? 'active' : '' }}" @if(request()->routeIs('gallery')) aria-current="page" @endif>Gallery</a></li>
                     <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}" @if(request()->routeIs('contact')) aria-current="page" @endif>Contact</a></li>
-                    <li><a href="{{ route('terms') }}" class="{{ request()->routeIs('terms') ? 'active' : '' }}" @if(request()->routeIs('terms')) aria-current="page" @endif>Terms</a></li>
                 </ul>
                 <div class="search-cart">
-                    <form action="{{ route('products.index') }}" method="GET" class="search-form">
-                        <input type="text" name="search" placeholder="Search products..." value="{{ request('search') }}" class="search-input">
-                        <button type="submit" class="search-btn" aria-label="Search products">
+                    <form action="{{ route('menu.index') }}" method="GET" class="search-form">
+                        <input type="text" name="search" placeholder="Search the menu..." value="{{ request('search') }}" class="search-input">
+                        <button type="submit" class="search-btn" aria-label="Search the menu">
                             <i class="bi bi-search" aria-hidden="true"></i>
                             <span class="search-btn-label">Search</span>
                         </button>
                     </form>
                     <a href="{{ route('cart.index') }}" class="cart-link" id="cartLink">
                         <i class="bi bi-bag" aria-hidden="true"></i>
-                        <span>Cart</span>
+                        <span>My Order</span>
                         <span class="cart-badge {{ $headerCartCount > 0 ? '' : 'd-none' }}" id="cartBadgeNav">{{ $headerCartCount }}</span>
                     </a>
                 </div>
@@ -672,67 +601,114 @@
         @yield('content')
     </main>
 
-    <footer role="contentinfo">
+    <footer role="contentinfo" class="site-footer" id="siteFooter" data-footer-carousel data-interval="6000">
+        @foreach($brandCarouselImages as $i => $image)
+            <div class="site-footer-bg {{ $loop->first ? 'is-active' : '' }}" data-footer-bg-slide aria-hidden="true" style="background-image: url('{{ asset($image) }}');"></div>
+        @endforeach
+        <div class="site-footer-overlay" aria-hidden="true"></div>
+        <svg class="site-footer-wave" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0,22 C240,60 420,0 700,18 C900,30 1040,6 1200,26 L1200,0 L0,0 Z" fill="var(--bg)"></path>
+        </svg>
         <div class="footer-content">
-            <div class="row g-4">
-                <div class="col-lg-4 footer-section">
-                    <h5>/Namsa Florals</h5>
+            <div class="row g-4 gy-5">
+                <div class="col-lg-4 footer-section footer-brand footer-animate">
+                    <a href="{{ route('home') }}" class="footer-logo">
+                        @if($logoPath)
+                            <img src="{{ asset('storage/' . $logoPath) }}" alt="{{ $logoText }}">
+                        @else
+                            <img src="{{ asset('images/kaleni/brand/kaleni-logo.jpg') }}" alt="{{ $logoText }}">
+                        @endif
+                    </a>
                     <p class="footer-description">
-                        Your premier destination for personalized flowers in Namibia. Fresh, hand-picked flowers for every occasion.
+                        Home-style catering in Windhoek, Namibia. Lunch and dinner packs, a new Food of the Day, and full event catering by Chef K.
                     </p>
+                    <div class="footer-social">
+                        <span class="footer-social-label">Follow us</span>
+                        <div class="social-links">
+                            @if(config('social.facebook'))
+                            <a href="{{ config('social.facebook') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="Facebook" aria-label="Facebook">
+                                <i class="bi bi-facebook"></i>
+                            </a>
+                            @endif
+                            @if(config('social.instagram'))
+                            <a href="{{ config('social.instagram') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="Instagram" aria-label="Instagram">
+                                <i class="bi bi-instagram"></i>
+                            </a>
+                            @endif
+                            @if(config('social.tiktok'))
+                            <a href="{{ config('social.tiktok') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="TikTok" aria-label="TikTok">
+                                <svg viewBox="0 0 448 512" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z"/></svg>
+                            </a>
+                            @endif
+                            @if(config('social.whatsapp'))
+                            <a href="{{ config('social.whatsapp') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="WhatsApp" aria-label="WhatsApp">
+                                <i class="bi bi-whatsapp"></i>
+                            </a>
+                            @endif
+                            @if(config('social.whatsapp_channel'))
+                                <a href="{{ config('social.whatsapp_channel') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="WhatsApp Channel" aria-label="Follow our WhatsApp Channel">
+                                    <i class="bi bi-broadcast"></i>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
                 </div>
-                <div class="col-sm-6 col-lg-4 footer-section">
+                <div class="col-sm-6 col-lg-2 footer-section footer-animate" style="--footer-delay: 0.08s">
                     <h5>Quick Links</h5>
-                    <ul class="footer-links">
+                    <ul class="footer-links footer-links-single">
                         <li><a href="{{ route('home') }}">Home</a></li>
-                        <li><a href="{{ route('products.index') }}">Flowers</a></li>
-                        <li><a href="{{ route('promotion') }}">Promotions</a></li>
+                        <li><a href="{{ route('menu.index') }}">Menu</a></li>
                         <li><a href="{{ route('gallery') }}">Gallery</a></li>
                         <li><a href="{{ route('contact') }}">Contact</a></li>
-                        <li><a href="{{ route('terms') }}">Terms</a></li>
-                        <li><a href="{{ route('privacy') }}">Privacy Policy</a></li>
-                        <li><a href="{{ route('delivery') }}">Delivery Guide</a></li>
-                        <li><a href="{{ route('returns') }}">Returns &amp; Care</a></li>
+                        <li><a href="{{ route('cart.index') }}">My Order</a></li>
                     </ul>
                 </div>
-                <div class="col-sm-6 col-lg-4 footer-section">
-                    <h5>Contact &amp; social</h5>
-                    <div class="footer-contact">
-                        <a href="tel:{{ preg_replace('/[^+0-9]/', '', config('contact.phone')) }}">
-                            <i class="bi bi-telephone" aria-hidden="true"></i>{{ config('contact.phone') }}
-                        </a>
-                        <a href="mailto:{{ config('contact.email_info') }}">
-                            <i class="bi bi-envelope" aria-hidden="true"></i>{{ config('contact.email_info') }}
-                        </a>
-                    </div>
-                    <div class="social-links">
-                        <a href="{{ config('social.facebook') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="Facebook" aria-label="Facebook">
-                            <i class="bi bi-facebook"></i>
-                        </a>
-                        <a href="{{ config('social.instagram') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="Instagram" aria-label="Instagram">
-                            <i class="bi bi-instagram"></i>
-                        </a>
-                        <a href="{{ config('social.tiktok') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="TikTok" aria-label="TikTok">
-                            <svg viewBox="0 0 448 512" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z"/></svg>
-                        </a>
-                        <a href="{{ config('social.whatsapp') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="WhatsApp" aria-label="WhatsApp">
-                            <i class="bi bi-whatsapp"></i>
-                        </a>
-                        @if(config('social.whatsapp_channel'))
-                            <a href="{{ config('social.whatsapp_channel') }}" target="_blank" rel="noopener noreferrer" class="social-link" title="WhatsApp Channel" aria-label="Follow our WhatsApp Channel">
-                                <i class="bi bi-broadcast"></i>
+                <div class="col-sm-6 col-lg-3 footer-section footer-animate" style="--footer-delay: 0.16s">
+                    <h5>Our Services</h5>
+                    <ul class="footer-links footer-links-single">
+                        <li><a href="{{ route('food-of-the-day.index') }}">Food of the Day</a></li>
+                        <li><a href="{{ route('special-requests.create') }}">Event &amp; Special Catering</a></li>
+                        <li><a href="{{ route('promotion') }}">Packages &amp; Promotions</a></li>
+                        <li><a href="{{ route('delivery') }}">Delivery &amp; Setup</a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-6 col-lg-3 footer-section footer-animate" style="--footer-delay: 0.24s">
+                    <h5>Contact Information</h5>
+                    <ul class="footer-contact-list">
+                        <li>
+                            <a href="tel:{{ preg_replace('/[^+0-9]/', '', config('contact.phone')) }}">
+                                <i class="bi bi-telephone" aria-hidden="true"></i>
+                                <span>{{ config('contact.phone') }}</span>
                             </a>
-                        @endif
-                    </div>
+                        </li>
+                        <li>
+                            <a href="mailto:{{ config('contact.email_info') }}">
+                                <i class="bi bi-envelope" aria-hidden="true"></i>
+                                <span>{{ config('contact.email_info') }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <span class="footer-contact-static">
+                                <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                                <span>{{ config('contact.address.city') }}, {{ config('contact.address.country') }}@if(config('contact.address.po_box')), {{ config('contact.address.po_box') }}@endif</span>
+                            </span>
+                        </li>
+                    </ul>
                 </div>
             </div>
+            <div class="footer-divider" aria-hidden="true"></div>
             <div class="footer-bottom">
-                <p style="margin: 0; text-align: center;">
-                    &copy; {{ date('Y') }} /Namsa Florals. All rights reserved. &middot; Beautiful flowers for every occasion &middot; Website by <a href="https://datalani.com" target="_blank" rel="noopener noreferrer" class="footer-credit">Datalani Technology</a>
-                </p>
+                <p class="footer-copyright">&copy; {{ date('Y') }} Kaleni Catering Services. All rights reserved.</p>
+                <ul class="footer-legal">
+                    <li><a href="{{ route('terms') }}">Terms</a></li>
+                    <li><a href="{{ route('privacy') }}">Privacy Policy</a></li>
+                    <li><a href="{{ route('cancellations') }}">Cancellations &amp; Refunds</a></li>
+                </ul>
+                <p class="footer-credit-line">Website by <a href="https://datalani.com" target="_blank" rel="noopener noreferrer" class="footer-credit">Datalani Technology</a></p>
             </div>
         </div>
     </footer>
+    <noscript><style>.footer-animate { opacity: 1 !important; transform: none !important; }</style></noscript>
 
     <a href="#" class="scroll-top-btn" id="scrollTopBtn" aria-label="Scroll to top" title="Back to top">
         <i class="bi bi-arrow-up"></i>
@@ -767,6 +743,45 @@
                     }
                 });
             }
+        })();
+        (function() {
+            var footer = document.querySelector('[data-footer-carousel]');
+            if (!footer) return;
+            var slides = Array.prototype.slice.call(footer.querySelectorAll('[data-footer-bg-slide]'));
+            var interval = Number(footer.getAttribute('data-interval')) || 6000;
+            var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var current = 0;
+            var timer = null;
+            if (slides.length < 2 || reduceMotion) return;
+            function showSlide(index) {
+                current = (index + slides.length) % slides.length;
+                slides.forEach(function(slide, i) { slide.classList.toggle('is-active', i === current); });
+            }
+            function schedule() {
+                window.clearTimeout(timer);
+                timer = window.setTimeout(function() { showSlide(current + 1); schedule(); }, interval);
+            }
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) window.clearTimeout(timer); else schedule();
+            });
+            schedule();
+        })();
+        (function() {
+            var items = document.querySelectorAll('.footer-animate');
+            if (!items.length) return;
+            if (typeof IntersectionObserver !== 'function') {
+                items.forEach(function(item) { item.classList.add('is-visible'); });
+                return;
+            }
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+            items.forEach(function(item) { observer.observe(item); });
         })();
         (function() {
             var btn = document.getElementById('scrollTopBtn');
@@ -818,9 +833,9 @@
                                 b.textContent = n;
                                 b.classList.toggle('d-none', !(n > 0));
                             });
-                            showToast(data.message || 'Added to cart.');
+                            showToast(data.message || 'Added to your order.');
                         } else {
-                            showToast(data.message || 'Could not add to cart.', true);
+                            showToast(data.message || 'Could not add to your order.', true);
                         }
                     }).catch(function() {
                         showToast('Something went wrong. Please try again.', true);

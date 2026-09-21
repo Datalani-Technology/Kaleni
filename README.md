@@ -1,20 +1,25 @@
-# Namsa Flora - Flower E-Commerce Platform
+# Kaleni Catering Services — Booking & Ordering Platform
 
-A beautiful and modern flower selling e-commerce website built with Laravel, featuring admin product management, shopping cart, checkout with DPO Namibia payment gateway and WhatsApp payment options, and intelligent product recommendations.
+A modern catering booking and ordering platform for **Kaleni Catering Services** (Chef K), built with Laravel. Clients browse the menu, see a daily **Food of the Day**, order lunch/dinner packs, book full event catering, or send a bespoke **Special Request**. Includes an admin console for menu, bookings, stock, promo codes, expenses, reports and analytics.
 
 ## Features
 
-- 🌸 **Product Catalog**: Browse beautiful flowers with detailed descriptions and images
-- 🛒 **Shopping Cart**: Add products to cart and manage quantities
+- 🍽️ **Menu Catalog**: Browse home-style dishes, packs, and platters with descriptions, prices, and photos
+- ⭐ **Food of the Day**: A different daily special, scheduled by admins, shown on the homepage and its own page
+- 📝 **Event Bookings**: Clients pick an event date, serving period (breakfast/lunch/dinner/full day/custom), guest count, and event type
+- 💬 **Special Requests**: A form for bespoke dishes/menus not on the standing menu, quoted by staff
+- 🛒 **Order Builder**: Add menu items to an in-progress order before booking
 - 💳 **Payment Options**:
   - DPO Namibia payment gateway integration
-  - WhatsApp payment option
-- 👨‍💼 **Admin Panel**: 
-  - Secure admin login
-  - Product management (Create, Read, Update, Delete)
-  - Order management dashboard
-- 🤖 **Smart Recommendations**: Product recommendations based on user purchase behavior
-- 📱 **Responsive Design**: Beautiful, modern UI that works on all devices
+  - WhatsApp payment/confirmation option
+- 👨‍💼 **Admin Panel**:
+  - Secure admin login with two-factor authentication
+  - Menu item management (Create, Read, Update, Delete)
+  - Booking management dashboard
+  - Food of the Day scheduling
+  - Special request tracking (status, quotes, client notifications)
+- 🤖 **Smart Recommendations**: "Often ordered together" menu suggestions based on past bookings
+- 📱 **Responsive Design**: Modern UI that works on all devices
 
 ## Requirements
 
@@ -27,7 +32,7 @@ A beautiful and modern flower selling e-commerce website built with Laravel, fea
 
 1. **Clone or navigate to the project directory**
    ```bash
-   cd "C:\xampp\htdocs\namsa flora"
+   cd "C:\xampp\htdocs\kaleni-catering"
    ```
 
 2. **Install dependencies**
@@ -36,10 +41,10 @@ A beautiful and modern flower selling e-commerce website built with Laravel, fea
    ```
 
 3. **Configure environment**
-   - Create a MySQL database named `namsa_flora` in phpMyAdmin
+   - Create a MySQL database named `kaleni_database` in phpMyAdmin
    - Update `.env` file with your database credentials:
      ```
-     DB_DATABASE=namsa_flora
+     DB_DATABASE=kaleni_database
      DB_USERNAME=root
      DB_PASSWORD=your_password
      ```
@@ -53,13 +58,13 @@ A beautiful and modern flower selling e-commerce website built with Laravel, fea
      ```
    - Contact & WhatsApp (see `.env.example`):
      ```
-     CONTACT_PHONE=+264815574680
-     CONTACT_EMAIL_INFO=info@namsa.com.na
-     CONTACT_EMAIL_ORDERS=order@namsa.com.na
-     WHATSAPP_PAYMENT_NUMBER=264815574680
-     SOCIAL_WHATSAPP=https://wa.me/264815574680
+     CONTACT_PHONE=+264813382817
+     CONTACT_EMAIL_INFO=kalenilucas061@gmail.com
+     CONTACT_EMAIL_ORDERS=kalenilucas061@gmail.com
+     WHATSAPP_PAYMENT_NUMBER=264813382817
+     SOCIAL_WHATSAPP=https://wa.me/264813382817
      ```
-   - Production domain: **namsa.com.na**. Set `APP_URL=https://namsa.com.na`.
+   - Set `APP_URL` to your real production domain once one exists.
 
 5. **Run migrations and seeders**
    ```bash
@@ -80,33 +85,43 @@ A beautiful and modern flower selling e-commerce website built with Laravel, fea
 8. **Access the application**
    - Frontend: http://localhost:8000
    - Admin Login: http://localhost:8000/`{your ADMIN_PATH}`/login (set `ADMIN_PATH` in `.env`)
-     - Email: admin@namsa.com.na
+     - Email: kalenilucas061@gmail.com *(seeder default — change this on first login)*
      - Password: printed once to the terminal when `AdminUserSeeder` runs; set up
        two-factor authentication on first login (required)
 
 ## Database Structure
 
-- **users**: User accounts (admin and customers)
-- **products**: Flower products with images, prices, and stock
-- **cart_items**: Shopping cart items (session-based)
-- **orders**: Customer orders
-- **order_items**: Individual items in each order
-- **product_recommendations**: Product recommendation scores
+- **users**: User accounts (admin and staff)
+- **menu_items**: Catering menu items with images, prices, and stock
+- **cart_items**: In-progress order items (session-based)
+- **bookings**: Client bookings for an event/period
+- **booking_items**: Individual items in each booking
+- **menu_item_recommendations**: "Often ordered together" scores
+- **food_of_the_day**: The scheduled daily special per date
+- **special_requests**: Bespoke item/event requests from clients
 
 ## Admin Features
 
-### Product Management
-- Create new products with images
-- Edit existing products
-- Delete products
+### Menu Management
+- Create new menu items with images, pricing unit, and serving size
+- Edit existing menu items
+- Delete menu items
 - Manage stock quantities
-- Activate/deactivate products
+- Activate/deactivate or feature menu items
+
+### Food of the Day
+- Schedule a daily special per calendar date
+- Link to an existing menu item, or post a one-off dish with its own title/price/image
+
+### Special Requests
+- Review bespoke requests from clients
+- Track status (new → in review → quoted → accepted/declined)
+- Email the client automatically when a quote is ready
 
 ### Dashboard
-- View total products count
-- View total orders
-- View pending orders
-- Quick access to product management
+- View total menu items, bookings, and pending bookings
+- Revenue, expenses, and net profit at a glance
+- Quick access to menu and booking management
 
 ## Payment Integration
 
@@ -114,19 +129,10 @@ A beautiful and modern flower selling e-commerce website built with Laravel, fea
 The system integrates with DPO (Direct Pay Online) payment gateway for Namibia. Configure your DPO credentials in the `.env` file. The integration supports:
 - Credit/Debit card payments
 - Payment verification
-- Order status updates
+- Booking status updates
 
 ### WhatsApp Payment
-Customers can choose to pay via WhatsApp. The system generates a formatted message with order details and opens WhatsApp with the configured number.
-
-## Product Recommendations
-
-The system automatically tracks product associations based on:
-- Products purchased together
-- User browsing behavior
-- Purchase history
-
-Recommendations appear on product detail pages to help customers discover related items.
+Clients can choose to confirm via WhatsApp. The system generates a formatted message with booking details and opens WhatsApp with the configured number.
 
 ## File Structure
 
@@ -136,19 +142,29 @@ app/
 │   ├── Controllers/
 │   │   ├── Admin/
 │   │   │   ├── AuthController.php
-│   │   │   └── ProductController.php
+│   │   │   ├── MenuItemController.php
+│   │   │   ├── BookingController.php
+│   │   │   ├── FoodOfTheDayController.php
+│   │   │   └── SpecialRequestController.php
 │   │   ├── CartController.php
-│   │   ├── CheckoutController.php
+│   │   ├── BookingController.php
+│   │   ├── FoodOfTheDayController.php
+│   │   ├── SpecialRequestController.php
 │   │   ├── PaymentController.php
-│   │   └── ProductController.php
+│   │   └── MenuController.php
+│   ├── Requests/
+│   │   ├── StoreBookingRequest.php
+│   │   └── StoreSpecialRequestRequest.php
 │   └── Middleware/
 │       └── AdminMiddleware.php
 ├── Models/
 │   ├── CartItem.php
-│   ├── Order.php
-│   ├── OrderItem.php
-│   ├── Product.php
-│   ├── ProductRecommendation.php
+│   ├── Booking.php
+│   ├── BookingItem.php
+│   ├── MenuItem.php
+│   ├── MenuItemRecommendation.php
+│   ├── FoodOfTheDay.php
+│   ├── SpecialRequest.php
 │   └── User.php
 database/
 ├── migrations/
@@ -158,10 +174,20 @@ resources/
 └── views/
     ├── admin/
     ├── cart/
-    ├── checkout/
+    ├── booking/
+    ├── food-of-the-day/
+    ├── special-requests/
     ├── layouts/
-    └── products/
+    └── menu/
 ```
+
+## Testing
+
+```bash
+php artisan test
+```
+
+Feature tests cover the booking flow (stock checks, promo codes), Food of the Day resolution, special request submission, and admin authentication/2FA.
 
 ## Security Notes
 
@@ -172,8 +198,8 @@ resources/
 
 ## Support
 
-For issues or questions, please contact the development team.
+For issues or questions, contact Kaleni Catering Services at kalenilucas061@gmail.com or the development team.
 
 ## License
 
-This project is proprietary software for Namsa Flora.
+This project is proprietary software for Kaleni Catering Services.

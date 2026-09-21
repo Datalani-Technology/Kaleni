@@ -15,13 +15,13 @@ class Customer extends Model
         'notes',
     ];
 
-    public function orders(): HasMany
+    public function bookings(): HasMany
     {
-        return $this->hasMany(Order::class);
+        return $this->hasMany(Booking::class);
     }
 
     public function lifetimeSpend(): float
     {
-        return (float) $this->orders()->where('order_status', '!=', 'cancelled')->sum('total_amount');
+        return (float) $this->bookings()->where('booking_status', '!=', 'cancelled')->sum('total_amount');
     }
 }

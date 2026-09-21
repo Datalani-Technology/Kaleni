@@ -1,0 +1,63 @@
+/*
+ * Kaleni Catering Services — brand color tokens.
+ * Single source of truth for the site's CSS custom properties. Linked
+ * before storefront.css / admin.css / admin-auth.css in every layout, so
+ * those files can drop their own :root color block and just consume these.
+ *
+ * Brand palette (from the Kaleni logo):
+ *   Burgundy       #680B1C  — primary
+ *   Golden Orange  #F8AD27  — secondary / accent
+ *   Dark Brown     #29211F  — body text
+ *   Black / White  #000000 / #FFFFFF — deliberate high-contrast accents
+ */
+:root {
+    --primary-color: #680B1C;
+    --primary-dark: #4A0814;
+    --primary-soft: #F7ECD3;
+    --secondary-color: #F8AD27;
+    --secondary-dark: #D6900F;
+    --ink: #29211F;
+    --muted: #7A6F6B;
+    --bg: #FBF8F6;
+    --surface: #FFFFFF;
+    --border: #EDE3E0;
+    --success-color: #21845A;
+    --danger-color: #B3261E;
+    --brand-black: #000000;
+    --brand-white: #FFFFFF;
+}
+
+/*
+ * Bootstrap alert overrides — swap Bootstrap's default cool pink/blue/yellow
+ * for warm tones drawn from the brand palette, so validation/status banners
+ * read as part of the same site rather than an unstyled library default.
+ */
+.alert-danger {
+    color: #6b1a14;
+    background-color: #f7e3df;
+    border-color: #f0cec7;
+}
+
+.alert-success {
+    color: #124a30;
+    background-color: #e3f2e9;
+    border-color: #c9e6d5;
+}
+
+.alert-warning {
+    color: #6b4a08;
+    background-color: var(--primary-soft);
+    border-color: #ecd9a8;
+}
+
+.alert-info {
+    color: var(--primary-dark);
+    background-color: var(--primary-soft);
+    border-color: #ecd9a8;
+}
+
+.alert-danger .btn-close,
+.alert-warning .btn-close,
+.alert-info .btn-close {
+    filter: none;
+}

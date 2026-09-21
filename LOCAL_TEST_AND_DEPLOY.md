@@ -15,7 +15,7 @@ Use this to **test everything locally first**, then **switch to production detai
 ### 2. Database (local)
 
 1. Open **phpMyAdmin**: http://localhost/phpmyadmin  
-2. Create a database: **`namsa_flora`**  
+2. Create a database: **`kaleni_database`**  
 3. Leave user **`root`**, password **blank** (default XAMPP).
 
 ### 3. Environment (.env) for local
@@ -35,7 +35,7 @@ Use this to **test everything locally first**, then **switch to production detai
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
    DB_PORT=3306
-   DB_DATABASE=namsa_flora
+   DB_DATABASE=kaleni_database
    DB_USERNAME=root
    DB_PASSWORD=
 
@@ -45,22 +45,22 @@ Use this to **test everything locally first**, then **switch to production detai
 
    # Local: log mail instead of sending (no SMTP)
    MAIL_MAILER=log
-   MAIL_FROM_ADDRESS="info@namsa.com.na"
-   MAIL_FROM_NAME="/Namsa Florals"
+   MAIL_FROM_ADDRESS="kalenilucas061@gmail.com"
+   MAIL_FROM_NAME="Kaleni Catering Services"
 
-   CONTACT_PHONE=+264815574680
-   CONTACT_EMAIL_INFO=info@namsa.com.na
-   CONTACT_EMAIL_ORDERS=order@namsa.com.na
+   CONTACT_PHONE=+264813382817
+   CONTACT_EMAIL_INFO=kalenilucas061@gmail.com
+   CONTACT_EMAIL_ORDERS=kalenilucas061@gmail.com
 
-   WHATSAPP_PAYMENT_NUMBER=264815574680
-   SOCIAL_WHATSAPP=https://wa.me/264815574680
+   WHATSAPP_PAYMENT_NUMBER=264813382817
+   SOCIAL_WHATSAPP=https://wa.me/264813382817
    ```
 
    Leave **CONTACT_*** and **SOCIAL_*** as above for local; they’re only used for display and contact-form recipient.
 
 ### 4. Install deps, migrate, seed, storage
 
-Run in the project folder (`c:\xampp\htdocs\namsa flora`):
+Run in the project folder (`c:\xampp\htdocs\kaleni catering`):
 
 ```bash
 composer install
@@ -88,7 +88,7 @@ Then open **http://localhost:8003** in your browser.
 | Field    | Value                    |
 |----------|--------------------------|
 | **URL**  | http://localhost:8003/`{ADMIN_PATH from .env}`/login |
-| **Email**| `admin@namsa.com.na`     |
+| **Email**| `kalenilucas061@gmail.com`     |
 | **Password** | shown once in the terminal when `AdminUserSeeder` runs |
 
 *(Set up two-factor authentication on first login — required before you can use the rest of the panel.)*
@@ -137,20 +137,20 @@ Then open **http://localhost:8003** in your browser.
 |--------|------------------|------------|
 | `APP_ENV` | `local` | `production` |
 | `APP_DEBUG` | `true` | `false` |
-| `APP_URL` | `http://localhost:8003` | `https://namsa.com.na` |
+| `APP_URL` | `http://localhost:8003` | `https://kalenicatering.example` |
 | `DB_HOST` | `127.0.0.1` | `localhost` (or host’s MySQL host) |
-| `DB_DATABASE` | `namsa_flora` | Your cPanel DB name (e.g. `namsacomna258_namsa`) |
+| `DB_DATABASE` | `kaleni_database` | Your cPanel DB name (e.g. `kalenicomna258_kaleni`) |
 | `DB_USERNAME` | `root` | Your cPanel MySQL user |
 | `DB_PASSWORD` | *(blank)* | Your cPanel MySQL password |
 | `MAIL_MAILER` | `log` | `smtp` |
-| `MAIL_HOST` | - | `mail.namsa.com.na` (or your host’s SMTP) |
+| `MAIL_HOST` | - | `mail.kalenicatering.example` (or your host’s SMTP) |
 | `MAIL_PORT` | - | `587` (or `465` for SSL) |
-| `MAIL_USERNAME` | - | e.g. `info@namsa.com.na` |
+| `MAIL_USERNAME` | - | e.g. `kalenilucas061@gmail.com` |
 | `MAIL_PASSWORD` | - | SMTP password |
 | `MAIL_ENCRYPTION` | - | `tls` or `ssl` |
-| `MAIL_FROM_ADDRESS` | `info@namsa.com.na` | Same (or your from address) |
-| `CONTACT_EMAIL_INFO` | `info@namsa.com.na` | Inbox for contact form |
-| `CONTACT_PHONE` | `+264815574680` | Keep or update |
+| `MAIL_FROM_ADDRESS` | `kalenilucas061@gmail.com` | Same (or your from address) |
+| `CONTACT_EMAIL_INFO` | `kalenilucas061@gmail.com` | Inbox for contact form |
+| `CONTACT_PHONE` | `+264813382817` | Keep or update |
 | `WHATSAPP_*` / `SOCIAL_*` | As above | Keep or update |
 
 **`deploy-db.env` (optional)**  
@@ -178,7 +178,7 @@ php build-deploy.php
 ### 3. Edit **`public_html_ready/.env`** for the host
 
 - Set **DB_*** and **MAIL_*** as in the table above for your hosting.  
-- Set **APP_URL=https://namsa.com.na**.
+- Set **APP_URL=https://kalenicatering.example**.
 
 ### 4. On the host (cPanel)
 
@@ -189,8 +189,8 @@ php build-deploy.php
 
 ### 5. After deploy
 
-- Visit **https://namsa.com.na** and **https://namsa.com.na/`{your ADMIN_PATH}`/login**.  
-- Log in with **admin@namsa.com.na** and the password printed once by the seeder, then set up
+- Visit **https://kalenicatering.example** and **https://kalenicatering.example/`{your ADMIN_PATH}`/login**.  
+- Log in with **kalenilucas061@gmail.com** and the password printed once by the seeder, then set up
   **two-factor authentication** (required before the panel is usable).  
 - Test **Gallery**, **Promotion**, **Contact form**, and **Products** again on the live site.
 
@@ -200,11 +200,11 @@ php build-deploy.php
 
 | Item | Local | Production |
 |------|--------|------------|
-| **Site** | http://localhost:8003 | https://namsa.com.na |
-| **Admin** | http://localhost:8003/`{ADMIN_PATH}`/login | https://namsa.com.na/`{ADMIN_PATH}`/login |
-| **Admin email** | admin@namsa.com.na | *(same; rotate password after deploy)* |
+| **Site** | http://localhost:8003 | https://kalenicatering.example |
+| **Admin** | http://localhost:8003/`{ADMIN_PATH}`/login | https://kalenicatering.example/`{ADMIN_PATH}`/login |
+| **Admin email** | kalenilucas061@gmail.com | *(same; rotate password after deploy)* |
 | **Admin password** | printed once by `AdminUserSeeder` | *(same, or reset via "Forgot password")* |
 | **Mail** | `MAIL_MAILER=log` (no send) | `MAIL_MAILER=smtp` + host SMTP |
-| **DB** | Local MySQL `namsa_flora` | cPanel MySQL |
+| **DB** | Local MySQL `kaleni_database` | cPanel MySQL |
 
 For more detail on hosting, see **`DEPLOY_SHARED_HOSTING.md`** and **`README_DEPLOY.txt`** inside **`public_html_ready/`** after you run **`build-deploy.php`**.

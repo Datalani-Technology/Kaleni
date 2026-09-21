@@ -2,31 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
+use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
-    public function initiateDPO(Request $request, $order = null)
+    public function initiateDPO(Request $request, $booking = null)
     {
-        $orderId = $order ?? $request->order;
-        $order = Order::findOrFail($orderId);
+        $bookingId = $booking ?? $request->booking;
+        $booking = Booking::findOrFail($bookingId);
 
-        if ($order->payment_method !== 'dpo') {
-            return redirect()->route('checkout.index')->with('error', 'Invalid payment method.');
+        if ($booking->payment_method !== 'dpo') {
+            return redirect()->route('booking.index')->with('error', 'Invalid payment method.');
         }
 
         $companyToken = config('services.dpo.company_token');
         if (empty($companyToken)) {
-            Log::warning('DPO payment attempted without a configured company token', ['order' => $order->order_number]);
-            return redirect()->route('checkout.index')
+            Log::warning('DPO payment attempted without a configured company token', ['booking' => $booking->booking_number]);
+            return redirect()->route('booking.index')
                 ->with('error', 'Card payment isn\'t available yet. Please choose "Pay via WhatsApp" instead.');
         }
 
-        if ($order->payment_status === 'completed') {
-            return redirect()->route('checkout.success', $order->order_number);
+        if ($booking->payment_status === 'completed') {
+            return redirect()->route('booking.success', $booking->booking_number);
         }
 
         $xml = '<?xml version="1.0" encoding="utf-8"?>' . "\n"
@@ -34,11 +34,11 @@ class PaymentController extends Controller
             . '<CompanyToken>' . $this->escapeXml($companyToken) . '</CompanyToken>' . "\n"
             . '<Request>createToken</Request>' . "\n"
             . '<Transaction>' . "\n"
-            . '<PaymentAmount>' . number_format((float) $order->total_amount, 2, '.', '') . '</PaymentAmount>' . "\n"
+            . '<PaymentAmount>' . number_format((float) $booking->total_amount, 2, '.', '') . '</PaymentAmount>' . "\n"
             . '<PaymentCurrency>' . $this->escapeXml(config('services.dpo.currency', 'NAD')) . '</PaymentCurrency>' . "\n"
-            . '<CompanyRef>' . $this->escapeXml($order->order_number) . '</CompanyRef>' . "\n"
+            . '<CompanyRef>' . $this->escapeXml($booking->booking_number) . '</CompanyRef>' . "\n"
             . '<RedirectURL>' . $this->escapeXml(route('payment.dpo.callback')) . '</RedirectURL>' . "\n"
-            . '<BackURL>' . $this->escapeXml(route('checkout.index')) . '</BackURL>' . "\n"
+            . '<BackURL>' . $this->escapeXml(route('booking.index')) . '</BackURL>' . "\n"
             . '<CompanyRefUnique>0</CompanyRefUnique>' . "\n"
             . '<PTL>5</PTL>' . "\n"
             . '<PnURL>' . $this->escapeXml(route('payment.dpo.notify')) . '</PnURL>' . "\n"
@@ -46,7 +46,7 @@ class PaymentController extends Controller
             . '<Services>' . "\n"
             . '<Service>' . "\n"
             . '<ServiceType>' . $this->escapeXml(config('services.dpo.service_type', '1')) . '</ServiceType>' . "\n"
-            . '<ServiceDescription>Flower Order - ' . $this->escapeXml($order->order_number) . '</ServiceDescription>' . "\n"
+            . '<ServiceDescription>Catering Booking - ' . $this->escapeXml($booking->booking_number) . '</ServiceDescription>' . "\n"
             . '<ServiceDate>' . date('Y/m/d H:i') . '</ServiceDate>' . "\n"
             . '</Service>' . "\n"
             . '</Services>' . "\n"
@@ -57,28 +57,28 @@ class PaymentController extends Controller
                 ->withBody($xml, 'application/xml')
                 ->post(config('services.dpo.api_url'));
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            Log::error('DPO createToken connection failed', ['order' => $order->order_number, 'error' => $e->getMessage()]);
-            return redirect()->route('checkout.index')
+            Log::error('DPO createToken connection failed', ['booking' => $booking->booking_number, 'error' => $e->getMessage()]);
+            return redirect()->route('booking.index')
                 ->with('error', 'Could not reach the payment gateway. Please try "Pay via WhatsApp" or try again shortly.');
         }
 
         if (!$response->successful()) {
-            Log::error('DPO createToken HTTP error', ['order' => $order->order_number, 'status' => $response->status()]);
-            return redirect()->route('checkout.index')
+            Log::error('DPO createToken HTTP error', ['booking' => $booking->booking_number, 'status' => $response->status()]);
+            return redirect()->route('booking.index')
                 ->with('error', 'Failed to initialize payment. Please try again.');
         }
 
         $data = $this->parseXmlResponse($response->body());
 
         if (($data['Result'] ?? null) === '000' && !empty($data['TransToken'])) {
-            $order->update(['dpo_token' => $data['TransToken']]);
+            $booking->update(['dpo_token' => $data['TransToken']]);
 
             return redirect(config('services.dpo.pay_url') . '?ID=' . $data['TransToken']);
         }
 
-        Log::error('DPO createToken rejected', ['order' => $order->order_number, 'result' => $data['Result'] ?? null, 'explanation' => $data['ResultExplanation'] ?? null]);
+        Log::error('DPO createToken rejected', ['booking' => $booking->booking_number, 'result' => $data['Result'] ?? null, 'explanation' => $data['ResultExplanation'] ?? null]);
 
-        return redirect()->route('checkout.index')
+        return redirect()->route('booking.index')
             ->with('error', 'Payment initialization failed: ' . ($data['ResultExplanation'] ?? 'Please try again.'));
     }
 
@@ -90,22 +90,22 @@ class PaymentController extends Controller
         $transToken = $request->input('TransactionToken') ?? $request->input('ID');
 
         if (!$transToken) {
-            return redirect()->route('checkout.index')
+            return redirect()->route('booking.index')
                 ->with('error', 'Payment verification failed. No transaction token received.');
         }
 
         $result = $this->verifyAndFinalize($transToken);
 
-        if (!$result['order']) {
-            return redirect()->route('checkout.index')->with('error', 'Order not found.');
+        if (!$result['booking']) {
+            return redirect()->route('booking.index')->with('error', 'Booking not found.');
         }
 
         return match ($result['status']) {
-            'completed' => redirect()->route('checkout.success', $result['order']->order_number)
+            'completed' => redirect()->route('booking.success', $result['booking']->booking_number)
                 ->with('success', 'Payment completed successfully!'),
-            'pending' => redirect()->route('checkout.index')
+            'pending' => redirect()->route('booking.index')
                 ->with('error', 'Payment is still pending. Please complete the payment process.'),
-            default => redirect()->route('checkout.index')
+            default => redirect()->route('booking.index')
                 ->with('error', 'Payment failed: ' . $result['message']),
         };
     }
@@ -133,20 +133,20 @@ class PaymentController extends Controller
      * Shared by the browser callback and the PNURL webhook so a payment is only
      * ever verified/applied once, regardless of which one arrives first.
      *
-     * @return array{order: ?Order, status: string, message: string}
+     * @return array{booking: ?Booking, status: string, message: string}
      */
     private function verifyAndFinalize(string $transToken): array
     {
-        $order = Order::where('dpo_token', $transToken)->first();
+        $booking = Booking::where('dpo_token', $transToken)->first();
 
-        if (!$order) {
-            Log::warning('DPO verify: no order matches transaction token');
-            return ['order' => null, 'status' => 'failed', 'message' => 'Order not found.'];
+        if (!$booking) {
+            Log::warning('DPO verify: no booking matches transaction token');
+            return ['booking' => null, 'status' => 'failed', 'message' => 'Booking not found.'];
         }
 
         // Already settled by the other channel (callback vs webhook) — don't re-verify.
-        if ($order->payment_status === 'completed') {
-            return ['order' => $order, 'status' => 'completed', 'message' => 'Already confirmed.'];
+        if ($booking->payment_status === 'completed') {
+            return ['booking' => $booking, 'status' => 'completed', 'message' => 'Already confirmed.'];
         }
 
         $companyToken = config('services.dpo.company_token');
@@ -162,13 +162,13 @@ class PaymentController extends Controller
                 ->withBody($xml, 'application/xml')
                 ->post(config('services.dpo.api_url'));
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            Log::error('DPO verifyToken connection failed', ['order' => $order->order_number, 'error' => $e->getMessage()]);
-            return ['order' => $order, 'status' => 'pending', 'message' => 'Could not reach payment gateway.'];
+            Log::error('DPO verifyToken connection failed', ['booking' => $booking->booking_number, 'error' => $e->getMessage()]);
+            return ['booking' => $booking, 'status' => 'pending', 'message' => 'Could not reach payment gateway.'];
         }
 
         if (!$response->successful()) {
-            Log::error('DPO verifyToken HTTP error', ['order' => $order->order_number, 'status' => $response->status()]);
-            return ['order' => $order, 'status' => 'pending', 'message' => 'Gateway error.'];
+            Log::error('DPO verifyToken HTTP error', ['booking' => $booking->booking_number, 'status' => $response->status()]);
+            return ['booking' => $booking, 'status' => 'pending', 'message' => 'Gateway error.'];
         }
 
         $data = $this->parseXmlResponse($response->body());
@@ -177,77 +177,75 @@ class PaymentController extends Controller
         if ($resultCode === '000' || $resultCode === '001') {
             // Defence in depth: flag (but don't silently trust) an amount mismatch.
             $paidAmount = isset($data['TransactionAmount']) ? (float) $data['TransactionAmount'] : null;
-            if ($paidAmount !== null && abs($paidAmount - (float) $order->total_amount) > 0.01) {
+            if ($paidAmount !== null && abs($paidAmount - (float) $booking->total_amount) > 0.01) {
                 Log::error('DPO amount mismatch', [
-                    'order' => $order->order_number,
-                    'expected' => (float) $order->total_amount,
+                    'booking' => $booking->booking_number,
+                    'expected' => (float) $booking->total_amount,
                     'paid' => $paidAmount,
                 ]);
-                $order->update(['payment_status' => 'failed']);
-                return ['order' => $order, 'status' => 'failed', 'message' => 'Amount mismatch — contact support.'];
+                $booking->update(['payment_status' => 'failed']);
+                return ['booking' => $booking, 'status' => 'failed', 'message' => 'Amount mismatch. Contact support.'];
             }
 
-            $order->update(['payment_status' => 'completed', 'order_status' => 'processing']);
-            Log::info('DPO payment confirmed', ['order' => $order->order_number]);
-            return ['order' => $order, 'status' => 'completed', 'message' => 'Paid.'];
+            $booking->update(['payment_status' => 'completed', 'booking_status' => 'processing']);
+            Log::info('DPO payment confirmed', ['booking' => $booking->booking_number]);
+            return ['booking' => $booking, 'status' => 'completed', 'message' => 'Paid.'];
         }
 
         if ($resultCode === '900') {
-            return ['order' => $order, 'status' => 'pending', 'message' => 'Payment still pending.'];
+            return ['booking' => $booking, 'status' => 'pending', 'message' => 'Payment still pending.'];
         }
 
-        $order->update(['payment_status' => 'failed']);
+        $booking->update(['payment_status' => 'failed']);
         $explanation = $data['ResultExplanation'] ?? 'Payment verification failed';
-        Log::warning('DPO payment failed/declined', ['order' => $order->order_number, 'result' => $resultCode, 'explanation' => $explanation]);
+        Log::warning('DPO payment failed/declined', ['booking' => $booking->booking_number, 'result' => $resultCode, 'explanation' => $explanation]);
 
-        return ['order' => $order, 'status' => 'failed', 'message' => $explanation];
+        return ['booking' => $booking, 'status' => 'failed', 'message' => $explanation];
     }
 
-    public function whatsappPayment(Request $request, $order = null)
+    public function whatsappPayment(Request $request, $booking = null)
     {
-        $orderId = $order ?? $request->order;
-        $order = Order::findOrFail($orderId);
+        $bookingId = $booking ?? $request->booking;
+        $booking = Booking::findOrFail($bookingId);
 
-        if ($order->payment_method !== 'whatsapp') {
-            return redirect()->route('checkout.index')->with('error', 'Invalid payment method.');
+        if ($booking->payment_method !== 'whatsapp') {
+            return redirect()->route('booking.index')->with('error', 'Invalid payment method.');
         }
 
-        // Get WhatsApp number from environment or use default
-        $whatsappNumber = env('WHATSAPP_PAYMENT_NUMBER', '264815574680'); // Namibia format
+        $whatsappNumber = env('WHATSAPP_PAYMENT_NUMBER', '264813382817'); // Namibia format
         $whatsappNumber = preg_replace('/[^0-9]/', '', $whatsappNumber);
 
-        // Format order details for WhatsApp message
-        $message = "🌸 *New Order: {$order->order_number}*\n\n";
+        $message = "🍽️ *New Booking: {$booking->booking_number}*\n\n";
         $message .= "👤 *Customer Details:*\n";
-        $message .= "Name: {$order->customer_name}\n";
-        $message .= "Email: {$order->customer_email}\n";
-        $message .= "Phone: {$order->customer_phone}\n";
-        $message .= "\n*Delivery:*\n";
-        $message .= "Recipient: " . ($order->recipient_name ?: $order->customer_name) . "\n";
-        $message .= "Recipient phone: " . ($order->recipient_phone ?: $order->customer_phone) . "\n";
-        $message .= "Date: " . optional($order->delivery_date)->format('D, j M Y') . "\n";
-        $message .= "Window: " . ucfirst($order->delivery_window ?: 'anytime') . "\n";
-        $message .= "Address: {$order->delivery_address}\n";
-        if ($order->gift_message) {
-            $message .= "Gift message: {$order->gift_message}\n";
+        $message .= "Name: {$booking->customer_name}\n";
+        $message .= "Email: {$booking->customer_email}\n";
+        $message .= "Phone: {$booking->customer_phone}\n";
+        $message .= "\n*Event:*\n";
+        $message .= "Type: " . ($booking->event_type ?: 'N/A') . "\n";
+        $message .= "On-site contact: " . ($booking->onsite_contact_name ?: $booking->customer_name) . "\n";
+        $message .= "Contact phone: " . ($booking->onsite_contact_phone ?: $booking->customer_phone) . "\n";
+        $message .= "Schedule: " . $booking->schedule_summary . "\n";
+        $message .= "Serving period: " . ucfirst(str_replace('_', ' ', $booking->serving_period ?: 'custom')) . "\n";
+        $message .= "Guests: " . ($booking->guest_count ?: 'N/A') . "\n";
+        $message .= "Address: {$booking->event_address}\n";
+        if ($booking->special_message) {
+            $message .= "Special message: {$booking->special_message}\n";
         }
-        if ($order->delivery_instructions) {
-            $message .= "Instructions: {$order->delivery_instructions}\n";
+        if ($booking->event_notes) {
+            $message .= "Notes: {$booking->event_notes}\n";
         }
         $message .= "\n";
-        $message .= "💰 *Total Amount: N$ " . number_format($order->total_amount, 2) . "*\n\n";
+        $message .= "💰 *Total Amount: N$ " . number_format($booking->total_amount, 2) . "*\n\n";
         $message .= "📦 *Order Items:*\n";
 
-        foreach ($order->items as $item) {
-            $message .= "• {$item->product->name} x{$item->quantity} = N$ " . number_format($item->subtotal, 2) . "\n";
+        foreach ($booking->items as $item) {
+            $message .= "• {$item->menuItem->name} x{$item->quantity} = N$ " . number_format($item->subtotal, 2) . "\n";
         }
 
-        $message .= "\n✅ Please confirm payment and delivery details.";
+        $message .= "\n✅ Please confirm payment and booking details.";
 
-        // Update order with WhatsApp number
-        $order->update(['whatsapp_number' => $whatsappNumber]);
+        $booking->update(['whatsapp_number' => $whatsappNumber]);
 
-        // Create WhatsApp link
         $whatsappUrl = "https://wa.me/{$whatsappNumber}?text=" . urlencode($message);
 
         return redirect($whatsappUrl);

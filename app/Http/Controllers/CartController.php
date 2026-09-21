@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CartItem;
-use App\Models\Product;
+use App\Models\MenuItem;
 use App\Models\PromoCode;
 use Illuminate\Http\Request;
 
@@ -13,44 +13,44 @@ class CartController extends Controller
     {
         $sessionId = session()->getId();
         $cartItems = CartItem::where('session_id', $sessionId)
-            ->with('product')
+            ->with('menuItem')
             ->get();
-        
+
         $total = $cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
+            return $item->menuItem->price * $item->quantity;
         });
 
-        $suggestedProducts = Product::where('is_active', true)
+        $suggestedMenuItems = MenuItem::where('is_active', true)
             ->where('stock', '>', 0)
-            ->whereNotIn('id', $cartItems->pluck('product_id'))
+            ->whereNotIn('id', $cartItems->pluck('menu_item_id'))
             ->orderByDesc('is_featured')
             ->latest()
             ->limit(4)
             ->get();
 
-        return view('cart.index', compact('cartItems', 'total', 'suggestedProducts'));
+        return view('cart.index', compact('cartItems', 'total', 'suggestedMenuItems'));
     }
 
     public function add(Request $request)
     {
         $request->validate([
-            'product_id' => 'required|exists:products,id',
+            'menu_item_id' => 'required|exists:menu_items,id',
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $product = Product::findOrFail($request->product_id);
-        
-        if (!$product->is_active) {
+        $menuItem = MenuItem::findOrFail($request->menu_item_id);
+
+        if (!$menuItem->is_active) {
             if ($request->expectsJson() || $request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'Product is not available.'], 422);
+                return response()->json(['success' => false, 'message' => 'This item is not available.'], 422);
             }
-            return back()->with('error', 'Product is not available.');
+            return back()->with('error', 'This item is not available.');
         }
 
         $sessionId = session()->getId();
-        
+
         $cartItem = CartItem::where('session_id', $sessionId)
-            ->where('product_id', $request->product_id)
+            ->where('menu_item_id', $request->menu_item_id)
             ->first();
 
         $requestedQuantity = $request->quantity;
@@ -58,8 +58,8 @@ class CartController extends Controller
             $requestedQuantity = $cartItem->quantity + $request->quantity;
         }
 
-        if ($product->stock < $requestedQuantity) {
-            $msg = 'Insufficient stock. Only ' . $product->stock . ' available.';
+        if ($menuItem->stock < $requestedQuantity) {
+            $msg = 'Insufficient stock. Only ' . $menuItem->stock . ' available.';
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json(['success' => false, 'message' => $msg], 422);
             }
@@ -71,7 +71,7 @@ class CartController extends Controller
         } else {
             CartItem::create([
                 'session_id' => $sessionId,
-                'product_id' => $request->product_id,
+                'menu_item_id' => $request->menu_item_id,
                 'quantity' => $request->quantity,
             ]);
         }
@@ -81,12 +81,12 @@ class CartController extends Controller
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Product added to cart.',
+                'message' => 'Added to your order.',
                 'cart_count' => (int) $cartCount,
             ]);
         }
 
-        return back()->with('success', 'Product added to cart.');
+        return back()->with('success', 'Added to your order.');
     }
 
     public function update(Request $request, $id)
@@ -99,13 +99,13 @@ class CartController extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
-        if ($cartItem->product->stock < $request->quantity) {
+        if ($cartItem->menuItem->stock < $request->quantity) {
             return back()->with('error', 'Insufficient stock available.');
         }
 
         $cartItem->update(['quantity' => $request->quantity]);
 
-        return back()->with('success', 'Cart updated.');
+        return back()->with('success', 'Order updated.');
     }
 
     public function remove($id)
@@ -116,22 +116,22 @@ class CartController extends Controller
 
         $cartItem->delete();
 
-        return back()->with('success', 'Item removed from cart.');
+        return back()->with('success', 'Item removed from your order.');
     }
 
     public function clear()
     {
         CartItem::where('session_id', session()->getId())->delete();
-        return back()->with('success', 'Cart cleared.');
+        return back()->with('success', 'Order cleared.');
     }
 
     public function applyPromo(Request $request)
     {
         $request->validate(['code' => 'required|string|max:50']);
 
-        $cartItems = CartItem::where('session_id', session()->getId())->with('product')->get();
+        $cartItems = CartItem::where('session_id', session()->getId())->with('menuItem')->get();
         if ($cartItems->isEmpty()) {
-            return response()->json(['success' => false, 'message' => 'Your cart is empty.'], 422);
+            return response()->json(['success' => false, 'message' => 'Your order is empty.'], 422);
         }
 
         $promo = PromoCode::findUsable($request->code);
@@ -139,7 +139,7 @@ class CartController extends Controller
             return response()->json(['success' => false, 'message' => 'That promo code is invalid or has expired.'], 422);
         }
 
-        $subtotal = (float) $cartItems->sum(fn ($item) => $item->product->price * $item->quantity);
+        $subtotal = (float) $cartItems->sum(fn ($item) => $item->menuItem->price * $item->quantity);
 
         if ($promo->min_order_amount !== null && $subtotal < (float) $promo->min_order_amount) {
             return response()->json([
@@ -149,13 +149,13 @@ class CartController extends Controller
         }
 
         if ($promo->scope === 'products') {
-            $promo->load('products:id');
+            $promo->load('menuItems:id');
         }
 
         $result = $promo->calculateDiscount($cartItems, $subtotal);
 
         if ($result['discount'] <= 0) {
-            return response()->json(['success' => false, 'message' => "This code doesn't apply to the items in your cart."], 422);
+            return response()->json(['success' => false, 'message' => "This code doesn't apply to the items in your order."], 422);
         }
 
         session(['promo_code' => $promo->code]);

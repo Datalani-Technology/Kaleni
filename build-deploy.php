@@ -210,7 +210,7 @@ passthru('php artisan migrate --force 2>&1', $m);
 passthru('php artisan db:seed --force 2>&1', $s);
 chdir($prev);
 
-$db   = $local['DB_DATABASE'] ?? 'namsa_flora';
+$db   = $local['DB_DATABASE'] ?? 'kaleni_database';
 $host = $local['DB_HOST'] ?? '127.0.0.1';
 $user = $local['DB_USERNAME'] ?? 'root';
 $pass = $local['DB_PASSWORD'] ?? '';
@@ -234,10 +234,11 @@ file_put_contents($out . DIRECTORY_SEPARATOR . 'README_DEPLOY.txt', <<<TXT
 DEPLOY TO PUBLIC_HTML (cPanel shared hosting)
 ============================================
 
-.env is pre-filled for namsacomna258_namsa. Edit only if you use a different DB or mail.
+.env is pre-filled for your cPanel database (e.g. yourcpanel_kaleni). Edit only if
+you use a different DB or mail account.
 
 1. IMPORT DUMP (you already created the DB)
-   - cPanel → phpMyAdmin → open database namsacomna258_namsa
+   - cPanel → phpMyAdmin → open your Kaleni database
    - Import → Choose database/dump.sql from this folder → Go.
 
 2. UPLOAD
@@ -248,24 +249,24 @@ DEPLOY TO PUBLIC_HTML (cPanel shared hosting)
 3. PERMISSIONS (File Manager or FTP)
    - storage → 775 (recursive)
    - bootstrap/cache → 775
-   - uploads (and uploads/products, uploads/logos, uploads/gallery, uploads/promotion) → 775 (recursive)
+   - uploads (and uploads/menu-items, uploads/logos, uploads/gallery, uploads/promotion) → 775 (recursive)
 
 4. DONE
-   - Visit https://namsa.com.na
-   - Admin: https://namsa.com.na/{your ADMIN_PATH from .env}/login
-     Email: admin@namsa.com.na
+   - Visit your production domain
+   - Admin: https://yourdomain/{your ADMIN_PATH from .env}/login
+     Email: kalenilucas061@gmail.com
      Password: shown once in the terminal when the seeder ran (php artisan db:seed --class=AdminUserSeeder)
    - Log in and set up two-factor authentication immediately (required).
 
-If you use existing product images, logo, gallery images, or promotion PDF, also upload
-them into uploads/products, uploads/logos, uploads/gallery, uploads/promotion (same
+If you use existing menu item images, logo, gallery images, or promotion PDF, also upload
+them into uploads/menu-items, uploads/logos, uploads/gallery, uploads/promotion (same
 structure as in your current storage/app/public).
 
 5. CONTACT FORM EMAIL
    - Set MAIL_MAILER=smtp, MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD,
      MAIL_ENCRYPTION (tls/ssl), MAIL_FROM_ADDRESS, MAIL_FROM_NAME in .env.
-   - CONTACT_EMAIL_INFO=info@namsa.com.na — main inbox for contact form.
-   - CONTACT_EMAIL_ENQUIRIES=enquiries@namsa.com.na (optional) — also receives
+   - CONTACT_EMAIL_INFO=kalenilucas061@gmail.com — main inbox for contact form.
+   - CONTACT_EMAIL_ENQUIRIES= (optional) — also receives
      contact form. Both info and enquiries get the same email; deduped if same.
    - If neither is set, mail.from.address is used. Test the form and check
      storage/logs/laravel.log if emails do not arrive.

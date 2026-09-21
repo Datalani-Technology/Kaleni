@@ -2,9 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Booking;
 use App\Models\Contact;
-use App\Models\Order;
-use App\Models\Product;
+use App\Models\MenuItem;
+use App\Models\SpecialRequest;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Pagination\Paginator;
@@ -45,25 +46,38 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
+        // Shared brand photo set for the home hero carousel and the footer
+        // background, so both always show the same rotating images.
+        View::share('brandCarouselImages', [
+            'images/kaleni/menu/braai-platter.png',
+            'images/kaleni/menu/grilled-chicken-boerewors-pack.png',
+            'images/kaleni/menu/fried-fish-plate.png',
+            'images/kaleni/gallery/braai-platter-spread.png',
+        ]);
+
         View::composer('admin.layout', function ($view) {
             $threshold = (int) config('inventory.low_stock_threshold', 5);
 
-            $pendingOrdersQuery = Order::where('order_status', 'pending');
-            $lowStockQuery = Product::where('is_active', true)->where('stock', '<=', $threshold);
+            $pendingBookingsQuery = Booking::where('booking_status', 'pending');
+            $lowStockQuery = MenuItem::where('is_active', true)->where('stock', '<=', $threshold);
             $unreadContactsQuery = Contact::where('is_read', false);
+            $newSpecialRequestsQuery = SpecialRequest::where('status', 'new');
 
-            $pendingOrderCount = (clone $pendingOrdersQuery)->count();
+            $pendingBookingCount = (clone $pendingBookingsQuery)->count();
             $lowStockCount = (clone $lowStockQuery)->count();
             $unreadContactCount = (clone $unreadContactsQuery)->count();
+            $newSpecialRequestCount = (clone $newSpecialRequestsQuery)->count();
 
             $view->with('adminNotifications', [
-                'total' => $pendingOrderCount + $lowStockCount + $unreadContactCount,
-                'pending_order_count' => $pendingOrderCount,
+                'total' => $pendingBookingCount + $lowStockCount + $unreadContactCount + $newSpecialRequestCount,
+                'pending_order_count' => $pendingBookingCount,
                 'low_stock_count' => $lowStockCount,
                 'unread_contact_count' => $unreadContactCount,
-                'orders' => $pendingOrdersQuery->latest()->limit(5)->get(['id', 'order_number', 'customer_name', 'total_amount', 'created_at']),
+                'new_special_request_count' => $newSpecialRequestCount,
+                'orders' => $pendingBookingsQuery->latest()->limit(5)->get(['id', 'booking_number', 'customer_name', 'total_amount', 'created_at']),
                 'products' => $lowStockQuery->orderBy('stock')->limit(5)->get(['id', 'name', 'stock', 'updated_at']),
                 'contacts' => $unreadContactsQuery->latest()->limit(5)->get(['id', 'name', 'subject', 'created_at']),
+                'special_requests' => $newSpecialRequestsQuery->latest()->limit(5)->get(['id', 'name', 'occasion', 'event_date', 'created_at']),
             ]);
         });
 

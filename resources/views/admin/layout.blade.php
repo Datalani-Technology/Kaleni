@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#211a20">
-    <title>@yield('title', 'Admin') - /Namsa Florals</title>
+    <meta name="theme-color" content="#29211F">
+    <title>@yield('title', 'Admin') - Kaleni Catering Services</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.css') }}">
     <style>
-        :root { --admin-accent: #d63384; }
+        :root { --admin-accent: #680B1C; }
         body { font-family: 'Manrope', 'Segoe UI', Arial, sans-serif; }
         h1, h2, h3, h4, h5, h6 { font-family: 'Manrope', 'Segoe UI', Arial, sans-serif; }
         .admin-sidebar {
@@ -33,9 +33,9 @@
             transition: background 0.2s, border-color 0.2s, color 0.2s;
         }
         .admin-sidebar a i { margin-right: 10px; }
-        .admin-sidebar a:hover { background: rgba(214, 51, 132, 0.14); color: #fff; }
+        .admin-sidebar a:hover { background: rgba(104, 11, 28, 0.14); color: #fff; }
         .admin-sidebar a.active {
-            background: rgba(214, 51, 132, 0.18);
+            background: rgba(104, 11, 28, 0.18);
             border-left-color: var(--admin-accent);
             color: #fff;
         }
@@ -43,7 +43,7 @@
             background-color: var(--admin-accent) !important;
             border-color: var(--admin-accent) !important;
         }
-        .btn-primary:hover { background-color: #ad2765 !important; border-color: #ad2765 !important; }
+        .btn-primary:hover { background-color: #4A0814 !important; border-color: #4A0814 !important; }
         .btn-outline-primary {
             color: var(--admin-accent) !important;
             border-color: var(--admin-accent) !important;
@@ -113,9 +113,9 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid #211a20;
+            border: 2px solid #29211F;
             border-radius: 999px;
-            background: #e64276;
+            background: #680B1C;
             color: #fff;
             font-size: .64rem;
             font-weight: 800;
@@ -136,7 +136,7 @@
             color: #2b2027;
             box-shadow: 0 8px 22px rgba(33,26,32,.08);
         }
-        .admin-desktop-toolbar .admin-notification-btn:hover { border-color: #d63384; color: #b5276b; }
+        .admin-desktop-toolbar .admin-notification-btn:hover { border-color: #680B1C; color: #680B1C; }
         .admin-desktop-toolbar .admin-notification-badge { border-color: #fff; }
         .admin-sidebar-wrap {
             position: static;
@@ -403,15 +403,15 @@
                     variant: form.dataset.confirmVariant || 'danger'
                 };
 
-                if (form.dataset.confirmMode === 'order-status') {
+                if (form.dataset.confirmMode === 'booking-status') {
                     var originalStatus = form.dataset.originalStatus;
-                    var newStatus = form.querySelector('[name="order_status"]')?.value;
+                    var newStatus = form.querySelector('[name="booking_status"]')?.value;
                     var paymentStatus = form.querySelector('[name="payment_status"]')?.value;
-                    copy.title = newStatus === 'cancelled' && originalStatus !== 'cancelled' ? 'Cancel this order?' : 'Save order changes?';
+                    copy.title = newStatus === 'cancelled' && originalStatus !== 'cancelled' ? 'Cancel this booking?' : 'Save booking changes?';
                     copy.message = newStatus === 'cancelled' && originalStatus !== 'cancelled'
-                        ? 'The order will be cancelled. The customer is not notified automatically, so contact them separately.'
-                        : 'Order status and payment status will be updated immediately to ' + newStatus + ' / ' + paymentStatus + '.';
-                    copy.label = newStatus === 'cancelled' ? 'Cancel order' : 'Save changes';
+                        ? 'The booking will be cancelled. The customer is not notified automatically, so contact them separately.'
+                        : 'Booking status and payment status will be updated immediately to ' + newStatus + ' / ' + paymentStatus + '.';
+                    copy.label = newStatus === 'cancelled' ? 'Cancel booking' : 'Save changes';
                     copy.variant = newStatus === 'cancelled' ? 'danger' : 'warning';
                 } else if (form.dataset.confirmMode === 'user-role') {
                     var originalRole = form.dataset.originalRole;
@@ -425,7 +425,7 @@
                     copy.label = 'Update user';
                     copy.variant = 'warning';
                 } else if (form.dataset.confirmMode === 'stock-adjust') {
-                    var name = form.dataset.productName || 'this product';
+                    var name = form.dataset.itemName || 'this menu item';
                     var current = parseInt(form.dataset.currentStock, 10) || 0;
                     var action = form.querySelector('[name="action"]')?.value;
                     var quantity = parseInt(form.querySelector('[name="quantity"]')?.value, 10) || 0;
@@ -434,7 +434,7 @@
                     copy.message = action === 'set'
                         ? 'Set “' + name + '” from ' + current + ' to ' + next + ' units? This overwrites the current count.'
                         : (action === 'add' ? 'Add ' + quantity + ' unit(s) to “' + name + '”? New stock: ' + next + '.' : 'Subtract ' + quantity + ' unit(s) from “' + name + '”? New stock: ' + next + '.');
-                    if (next <= 0) copy.message += ' The product will be shown as out of stock.';
+                    if (next <= 0) copy.message += ' The menu item will be shown as out of stock.';
                     copy.label = 'Update stock';
                     copy.variant = next <= 0 ? 'danger' : 'warning';
                 } else if (form.dataset.confirmMode === 'remove-logo') {

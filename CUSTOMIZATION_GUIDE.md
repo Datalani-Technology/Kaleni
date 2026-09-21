@@ -1,6 +1,6 @@
-# Customization Guide - Namsa Flora
+# Customization Guide - Kaleni Catering Services
 
-This guide will help you easily customize the look and feel of your flower shop.
+This guide will help you easily customize the look and feel of your catering business.
 
 ## 🎨 Color Customization
 
@@ -108,11 +108,11 @@ In `resources/views/layouts/app.blade.php`, find:
 
 ```html
 <a href="{{ route('home') }}" class="logo">
-    <i class="bi bi-flower1"></i> Namsa Flora
+    <i class="bi bi-catering1"></i> Kaleni Catering Services
 </a>
 ```
 
-Change "Namsa Flora" to your shop name.
+Change "Kaleni Catering Services" to your shop name.
 
 ### Navigation Links
 
@@ -246,8 +246,8 @@ In `resources/views/layouts/app.blade.php`:
 ```html
 <footer>
     <div class="container text-center">
-        <p>&copy; {{ date('Y') }} Namsa Flora. All rights reserved.</p>
-        <p class="mb-0">Beautiful flowers for every occasion</p>
+        <p>&copy; {{ date('Y') }} Kaleni Catering Services. All rights reserved.</p>
+        <p class="mb-0">Beautiful menu items for every occasion</p>
     </div>
 </footer>
 ```

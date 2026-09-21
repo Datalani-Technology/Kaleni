@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
+use App\Models\MenuItem;
 use App\Models\PromoCode;
 use Illuminate\Http\Request;
 
@@ -11,7 +11,7 @@ class PromoCodeController extends Controller
 {
     public function index()
     {
-        $promoCodes = PromoCode::withCount('products')->latest()->paginate(20);
+        $promoCodes = PromoCode::withCount('menuItems')->latest()->paginate(20);
 
         return view('admin.promo-codes.index', compact('promoCodes'));
     }
@@ -19,7 +19,7 @@ class PromoCodeController extends Controller
     public function create()
     {
         return view('admin.promo-codes.create', [
-            'products' => Product::orderBy('name')->get(['id', 'name']),
+            'menuItems' => MenuItem::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -30,7 +30,7 @@ class PromoCodeController extends Controller
         $promoCode = PromoCode::create($validated);
 
         if ($validated['scope'] === 'products') {
-            $promoCode->products()->sync($request->input('product_ids', []));
+            $promoCode->menuItems()->sync($request->input('menu_item_ids', []));
         }
 
         return redirect()->route('admin.promo-codes.index')->with('success', 'Promo code created.');
@@ -38,11 +38,11 @@ class PromoCodeController extends Controller
 
     public function edit(PromoCode $promoCode)
     {
-        $promoCode->load('products:id');
+        $promoCode->load('menuItems:id');
 
         return view('admin.promo-codes.edit', [
             'promoCode' => $promoCode,
-            'products' => Product::orderBy('name')->get(['id', 'name']),
+            'menuItems' => MenuItem::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -52,7 +52,7 @@ class PromoCodeController extends Controller
 
         $promoCode->update($validated);
 
-        $promoCode->products()->sync($validated['scope'] === 'products' ? $request->input('product_ids', []) : []);
+        $promoCode->menuItems()->sync($validated['scope'] === 'products' ? $request->input('menu_item_ids', []) : []);
 
         return redirect()->route('admin.promo-codes.index')->with('success', 'Promo code updated.');
     }
@@ -78,8 +78,8 @@ class PromoCodeController extends Controller
             'starts_at' => 'nullable|date',
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
             'is_active' => 'nullable|boolean',
-            'product_ids' => 'nullable|array',
-            'product_ids.*' => 'exists:products,id',
+            'menu_item_ids' => 'nullable|array',
+            'menu_item_ids.*' => 'exists:menu_items,id',
         ]);
 
         $validated['code'] = strtoupper(trim($validated['code']));

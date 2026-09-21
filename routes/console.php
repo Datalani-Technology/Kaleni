@@ -9,4 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Requires cron calling `php artisan schedule:run` every minute — see DEPLOY_SHARED_HOSTING.md.
-Schedule::command('orders:remind-pending')->hourly();
+Schedule::command('bookings:remind-pending')->hourly();

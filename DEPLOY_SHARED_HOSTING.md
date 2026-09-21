@@ -1,6 +1,6 @@
-# Deploy /Namsa Florals to cPanel Shared Hosting
+# Deploy Kaleni Catering Services to cPanel Shared Hosting
 
-Step-by-step guide to host this Laravel app on **cPanel** (or similar) **shared hosting** so **namsa.com.na** serves the site.
+Step-by-step guide to host this Laravel app on **cPanel** (or similar) **shared hosting** so **kalenicatering.example** serves the site.
 
 ---
 
@@ -21,7 +21,7 @@ Step-by-step guide to host this Laravel app on **cPanel** (or similar) **shared 
 
 - Set **DB_DATABASE**, **DB_USERNAME**, **DB_PASSWORD**, **DB_HOST** (usually `localhost`) to your **cPanel MySQL** database and user.  
 - Set **MAIL_PASSWORD** if you use SMTP for the contact form.  
-- **APP_URL** = `https://namsa.com.na`.
+- **APP_URL** = `https://kalenicatering.example`.
 
 ### 3. On the host (cPanel)
 
@@ -41,8 +41,8 @@ Step-by-step guide to host this Laravel app on **cPanel** (or similar) **shared 
 
 ### 6. Done
 
-- Visit **https://namsa.com.na**  
-- Admin: **https://namsa.com.na/{your `ADMIN_PATH`}/login** (email: `admin@namsa.com.na`, password: shown once in the
+- Visit **https://kalenicatering.example**  
+- Admin: **https://kalenicatering.example/{your `ADMIN_PATH`}/login** (email: `kalenilucas061@gmail.com`, password: shown once in the
   terminal when `AdminUserSeeder` runs).
 - Log in and set up two-factor authentication immediately — it's required before the rest of the panel is reachable.
 
@@ -62,7 +62,7 @@ If you prefer the usual Laravel structure and can set the document root to a sub
 4. **Document root** → `yourfolder/public`  
 5. **Permissions**: `storage` & `bootstrap/cache` writable (`775`)  
 6. **SSH/Terminal**: `migrate` → `db:seed` → `storage:link` → `config:cache` (etc.)  
-7. **SSL** on namsa.com.na, `APP_URL=https://namsa.com.na`
+7. **SSL** on kalenicatering.example, `APP_URL=https://kalenicatering.example`
 
 ---
 
@@ -70,7 +70,7 @@ If you prefer the usual Laravel structure and can set the document root to a sub
 
 - **PHP**: 8.2+ (Laravel 12). In cPanel → **Select PHP Version** / **MultiPHP INI Editor**.
 - **Extensions**: `ctype`, `curl`, `dom`, `fileinfo`, `json`, `mbstring`, `openssl`, `pdo`, `tokenizer`, `xml`, `zip`. Enable any missing ones.
-- **Domain**: `namsa.com.na` pointed to your hosting (A record or nameservers).
+- **Domain**: `kalenicatering.example` pointed to your hosting (A record or nameservers).
 - **Upload size for product/gallery photos**: `.htaccess` already raises `upload_max_filesize`/`post_max_size` to 25M/30M, but hosts running PHP-FPM ignore `php_value` in `.htaccess`. If large photo uploads still fail, go to cPanel → **MultiPHP INI Editor** → select the domain → raise `upload_max_filesize` and `post_max_size` there directly (25M+ recommended).
 
 ---
@@ -78,8 +78,8 @@ If you prefer the usual Laravel structure and can set the document root to a sub
 ## 1. Create MySQL Database (cPanel)
 
 1. **cPanel** → **MySQL® Databases**.
-2. **Create Database**: e.g. `youruser_namsaflora` (prefix often added by host).
-3. **Create User**: e.g. `youruser_namsa` with a **strong password**. Save it.
+2. **Create Database**: e.g. `youruser_kalenicatering` (prefix often added by host).
+3. **Create User**: e.g. `youruser_kaleni` with a **strong password**. Save it.
 4. **Add User to Database**: add the user to the new DB with **All Privileges**.
 5. Note: **DB name**, **username**, **password**, **host** (often `localhost`).
 
@@ -87,7 +87,7 @@ If you prefer the usual Laravel structure and can set the document root to a sub
 
 ## 2. Prepare the Project on Your Computer
 
-Open a terminal in the project folder (e.g. `C:\xampp\htdocs\namsa flora`).
+Open a terminal in the project folder (e.g. `C:\xampp\htdocs\kaleni catering`).
 
 ### 2.1 Install production dependencies
 
@@ -100,18 +100,18 @@ composer install --optimize-autoloader --no-dev
 Copy your `.env` and adjust for production (or create from `.env.example`):
 
 ```env
-APP_NAME="Namsa Flora"
+APP_NAME="Kaleni Catering Services"
 APP_ENV=production
 APP_KEY=base64:xxxx    # keep existing or run: php artisan key:generate
 APP_DEBUG=false
-APP_URL=https://namsa.com.na
+APP_URL=https://kalenicatering.example
 
 # Database (use the MySQL DB you created)
 DB_CONNECTION=mysql
 DB_HOST=localhost
 DB_PORT=3306
-DB_DATABASE=youruser_namsaflora
-DB_USERNAME=youruser_namsa
+DB_DATABASE=youruser_kalenicatering
+DB_USERNAME=youruser_kaleni
 DB_PASSWORD=your_db_password
 
 SESSION_DRIVER=database
@@ -119,25 +119,25 @@ CACHE_STORE=database
 
 # Mail (SMTP for contact form)
 MAIL_MAILER=smtp
-MAIL_HOST=mail.namsa.com.na
+MAIL_HOST=mail.kalenicatering.example
 MAIL_PORT=587
-MAIL_USERNAME=info@namsa.com.na
+MAIL_USERNAME=kalenilucas061@gmail.com
 MAIL_PASSWORD=your-smtp-password   # use your real SMTP password on the server
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS="info@namsa.com.na"
-MAIL_FROM_NAME="/Namsa Florals"
+MAIL_FROM_ADDRESS="kalenilucas061@gmail.com"
+MAIL_FROM_NAME="Kaleni Catering Services"
 
 # Contact & WhatsApp
-CONTACT_PHONE=+264815574680
-CONTACT_EMAIL_INFO=info@namsa.com.na
-CONTACT_EMAIL_ORDERS=order@namsa.com.na
-WHATSAPP_PAYMENT_NUMBER=264815574680
-SOCIAL_WHATSAPP=https://wa.me/264815574680
+CONTACT_PHONE=+264813382817
+CONTACT_EMAIL_INFO=kalenilucas061@gmail.com
+CONTACT_EMAIL_ORDERS=kalenilucas061@gmail.com
+WHATSAPP_PAYMENT_NUMBER=264813382817
+SOCIAL_WHATSAPP=https://wa.me/264813382817
 
-# Social (namsa.florals)
-SOCIAL_FACEBOOK=https://www.facebook.com/namsa.florals
-SOCIAL_INSTAGRAM=https://www.instagram.com/namsa.florals
-SOCIAL_TIKTOK=https://www.tiktok.com/@namsa.florals
+# Social (kalenicatering)
+SOCIAL_FACEBOOK=https://www.facebook.com/kalenicatering
+SOCIAL_INSTAGRAM=https://www.instagram.com/kalenicatering
+SOCIAL_TIKTOK=https://www.tiktok.com/@kalenicatering
 ```
 
 **Important**: Never commit `.env` or share it. Use **SFTP** or **File Manager** to upload it; do **not** put it in Git.
@@ -156,22 +156,22 @@ Copy the new `APP_KEY` into your production `.env`.
 
 ### Option A: Document root = `public` (recommended)
 
-Most cPanel setups let you set the **document root** for your domain to a folder like `public_html/namsa/public` or `namsaflora/public`.
+Most cPanel setups let you set the **document root** for your domain to a folder like `public_html/kaleni/public` or `kalenicatering/public`.
 
-1. Create a folder **outside** `public_html` (e.g. `namsaflora`) or inside (e.g. `public_html/namsaflora`).
+1. Create a folder **outside** `public_html` (e.g. `kalenicatering`) or inside (e.g. `public_html/kalenicatering`).
 2. Upload the **entire project** there (all folders: `app`, `bootstrap`, `config`, `database`, `public`, `resources`, `routes`, `storage`, `vendor`, plus `artisan`, `composer.json`, `composer.lock`).
 3. **Do not** upload: `node_modules`, `.env.backup`, `.git`, `tests`, `*.md` (optional). **Do** upload your production `.env`.
 4. If you have **product images or a custom logo** locally, upload `storage/app/public` contents (e.g. `storage/app/public/products`, `storage/app/public/logos`) so they exist on the server.
 5. In **cPanel** → **Domains** → **Domains** (or **Addon Domains**):
-   - Edit **namsa.com.na**.
-   - Set **Document Root** to: `namsaflora/public` (or the full path like `/home/youruser/namsaflora/public`).
+   - Edit **kalenicatering.example**.
+   - Set **Document Root** to: `kalenicatering/public` (or the full path like `/home/youruser/kalenicatering/public`).
 6. Ensure `public/.htaccess` is present (Laravel’s default). It enables pretty URLs.
 
 ### Option B: Only `public_html` available
 
 If you **cannot** change the document root and the site **must** run from `public_html`:
 
-1. Upload the full project to a folder **outside** `public_html`, e.g. `namsaflora`.
+1. Upload the full project to a folder **outside** `public_html`, e.g. `kalenicatering`.
 2. Copy **everything inside** `public/` (not the `public` folder itself) into `public_html/`.
 3. Edit `public_html/index.php` and change the paths:
 
@@ -182,10 +182,10 @@ If you **cannot** change the document root and the site **must** run from `publi
    ```
    **To:**
    ```php
-   require __DIR__.'/../namsaflora/vendor/autoload.php';
-   $app = require_once __DIR__.'/../namsaflora/bootstrap/app.php';
+   require __DIR__.'/../kalenicatering/vendor/autoload.php';
+   $app = require_once __DIR__.'/../kalenicatering/bootstrap/app.php';
    ```
-   (Adjust `namsaflora` to your actual folder path relative to `public_html`.)
+   (Adjust `kalenicatering` to your actual folder path relative to `public_html`.)
 
 4. Ensure `public_html/.htaccess` exists (it’s copied from `public/` in step 2).
 
@@ -210,7 +210,7 @@ Via **SSH** or **File Manager** (or FTP):
 Use **SSH** (if available) or **Terminal** in cPanel:
 
 ```bash
-cd /home/youruser/namsaflora   # your project path
+cd /home/youruser/kalenicatering   # your project path
 
 php artisan migrate --force
 php artisan db:seed --force
@@ -225,15 +225,15 @@ php artisan view:cache
 - **storage:link**: links `public/storage` → `storage/app/public` (product images, logo).
 - **config/route/view cache**: faster production.
 
-**Admin login** (from seeder): `admin@namsa.com.na`, password shown once in the terminal when the seeder runs. Set up
+**Admin login** (from seeder): `kalenilucas061@gmail.com`, password shown once in the terminal when the seeder runs. Set up
 two-factor authentication immediately after first login (mandatory).
 
 ---
 
 ## 6. HTTPS and `APP_URL`
 
-- In cPanel, install an **SSL certificate** for **namsa.com.na** (e.g. Let’s Encrypt).
-- Keep `APP_URL=https://namsa.com.na` in `.env`.
+- In cPanel, install an **SSL certificate** for **kalenicatering.example** (e.g. Let’s Encrypt).
+- Keep `APP_URL=https://kalenicatering.example` in `.env`.
 - If the host redirects HTTP → HTTPS automatically, you’re set. Otherwise, add a redirect in `public/.htaccess` (see **Optional** below).
 
 ---
@@ -250,7 +250,7 @@ two-factor authentication immediately after first login (mandatory).
 | Document root = `public` (or Option B applied) | ☐ |
 | `storage` & `bootstrap/cache` writable | ☐ |
 | `migrate`, `db:seed`, `storage:link`, caches run | ☐ |
-| SSL on namsa.com.na, `APP_URL` uses `https` | ☐ |
+| SSL on kalenicatering.example, `APP_URL` uses `https` | ☐ |
 | Admin password changed | ☐ |
 
 ---
@@ -273,7 +273,7 @@ The app schedules an hourly job (`orders:remind-pending`, see `routes/console.ph
 In cPanel → **Cron Jobs**:
 
 ```bash
-* * * * * cd /home/youruser/namsaflora && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /home/youruser/kalenicatering && php artisan schedule:run >> /dev/null 2>&1
 ```
 
 ### Troubleshooting
@@ -290,7 +290,7 @@ In cPanel → **Cron Jobs**:
 
 1. Change admin password: **Admin** → profile/settings.
 2. Update logo and products as needed.
-3. Test **Contact** form: submit and confirm email arrives at **info@namsa.com.na**.
+3. Test **Contact** form: submit and confirm email arrives at **kalenilucas061@gmail.com**.
 4. Test **checkout** and **WhatsApp** order flow.
 
-You’re done. The site should be live at **https://namsa.com.na**.
+You’re done. The site should be live at **https://kalenicatering.example**.

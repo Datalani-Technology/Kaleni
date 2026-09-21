@@ -24,6 +24,10 @@ class PromoCode extends Model
         'is_active',
     ];
 
+    // Note: the 'scope' column still stores the literal value 'products' for
+    // the restricted case (unchanged at the DB level to avoid an enum
+    // migration) — it now means "restricted to specific MenuItem records".
+
     protected $casts = [
         'value' => 'decimal:2',
         'min_order_amount' => 'decimal:2',
@@ -33,9 +37,9 @@ class PromoCode extends Model
         'is_active' => 'boolean',
     ];
 
-    public function products(): BelongsToMany
+    public function menuItems(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'promo_code_product');
+        return $this->belongsToMany(MenuItem::class, 'promo_code_menu_item');
     }
 
     public static function findUsable(string $code): ?self
@@ -62,7 +66,7 @@ class PromoCode extends Model
     }
 
     /**
-     * @param  Collection  $cartItems  Items with ->product (price, id) and ->quantity
+     * @param  Collection  $cartItems  Items with ->menuItem (price, id) and ->quantity
      * @return array{eligible_subtotal: float, discount: float}
      */
     public function calculateDiscount(Collection $cartItems, float $cartSubtotal): array
@@ -70,9 +74,9 @@ class PromoCode extends Model
         $eligibleSubtotal = $this->scope === 'all'
             ? $cartSubtotal
             : (float) $cartItems->sum(function ($item) {
-                $productId = $item->product->id ?? $item->product_id;
-                return $this->products->contains('id', $productId)
-                    ? ((float) $item->product->price * $item->quantity)
+                $menuItemId = $item->menuItem->id ?? $item->menu_item_id;
+                return $this->menuItems->contains('id', $menuItemId)
+                    ? ((float) $item->menuItem->price * $item->quantity)
                     : 0.0;
             });
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact form – {{ $subject }}</title>
+    <title>Contact form: {{ $subject }}</title>
     <style>
         body { font-family: sans-serif; line-height: 1.5; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
         h1 { font-size: 1.25rem; margin-bottom: 1rem; }
@@ -16,7 +16,7 @@
     </style>
 </head>
 <body>
-    <h1>New message from Contact Us (namsa.com.na)</h1>
+    <h1>New message from Contact Us (Kaleni Catering Services)</h1>
     <p>Someone submitted the contact form. Details below.</p>
 
     <div class="field">
@@ -37,6 +37,6 @@
     </div>
 
     <hr>
-    <p class="footer">Reply directly to the sender using the email above. This was sent from your /Namsa Florals contact form.</p>
+    <p class="footer">Reply directly to the sender using the email above. This was sent from your Kaleni Catering Services contact form.</p>
 </body>
 </html>

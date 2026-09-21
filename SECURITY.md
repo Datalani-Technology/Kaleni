@@ -1,4 +1,4 @@
-# Security Features - Namsa Flora
+# Security Features - Kaleni Catering Services
 
 ## 🔒 Security Measures Implemented
 

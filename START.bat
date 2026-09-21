@@ -1,6 +1,6 @@
 @echo off
 echo ========================================
-echo   Namsa Flora E-Commerce Platform
+echo   Kaleni Catering Services E-Commerce Platform
 echo ========================================
 echo.
 echo Starting main site on port 8003...

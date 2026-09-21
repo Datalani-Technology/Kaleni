@@ -1,21 +1,38 @@
-/* /Namsa Florals business console */
+/* Kaleni Catering Services business console */
 :root {
-    --admin-accent: #b42363;
-    --admin-accent-dark: #8d174b;
-    --admin-accent-soft: #f9e9f0;
-    --admin-ink: #202329;
-    --admin-muted: #6d737d;
-    --admin-bg: #f5f6f8;
+    --admin-accent: #680B1C;
+    --admin-accent-dark: #4A0814;
+    --admin-accent-soft: #F7ECD3;
+    --admin-ink: #29211F;
+    --admin-muted: #6d6560;
+    --admin-bg: #f5f4f2;
     --admin-surface: #ffffff;
-    --admin-border: #e5e7eb;
-    --admin-sidebar: #211a20;
-    --admin-sidebar-2: #2b2027;
+    --admin-border: #e7e0dc;
+    --admin-sidebar: #29211F;
+    --admin-sidebar-2: #3a2c26;
     --admin-radius: 14px;
-    --admin-shadow: 0 6px 22px rgba(32, 24, 29, 0.055);
+    --admin-shadow: 0 6px 22px rgba(41, 33, 31, 0.06);
 }
 
 html {
     background: var(--admin-bg);
+}
+
+/* Bootstrap 5 draws its own checked-state fill/border (not the native
+   browser accent-color), so the blue default has to be overridden directly.
+   Unscoped from .admin-content (unlike the structural rules below) because
+   this whole stylesheet is admin-only anyway, and these color fixes need to
+   reach modals/offcanvas panels that render outside the main content area. */
+.form-check-input:checked {
+    background-color: var(--admin-accent);
+    border-color: var(--admin-accent);
+}
+.form-check-input:focus {
+    border-color: var(--admin-accent);
+    box-shadow: 0 0 0 0.25rem rgba(104, 11, 28, 0.25);
+}
+input[type="range"] {
+    accent-color: var(--admin-accent);
 }
 
 body {
@@ -36,6 +53,15 @@ h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.03em;
 }
 
+/* The rule above sets an explicit color on every heading, which beats
+   inherited color no matter how specific the ancestor selector is — so a
+   heading inside a `.text-white` card would otherwise render in dark ink
+   instead of white. */
+.text-white h1, .text-white h2, .text-white h3,
+.text-white h4, .text-white h5, .text-white h6 {
+    color: #fff;
+}
+
 a, button, input, select, textarea {
     font-family: inherit;
 }
@@ -45,7 +71,7 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-    outline: 3px solid rgba(180, 35, 99, 0.2);
+    outline: 3px solid rgba(104, 11, 28, 0.2);
     outline-offset: 2px;
 }
 
@@ -65,7 +91,7 @@ textarea:focus-visible {
     min-height: 100vh;
     padding: 22px 16px !important;
     background:
-        radial-gradient(circle at 0 0, rgba(180, 35, 99, 0.18), transparent 280px),
+        radial-gradient(circle at 0 0, rgba(104, 11, 28, 0.18), transparent 280px),
         linear-gradient(180deg, var(--admin-sidebar) 0%, var(--admin-sidebar-2) 100%);
 }
 
@@ -79,6 +105,17 @@ textarea:focus-visible {
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.admin-sidebar-logo {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    object-fit: cover;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid rgba(248, 173, 39, 0.55);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .sidebar-brand-name {
@@ -140,13 +177,13 @@ textarea:focus-visible {
 
 .admin-sidebar a.active {
     color: #fff;
-    background: linear-gradient(90deg, rgba(180, 35, 99, 0.34), rgba(180, 35, 99, 0.14));
-    border-color: rgba(242, 157, 194, 0.16);
-    box-shadow: inset 3px 0 0 #e26b9f;
+    background: linear-gradient(90deg, rgba(248, 173, 39, 0.30), rgba(248, 173, 39, 0.12));
+    border-color: rgba(248, 173, 39, 0.20);
+    box-shadow: inset 3px 0 0 #F8AD27;
 }
 
 .admin-sidebar a.active i {
-    color: #f4a9c9;
+    color: #F8AD27;
 }
 
 .sidebar-user-card {
@@ -211,7 +248,7 @@ textarea:focus-visible {
     flex: 1 1 0;
     min-width: 0;
     background:
-        radial-gradient(circle at 100% 0, rgba(180, 35, 99, 0.035), transparent 28rem),
+        radial-gradient(circle at 100% 0, rgba(104, 11, 28, 0.035), transparent 28rem),
         var(--admin-bg);
 }
 
@@ -294,25 +331,29 @@ textarea:focus-visible {
     font-weight: 750;
 }
 
-.admin-content .btn-primary,
+.btn-primary,
 .btn-admin {
     color: #fff !important;
     background: var(--admin-accent) !important;
     border-color: var(--admin-accent) !important;
 }
 
-.admin-content .btn-primary:hover,
+.btn-primary:hover,
 .btn-admin:hover {
     background: var(--admin-accent-dark) !important;
     border-color: var(--admin-accent-dark) !important;
 }
 
-.admin-content .btn-outline-primary {
-    color: var(--admin-accent-dark) !important;
-    border-color: #dba7bd !important;
+.text-primary {
+    color: var(--admin-accent) !important;
 }
 
-.admin-content .btn-outline-primary:hover {
+.btn-outline-primary {
+    color: var(--admin-accent-dark) !important;
+    border-color: #e0c48a !important;
+}
+
+.btn-outline-primary:hover {
     color: #fff !important;
     background: var(--admin-accent) !important;
     border-color: var(--admin-accent) !important;
@@ -337,8 +378,8 @@ textarea:focus-visible {
 
 .admin-content .form-control:focus,
 .admin-content .form-select:focus {
-    border-color: rgba(180, 35, 99, 0.65);
-    box-shadow: 0 0 0 4px rgba(180, 35, 99, 0.08);
+    border-color: rgba(104, 11, 28, 0.65);
+    box-shadow: 0 0 0 4px rgba(104, 11, 28, 0.08);
 }
 
 .admin-content .badge {
@@ -355,14 +396,38 @@ textarea:focus-visible {
     box-shadow: var(--admin-shadow);
 }
 
-.admin-dashboard-stats .card {
+/* Bootstrap's blue/cyan utility badges clash with the brand palette — reuse
+   the same neutral gray already used for "secondary" status elsewhere. */
+.badge.bg-primary,
+.badge.text-bg-primary {
+    background-color: var(--admin-accent) !important;
+}
+.badge.bg-info,
+.badge.text-bg-info {
+    background-color: #6c757d !important;
+}
+
+/* Bootstrap's default <code> pink (#d63384) clashes with the brand palette. */
+code {
+    padding: 2px 6px;
+    color: var(--primary-dark, #4A0814);
+    background: var(--admin-accent-soft, #F7ECD3);
+    border-radius: 5px;
+    font-size: 0.85em;
+}
+
+/* Shared "alternating burgundy / white" stat-card row — used on the
+   dashboard and stock pages. Deep red is the only accent color; every
+   other tile in the row is plain white so the row reads as one cohesive
+   pattern instead of a mix of unrelated Bootstrap status colors. */
+.admin-stat-cards .card {
     position: relative;
     overflow: hidden;
     border: 0 !important;
     box-shadow: 0 12px 28px rgba(34, 26, 31, 0.12);
 }
 
-.admin-dashboard-stats .card::after {
+.admin-stat-cards .card::after {
     content: '';
     position: absolute;
     right: -25px;
@@ -373,11 +438,15 @@ textarea:focus-visible {
     border-radius: 50%;
 }
 
-.admin-dashboard-stats .bg-primary { background: linear-gradient(135deg, #a11f57, #cc4c84) !important; }
-.admin-dashboard-stats .bg-success { background: linear-gradient(135deg, #16724c, #2f9a6d) !important; }
-.admin-dashboard-stats .bg-warning { background: linear-gradient(135deg, #d59a29, #edba57) !important; }
-.admin-dashboard-stats .bg-danger { background: linear-gradient(135deg, #a23843, #d25b66) !important; }
-.admin-dashboard-stats .bg-secondary { background: linear-gradient(135deg, #4b505a, #707782) !important; }
+.admin-stat-cards .bg-primary { background: linear-gradient(135deg, #4A0814, #680B1C) !important; }
+
+.admin-stat-cards .admin-stat-white {
+    background: #fff !important;
+    box-shadow: 0 10px 26px rgba(41, 33, 31, 0.06);
+}
+.admin-stat-cards .admin-stat-white::after {
+    border-color: rgba(104, 11, 28, 0.07);
+}
 
 .admin-mobile-header {
     background: rgba(33, 26, 32, 0.97);
@@ -493,7 +562,7 @@ textarea:focus-visible {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 8px;
-    color: #2b2027;
+    color: #29211F;
     font-size: .88rem;
     font-weight: 800;
     text-decoration: none;
@@ -507,18 +576,19 @@ textarea:focus-visible {
     margin: 2px -10px;
     padding: 11px 10px;
     border-radius: 10px;
-    color: #30262d;
+    color: #29211F;
     text-decoration: none;
 }
-.notification-item:hover { background: #faf4f7; color: #30262d; }
+.notification-item:hover { background: #f7f0ed; color: #29211F; }
 .notification-item strong,
 .notification-item small { display: block; }
 .notification-item strong { margin-bottom: 2px; font-size: .84rem; }
-.notification-item small { color: #777078; font-size: .72rem; line-height: 1.45; }
+.notification-item small { color: #7a6f6b; font-size: .72rem; line-height: 1.45; }
 .notification-dot { width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; }
-.notification-dot-order { background: #d63384; }
-.notification-dot-stock { background: #e2a93b; }
-.notification-dot-contact { background: #4a6fd1; }
+.notification-dot-order { background: #680B1C; }
+.notification-dot-stock { background: #D6900F; }
+.notification-dot-contact { background: #29211F; }
+.notification-dot-special { background: #A0522D; }
 .notification-empty { margin: 12px 0 0; color: #8b848a; font-size: .8rem; }
 .notification-clear-state { padding: 90px 18px; text-align: center; }
 .notification-clear-state i { display: block; margin-bottom: 14px; color: #25825b; font-size: 2.4rem; }
@@ -536,8 +606,8 @@ textarea:focus-visible {
     place-items: center;
     margin-bottom: 22px;
     border-radius: 50%;
-    background: #fff1f2;
-    color: #b42332;
+    background: #f7ecd3;
+    color: #680B1C;
     font-size: 1.35rem;
 }
 .admin-confirm-note { color: #966c19; font-size: .78rem; font-weight: 700; }

@@ -26,14 +26,14 @@
 </form>
 
 <div class="mb-3">
-    <h2 class="h5">/Namsa Florals — {{ $from->format('d M Y') }} to {{ $to->format('d M Y') }}</h2>
+    <h2 class="h5">Kaleni Catering Services: {{ $from->format('d M Y') }} to {{ $to->format('d M Y') }}</h2>
 </div>
 
 <div class="row g-3 mb-4">
     <div class="col-md-4">
         <div class="card border-success h-100">
             <div class="card-body">
-                <div class="text-muted small">Revenue ({{ $orderCount }} orders)</div>
+                <div class="text-muted small">Revenue ({{ $bookingCount }} bookings)</div>
                 <div class="h3 text-success mb-0">N$ {{ number_format($revenue, 2) }}</div>
             </div>
         </div>

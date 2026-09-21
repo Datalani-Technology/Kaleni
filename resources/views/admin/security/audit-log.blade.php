@@ -55,10 +55,10 @@
                         <tr>
                             <td data-label="When">{{ $log->created_at->format('d M Y, H:i:s') }}</td>
                             <td data-label="User">
-                                {{ $log->user->name ?? $log->email ?? '—' }}
+                                {{ $log->user->name ?? $log->email ?? 'N/A' }}
                             </td>
                             <td data-label="Action"><code>{{ $log->action }}</code></td>
-                            <td data-label="IP">{{ $log->ip ?? '—' }}</td>
+                            <td data-label="IP">{{ $log->ip ?? 'N/A' }}</td>
                             <td data-label="Details">
                                 @if($log->meta)
                                     <small class="text-muted">{{ collect($log->meta)->except('email')->map(fn($v, $k) => "{$k}: " . (is_scalar($v) ? $v : json_encode($v)))->implode(', ') }}</small>

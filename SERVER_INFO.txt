@@ -1,5 +1,5 @@
 ========================================
-  NAMSA FLORA - SERVER INFORMATION
+  KALENI CATERING SERVICES - SERVER INFORMATION
 ========================================
 
 PORT CONFIGURATION:
@@ -15,7 +15,7 @@ START_ADMIN.bat   - Starts admin panel only (port 8004)
 
 ADMIN CREDENTIALS:
 ------------------
-Email:    admin@namsa.com.na
+Email:    kalenilucas061@gmail.com
 Password: printed once to the terminal when `php artisan db:seed --class=AdminUserSeeder`
           runs. There is no fixed default password. Two-factor authentication is required
           on first login.

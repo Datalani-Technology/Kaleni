@@ -1,8 +1,8 @@
-# /Namsa Commerce — N$200,000 Product Roadmap
+# /Kaleni Commerce — N$200,000 Product Roadmap
 
 ## Commercial position
 
-The current application is a strong flower-commerce foundation: it already has a storefront, product search, cart, guest checkout, WhatsApp ordering, product recommendations, order and product administration, inventory movements, customers, expenses, reports, analytics, enquiries, promotions, gallery management, user management, audit logging, and two-factor authentication.
+The current application is a strong catering-commerce foundation: it already has a storefront, product search, cart, guest checkout, WhatsApp ordering, product recommendations, order and product administration, inventory movements, customers, expenses, reports, analytics, enquiries, promotions, gallery management, user management, audit logging, and two-factor authentication.
 
 To credibly sell the system for about **N$200,000**, it should be positioned as a complete florist operations platform, not only as a website. The price is easiest to defend when it includes production integrations, workflow automation, migration, training, documentation, and post-launch support.
 
@@ -15,7 +15,7 @@ To credibly sell the system for about **N$200,000**, it should be positioned as 
 | Order workflow | Configurable statuses, visual timeline, cancellation/refund flow, internal tasks, printable picking card, and payment/delivery state separation | Reduces errors and makes responsibility clear | Every order has a complete, timestamped operational history |
 | Customer notifications | Branded email plus WhatsApp/SMS templates for confirmation, payment, preparation, dispatch, delivery, and cancellation | Reduces “where is my order?” support and improves trust | Notifications are queued, logged, retryable, and opt-out aware |
 | Gift personalisation | Recipient details separate from buyer, gift message, anonymous sender option, occasion, delivery instructions, add-ons, and preferred arrangement notes | Raises average order value and fits the florist buying journey | Personalisation appears on checkout, order view, invoice/picking card, and customer confirmation |
-| Inventory and costing | Bouquet recipes/BOM, stem and packaging stock, supplier records, purchase orders, receiving, wastage, stocktake, cost price, and gross margin | Turns simple stock counts into real florist inventory control | Selling or producing an arrangement consumes its configured components and reports actual margin |
+| Inventory and costing | Pack recipes/BOM, stem and packaging stock, supplier records, purchase orders, receiving, wastage, stocktake, cost price, and gross margin | Turns simple stock counts into real florist inventory control | Selling or producing an arrangement consumes its configured components and reports actual margin |
 | Reliability and recovery | Automated backups with restore drills, queues, scheduler monitoring, error tracking, health checks, deployment runbook, and staging environment | Makes the system supportable after handover | A documented restore and rollback can be demonstrated, and failed background jobs are visible |
 
 ## Priority 1 — features that strongly justify the premium
@@ -79,4 +79,4 @@ This is a commercial packaging guide, not a fixed quotation.
 
 ## Best sales narrative
 
-Sell the product as **“one platform from bouquet to delivery”**: online shop, WhatsApp-assisted sales, payments, customer history, florist production, inventory, delivery, POS, reporting, and secure administration. A polished storefront helps win the demonstration; the operational depth above is what supports the N$200,000 business case.
+Sell the product as **“one platform from pack to delivery”**: online shop, WhatsApp-assisted sales, payments, customer history, florist production, inventory, delivery, POS, reporting, and secure administration. A polished storefront helps win the demonstration; the operational depth above is what supports the N$200,000 business case.

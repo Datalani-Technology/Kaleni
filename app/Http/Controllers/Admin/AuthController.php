@@ -21,7 +21,6 @@ class AuthController extends Controller
     private const TOKEN_EXPIRE_MIN = 60;
     private const MAX_FAILED_ATTEMPTS = 5;
     private const LOCKOUT_MINUTES = 15;
-    private const TWO_FACTOR_PENDING_MINUTES = 5;
 
     public function showLogin()
     {
@@ -61,16 +60,6 @@ class AuthController extends Controller
         if ($isEligible && Auth::validate(['email' => $request->email, 'password' => $request->password])) {
             RateLimiter::clear($key);
             $user->forceFill(['failed_login_attempts' => 0, 'locked_until' => null])->save();
-
-            if ($user->hasEnabledTwoFactor()) {
-                $request->session()->put('admin_2fa_pending', [
-                    'user_id' => $user->id,
-                    'remember' => $request->boolean('remember'),
-                    'expires_at' => now()->addMinutes(self::TWO_FACTOR_PENDING_MINUTES)->timestamp,
-                ]);
-                AuditLogger::record('login.password_ok', ['email' => $user->email]);
-                return redirect()->route('admin.2fa.challenge');
-            }
 
             Auth::login($user, $request->boolean('remember'));
             $request->session()->regenerate();

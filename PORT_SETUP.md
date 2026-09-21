@@ -2,7 +2,7 @@
 
 ## 🚀 Server Setup
 
-The Namsa Flora e-commerce platform is configured to run on separate ports:
+The Kaleni Catering Services e-commerce platform is configured to run on separate ports:
 
 - **Main Site (Frontend)**: Port **8003**
 - **Admin Panel**: Port **8004**
@@ -39,7 +39,7 @@ This starts only the admin panel on port 8004.
 ### Admin Panel
 - **URL**: http://localhost:8004/{your ADMIN_PATH}/login
 - **Login**: 
-  - Email: `admin@namsa.com.na`
+  - Email: `kalenilucas061@gmail.com`
   - Password: printed once to the terminal by `AdminUserSeeder` (then set up 2FA — required)
 
 ---

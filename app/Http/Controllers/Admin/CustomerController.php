@@ -11,11 +11,11 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $query = Customer::query()
-            ->withCount('orders')
-            ->withSum(['orders as lifetime_spend' => function ($q) {
-                $q->where('order_status', '!=', 'cancelled');
+            ->withCount('bookings')
+            ->withSum(['bookings as lifetime_spend' => function ($q) {
+                $q->where('booking_status', '!=', 'cancelled');
             }], 'total_amount')
-            ->withMax('orders', 'created_at');
+            ->withMax('bookings', 'created_at');
 
         if ($request->filled('q')) {
             $q = $request->q;
@@ -33,7 +33,7 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
-        $customer->load(['orders' => fn ($q) => $q->latest()]);
+        $customer->load(['bookings' => fn ($q) => $q->latest()]);
         $lifetimeSpend = $customer->lifetimeSpend();
 
         return view('admin.customers.show', compact('customer', 'lifetimeSpend'));

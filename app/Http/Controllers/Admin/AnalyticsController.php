@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order;
-use App\Models\OrderItem;
+use App\Models\Booking;
+use App\Models\BookingItem;
 use App\Models\Visit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -25,27 +25,27 @@ class AnalyticsController extends Controller
         };
 
         // --- Sales ---------------------------------------------------------
-        $orders = Order::where('order_status', '!=', 'cancelled')
+        $bookings = Booking::where('booking_status', '!=', 'cancelled')
             ->whereBetween('created_at', [$from, $now])
             ->get();
 
-        $revenue = (float) $orders->sum('total_amount');
-        $orderCount = $orders->count();
-        $avgOrderValue = $orderCount > 0 ? $revenue / $orderCount : 0.0;
+        $revenue = (float) $bookings->sum('total_amount');
+        $bookingCount = $bookings->count();
+        $avgBookingValue = $bookingCount > 0 ? $revenue / $bookingCount : 0.0;
 
-        $ordersByStatus = Order::whereBetween('created_at', [$from, $now])
-            ->select('order_status', DB::raw('count(*) as c'))
-            ->groupBy('order_status')
-            ->pluck('c', 'order_status');
+        $bookingsByStatus = Booking::whereBetween('created_at', [$from, $now])
+            ->select('booking_status', DB::raw('count(*) as c'))
+            ->groupBy('booking_status')
+            ->pluck('c', 'booking_status');
 
-        $ordersByPaymentMethod = Order::whereBetween('created_at', [$from, $now])
+        $bookingsByPaymentMethod = Booking::whereBetween('created_at', [$from, $now])
             ->select('payment_method', DB::raw('count(*) as c'))
             ->groupBy('payment_method')
             ->pluck('c', 'payment_method');
 
         $trendDays = (int) max(1, $from->diffInDays($now)) + 1;
         $trendDays = min($trendDays, 90);
-        $trendRaw = Order::where('order_status', '!=', 'cancelled')
+        $trendRaw = Booking::where('booking_status', '!=', 'cancelled')
             ->where('created_at', '>=', $now->copy()->subDays($trendDays - 1)->startOfDay())
             ->selectRaw('DATE(created_at) as d, SUM(total_amount) as total')
             ->groupBy('d')
@@ -58,13 +58,13 @@ class AnalyticsController extends Controller
             $trendData[] = round((float) ($trendRaw[$d->toDateString()] ?? 0), 2);
         }
 
-        $topProducts = OrderItem::query()
-            ->whereHas('order', function ($q) use ($from, $now) {
-                $q->where('order_status', '!=', 'cancelled')->whereBetween('created_at', [$from, $now]);
+        $topMenuItems = BookingItem::query()
+            ->whereHas('booking', function ($q) use ($from, $now) {
+                $q->where('booking_status', '!=', 'cancelled')->whereBetween('created_at', [$from, $now]);
             })
-            ->with('product:id,name,image')
-            ->select('product_id', DB::raw('SUM(quantity) as units'), DB::raw('SUM(subtotal) as revenue'))
-            ->groupBy('product_id')
+            ->with('menuItem:id,name,image')
+            ->select('menu_item_id', DB::raw('SUM(quantity) as units'), DB::raw('SUM(subtotal) as revenue'))
+            ->groupBy('menu_item_id')
             ->orderByDesc('revenue')
             ->limit(8)
             ->get();
@@ -90,20 +90,20 @@ class AnalyticsController extends Controller
             ->limit(10)
             ->get();
 
-        $conversionRate = $totalViews > 0 ? ($orderCount / $totalViews) * 100 : 0.0;
+        $conversionRate = $totalViews > 0 ? ($bookingCount / $totalViews) * 100 : 0.0;
 
         return view('admin.analytics.index', [
             'period' => $period,
             'from' => $from,
             'to' => $now,
             'revenue' => $revenue,
-            'orderCount' => $orderCount,
-            'avgOrderValue' => $avgOrderValue,
-            'ordersByStatus' => $ordersByStatus,
-            'ordersByPaymentMethod' => $ordersByPaymentMethod,
+            'bookingCount' => $bookingCount,
+            'avgBookingValue' => $avgBookingValue,
+            'bookingsByStatus' => $bookingsByStatus,
+            'bookingsByPaymentMethod' => $bookingsByPaymentMethod,
             'trendLabels' => $trendLabels,
             'trendData' => $trendData,
-            'topProducts' => $topProducts,
+            'topMenuItems' => $topMenuItems,
             'totalViews' => $totalViews,
             'uniqueVisitors' => $uniqueVisitors,
             'conversionRate' => $conversionRate,

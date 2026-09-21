@@ -32,7 +32,7 @@
             </div>
             <div class="mb-4">
                 <label for="description" class="form-label">Description (optional)</label>
-                <input type="text" class="form-control @error('description') is-invalid @enderror" id="description" name="description" value="{{ old('description') }}" maxlength="255" placeholder="e.g. Fresh roses from supplier">
+                <input type="text" class="form-control @error('description') is-invalid @enderror" id="description" name="description" value="{{ old('description') }}" maxlength="255" placeholder="e.g. Fresh chicken from supplier">
                 @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="d-flex flex-wrap gap-2">

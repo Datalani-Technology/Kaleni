@@ -14,7 +14,7 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        $existing = User::where('email', 'admin@namsa.com.na')->first();
+        $existing = User::where('email', 'kalenilucas061@gmail.com')->first();
         if ($existing) {
             return;
         }
@@ -22,13 +22,13 @@ class AdminUserSeeder extends Seeder
         $password = Str::password(16);
 
         User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@namsa.com.na',
+            'name' => 'Chef K',
+            'email' => 'kalenilucas061@gmail.com',
             'password' => Hash::make($password),
             'role' => 'admin',
         ]);
 
-        $this->command?->info("Admin account created: admin@namsa.com.na / {$password}");
+        $this->command?->info("Admin account created: kalenilucas061@gmail.com / {$password}");
         $this->command?->warn('Save this password now — it will not be shown again. Log in and set up two-factor authentication immediately.');
     }
 }

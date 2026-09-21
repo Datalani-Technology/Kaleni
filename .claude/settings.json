@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node screenshot_newmenu.js)",
+      "Bash(node test_booking_modal6.js)"
+    ]
+  }
+}

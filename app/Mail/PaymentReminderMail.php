@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\Order;
+use App\Models\Booking;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -13,12 +13,12 @@ class PaymentReminderMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public Order $order) {}
+    public function __construct(public Booking $booking) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Finish paying for your /Namsa Florals order ' . $this->order->order_number,
+            subject: 'Finish paying for your Kaleni Catering booking ' . $this->booking->booking_number,
         );
     }
 
@@ -27,8 +27,8 @@ class PaymentReminderMail extends Mailable
         return new Content(
             view: 'emails.payment-reminder',
             with: [
-                'order' => $this->order,
-                'payUrl' => route('payment.dpo.init', ['order' => $this->order->id]),
+                'booking' => $this->booking,
+                'payUrl' => route('payment.dpo.init', ['booking' => $this->booking->id]),
             ],
         );
     }

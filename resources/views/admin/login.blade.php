@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#fdf1f2">
-    <title>Admin Login - /Namsa Florals</title>
+    <title>Admin Login - Kaleni Catering Services</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -22,19 +22,19 @@
         h1, h2, h3, h4, h5, h6 { font-family: 'Manrope', 'Segoe UI', Arial, sans-serif; }
         .login-card {
             border-radius: 22px;
-            box-shadow: 0 26px 64px rgba(178,66,116,0.18);
+            box-shadow: 0 26px 64px rgba(104,11,28,0.18);
         }
         .login-logo { max-height: 64px; width: auto; max-width: 180px; object-fit: contain; }
-        .btn-admin { background: linear-gradient(135deg, #c22a70, #b42363); color: #fff; border: none; }
-        .btn-admin:hover { background: linear-gradient(135deg, #b42363, #8d174b) !important; color: #fff !important; }
-        a { color: #b42363; }
+        .btn-admin { background: linear-gradient(135deg, #8a1424, #680B1C); color: #fff; border: none; }
+        .btn-admin:hover { background: linear-gradient(135deg, #680B1C, #4A0814) !important; color: #fff !important; }
+        a { color: #680B1C; }
     </style>
     <link rel="stylesheet" href="{{ asset('css/admin-auth.css') }}">
 </head>
 <body>
     @php
         $loginLogoPath = \App\Models\Setting::get('logo_path');
-        $loginLogoText = \App\Models\Setting::get('logo_text', '/Namsa Florals');
+        $loginLogoText = \App\Models\Setting::get('logo_text', 'Kaleni Catering Services');
     @endphp
     <div class="container">
         <div class="row justify-content-center">
@@ -45,7 +45,7 @@
                             @if($loginLogoPath)
                                 <img src="{{ asset('storage/' . $loginLogoPath) }}" alt="{{ $loginLogoText }}" class="login-logo d-block mx-auto">
                             @else
-                                <i class="bi bi-flower1" style="font-size: 3rem; color: #b42363;"></i>
+                                <img src="{{ asset('images/kaleni/brand/kaleni-logo.jpg') }}" alt="{{ $loginLogoText }}" class="login-logo d-block mx-auto">
                             @endif
                             <h2 class="mt-3" style="color: #35222c;">{{ $loginLogoText }}</h2>
                             <p class="text-muted">Admin Login</p>

@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\LowStockAlertMail;
-use App\Models\Product;
+use App\Models\Booking;
+use App\Models\MenuItem;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +17,7 @@ class StockController extends Controller
     public function index(Request $request)
     {
         $threshold = config('inventory.low_stock_threshold', 5);
-        $query = Product::query()->orderBy('name');
+        $query = MenuItem::query()->orderBy('name');
 
         if ($request->filled('search')) {
             $like = '%' . str_replace(['%', '_'], ['\\%', '\\_'], $request->search) . '%';
@@ -34,27 +35,27 @@ class StockController extends Controller
             }
         }
 
-        $products = $query->paginate(20)->withQueryString();
+        $menuItems = $query->paginate(20)->withQueryString();
 
-        $lowStockCount = Product::where('stock', '<=', $threshold)->count();
-        $outOfStockCount = Product::where('stock', 0)->count();
-        $totalUnits = (int) Product::sum('stock');
-        $productsCount = Product::count();
-        $potentialValue = (float) Product::get()->sum(fn ($p) => $p->stock * (float) $p->price);
-        $totalSales = (float) \App\Models\Order::where('order_status', '!=', 'cancelled')->sum('total_amount');
+        $lowStockCount = MenuItem::where('stock', '<=', $threshold)->count();
+        $outOfStockCount = MenuItem::where('stock', 0)->count();
+        $totalUnits = (int) MenuItem::sum('stock');
+        $menuItemsCount = MenuItem::count();
+        $potentialValue = (float) MenuItem::get()->sum(fn ($p) => $p->stock * (float) $p->price);
+        $totalSales = (float) Booking::where('booking_status', '!=', 'cancelled')->sum('total_amount');
 
-        $recentMovements = StockMovement::with(['product', 'user'])
+        $recentMovements = StockMovement::with(['menuItem', 'user'])
             ->latest()
             ->take(15)
             ->get();
 
         return view('admin.stock.index', compact(
-            'products',
+            'menuItems',
             'threshold',
             'lowStockCount',
             'outOfStockCount',
             'totalUnits',
-            'productsCount',
+            'menuItemsCount',
             'potentialValue',
             'totalSales',
             'recentMovements',
@@ -64,14 +65,14 @@ class StockController extends Controller
     public function adjust(Request $request)
     {
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
+            'menu_item_id' => 'required|exists:menu_items,id',
             'action' => 'required|in:set,add,subtract',
             'quantity' => 'required|integer|min:0',
             'reason' => 'nullable|string|max:500',
         ]);
 
-        $product = Product::findOrFail($validated['product_id']);
-        $before = (int) $product->stock;
+        $menuItem = MenuItem::findOrFail($validated['menu_item_id']);
+        $before = (int) $menuItem->stock;
         $qty = (int) $validated['quantity'];
         $action = $validated['action'];
 
@@ -90,12 +91,12 @@ class StockController extends Controller
             return back()->with('error', 'Stock cannot go below zero.');
         }
 
-        DB::transaction(function () use ($product, $before, $after, $action, $validated) {
+        DB::transaction(function () use ($menuItem, $before, $after, $action, $validated) {
             $delta = $after - $before;
-            $product->update(['stock' => $after]);
+            $menuItem->update(['stock' => $after]);
 
             StockMovement::create([
-                'product_id' => $product->id,
+                'menu_item_id' => $menuItem->id,
                 'user_id' => auth()->id(),
                 'type' => $action,
                 'quantity_before' => $before,
@@ -108,7 +109,7 @@ class StockController extends Controller
         $threshold = config('inventory.low_stock_threshold', 5);
         if ($before > $threshold && $after <= $threshold) {
             try {
-                Mail::to(config('contact.email_orders'))->send(new LowStockAlertMail(collect([$product]), $threshold));
+                Mail::to(config('contact.email_orders'))->send(new LowStockAlertMail(collect([$menuItem]), $threshold));
             } catch (\Throwable $e) {
                 Log::warning('Low stock alert email failed', ['error' => $e->getMessage()]);
             }

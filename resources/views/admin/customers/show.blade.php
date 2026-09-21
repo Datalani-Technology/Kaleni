@@ -24,7 +24,7 @@
                     <div class="mb-3">
                         <label class="form-label">Email</label>
                         <input type="email" class="form-control" value="{{ $customer->email }}" disabled>
-                        <div class="form-text">Email can't be changed (used to match orders).</div>
+                        <div class="form-text">Email can't be changed (used to match bookings).</div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Phone</label>
@@ -38,7 +38,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Notes <span class="text-muted small">(internal, staff-only)</span></label>
-                        <textarea name="notes" class="form-control @error('notes') is-invalid @enderror" rows="4" placeholder="e.g. Prefers pastel colours, allergic to lilies, VIP customer...">{{ old('notes', $customer->notes) }}</textarea>
+                        <textarea name="notes" class="form-control @error('notes') is-invalid @enderror" rows="4" placeholder="e.g. Prefers mild spice, allergic to peanuts, VIP customer...">{{ old('notes', $customer->notes) }}</textarea>
                         @error('notes')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <button type="submit" class="btn btn-primary w-100"><i class="bi bi-save"></i> Save</button>
@@ -50,8 +50,8 @@
             <div class="card-body">
                 <div class="row text-center g-3">
                     <div class="col-6">
-                        <div class="text-muted small">Orders</div>
-                        <div class="h4 mb-0">{{ $customer->orders->count() }}</div>
+                        <div class="text-muted small">Bookings</div>
+                        <div class="h4 mb-0">{{ $customer->bookings->count() }}</div>
                     </div>
                     <div class="col-6">
                         <div class="text-muted small">Lifetime Spend</div>
@@ -64,13 +64,13 @@
 
     <div class="col-lg-8">
         <div class="card">
-            <div class="card-header bg-light"><strong>Order history</strong></div>
+            <div class="card-header bg-light"><strong>Booking history</strong></div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0 admin-table-cards">
                         <thead>
                             <tr>
-                                <th>Order</th>
+                                <th>Booking</th>
                                 <th>Date</th>
                                 <th>Status</th>
                                 <th class="text-end">Total</th>
@@ -78,28 +78,28 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($customer->orders as $o)
+                            @forelse($customer->bookings as $b)
                                 <tr>
-                                    <td data-label="Order"><strong>{{ $o->order_number }}</strong></td>
-                                    <td data-label="Date">{{ $o->created_at->format('d M Y') }}</td>
+                                    <td data-label="Booking"><strong>{{ $b->booking_number }}</strong></td>
+                                    <td data-label="Date">{{ $b->created_at->format('d M Y') }}</td>
                                     <td data-label="Status">
-                                        @if($o->order_status === 'completed')
+                                        @if($b->booking_status === 'completed')
                                             <span class="badge bg-success">Completed</span>
-                                        @elseif($o->order_status === 'cancelled')
+                                        @elseif($b->booking_status === 'cancelled')
                                             <span class="badge bg-secondary">Cancelled</span>
-                                        @elseif($o->order_status === 'processing')
+                                        @elseif($b->booking_status === 'processing')
                                             <span class="badge bg-info">Processing</span>
                                         @else
                                             <span class="badge bg-warning text-dark">Pending</span>
                                         @endif
                                     </td>
-                                    <td data-label="Total" class="text-end">N$ {{ number_format((float) $o->total_amount, 2) }}</td>
+                                    <td data-label="Total" class="text-end">N$ {{ number_format((float) $b->total_amount, 2) }}</td>
                                     <td data-label="">
-                                        <a href="{{ route('admin.orders.show', $o) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                                        <a href="{{ route('admin.bookings.show', $b) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="5" class="text-center text-muted py-4" data-label="">No orders yet.</td></tr>
+                                <tr><td colspan="5" class="text-center text-muted py-4" data-label="">No bookings yet.</td></tr>
                             @endforelse
                         </tbody>
                     </table>

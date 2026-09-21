@@ -19,6 +19,7 @@
                     <tr>
                         <th>Image</th>
                         <th>Title</th>
+                        <th>Occasion</th>
                         <th>Description</th>
                         <th>Actions</th>
                     </tr>
@@ -30,11 +31,18 @@
                                 @if($item->image)
                                     <img src="{{ $item->image_url }}" alt="" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
                                 @else
-                                    <span class="text-muted">—</span>
+                                    <span class="text-muted">N/A</span>
                                 @endif
                             </td>
-                            <td data-label="Title">{{ $item->title ?: '—' }}</td>
-                            <td data-label="Description">{{ Str::limit($item->description, 60) ?: '—' }}</td>
+                            <td data-label="Title">{{ $item->title ?: 'N/A' }}</td>
+                            <td data-label="Occasion">
+                                @if($item->occasion)
+                                    <span class="badge text-bg-secondary">{{ $item->occasion }}</span>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </td>
+                            <td data-label="Description">{{ Str::limit($item->description, 60) ?: 'N/A' }}</td>
                             <td data-label="Actions">
                                 <div class="d-flex flex-wrap gap-1">
                                     <a href="{{ route('admin.gallery.edit', $item) }}" class="btn btn-sm btn-warning" title="Edit">

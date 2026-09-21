@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#fdf1f2">
-    <title>Forgot Password - /Namsa Florals Admin</title>
+    <title>Forgot Password - Kaleni Catering Services Admin</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,9 +12,9 @@
     <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.css') }}">
     <style>
         body { background: linear-gradient(160deg, #fffaf6 0%, #fdf1f2 45%, #f6f4ec 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .card { border-radius: 22px; box-shadow: 0 26px 64px rgba(178,66,116,0.18); }
-        .btn-admin { background: linear-gradient(135deg, #c22a70, #b42363); color: #fff; border: none; }
-        .btn-admin:hover { background: linear-gradient(135deg, #b42363, #8d174b) !important; color: #fff !important; }
+        .card { border-radius: 22px; box-shadow: 0 26px 64px rgba(104,11,28,0.18); }
+        .btn-admin { background: linear-gradient(135deg, #8a1424, #680B1C); color: #fff; border: none; }
+        .btn-admin:hover { background: linear-gradient(135deg, #680B1C, #4A0814) !important; color: #fff !important; }
     </style>
     <link rel="stylesheet" href="{{ asset('css/admin-auth.css') }}">
 </head>
@@ -25,7 +25,7 @@
                 <div class="card">
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
-                            <i class="bi bi-key" style="font-size: 2.5rem; color: #b42363;"></i>
+                            <i class="bi bi-key" style="font-size: 2.5rem; color: #680B1C;"></i>
                             <h2 class="mt-3">Forgot password?</h2>
                             <p class="text-muted">Enter your admin email and we’ll send a reset link.</p>
                         </div>

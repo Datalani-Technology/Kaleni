@@ -1,4 +1,4 @@
-# Testing Guide - Namsa Flora E-Commerce
+# Testing Guide - Kaleni Catering Services E-Commerce
 
 ## 🚀 Quick Start
 
@@ -17,7 +17,7 @@ Then open your browser to: **http://localhost:8000**
 
 ## ✅ What's Already Set Up
 
-✓ Database created (`namsa_flora`)  
+✓ Database created (`kaleni_database`)  
 ✓ All tables migrated  
 ✓ Admin user created  
 ✓ 8 sample products added  
@@ -65,7 +65,7 @@ Then open your browser to: **http://localhost:8000**
 #### Login
 - [ ] Visit http://localhost:8000/{your ADMIN_PATH}/login
 - [ ] Login with:
-  - **Email:** admin@namsa.com.na
+  - **Email:** kalenilucas061@gmail.com
   - **Password:** printed once to the terminal when the seeder ran
 - [ ] Set up two-factor authentication (required on first login)
 - [ ] See admin dashboard
@@ -82,7 +82,7 @@ Then open your browser to: **http://localhost:8000**
 - [ ] See list of 8 sample products
 - [ ] Click "Add New Product"
 - [ ] Fill in product form:
-  - Name: Test Flower
+  - Name: Test Catering
   - Description: This is a test product
   - Price: 150.00
   - Stock: 20
@@ -134,18 +134,18 @@ Then open your browser to: **http://localhost:8000**
 
 ## 📊 Sample Data
 
-### Products Already Created:
-1. Red Rose Bouquet - N$ 250.00
-2. Mixed Flower Arrangement - N$ 350.00
-3. White Lily Bouquet - N$ 280.00
-4. Sunflower Bouquet - N$ 200.00
-5. Orchid Plant - N$ 450.00
-6. Pink Rose Bouquet - N$ 270.00
-7. Tulip Bouquet - N$ 220.00
-8. Carnation Arrangement - N$ 180.00
+### Menu Items Already Created:
+1. Grilled Chicken & Boerewors Pack - N$ 120.00
+2. Braai Platter - N$ 450.00
+3. Fried Fish Plate - N$ 100.00
+4. Beef Stew Rice Box - N$ 95.00
+5. Grilled Chicken & Pasta Salad - N$ 95.00
+6. Chicken Feet & Wild Spinach - N$ 85.00
+7. Oxtail Stew with Pap - N$ 110.00
+8. Tripe Stew with Pap - N$ 90.00
 
 ### Admin Account:
-- **Email:** admin@namsa.com.na
+- **Email:** kalenilucas061@gmail.com
 - **Password:** printed once to the terminal when the seeder ran (no fixed default)
 
 ---
@@ -187,13 +187,13 @@ Then open your browser to: **http://localhost:8000**
 ### Can't Login to Admin
 - Make sure you ran: `php artisan db:seed`
 - Check database has admin user
-- Admin email: admin@namsa.com.na — password was printed once to the terminal when the
+- Admin email: kalenilucas061@gmail.com — password was printed once to the terminal when the
   seeder ran; if you lost it, use "Forgot password" on the login page
 - Make sure you're using the correct `ADMIN_PATH` from your `.env`
 
 ### Database Errors
 - Make sure MySQL is running in XAMPP
-- Database should be named: `namsa_flora`
+- Database should be named: `kaleni_database`
 - Check `.env` file has correct database credentials
 
 ---

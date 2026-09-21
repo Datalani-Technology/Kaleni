@@ -3,44 +3,44 @@
 namespace App\Console\Commands;
 
 use App\Mail\PaymentReminderMail;
-use App\Models\Order;
+use App\Models\Booking;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class RemindPendingDpoPayments extends Command
 {
-    protected $signature = 'orders:remind-pending {--hours=2 : Minimum age of the order before reminding}';
+    protected $signature = 'bookings:remind-pending {--hours=2 : Minimum age of the booking before reminding}';
 
-    protected $description = 'Email customers whose DPO card payment was never completed, nudging them to finish paying (once per order)';
+    protected $description = 'Email clients whose DPO card payment was never completed, nudging them to finish paying (once per booking)';
 
     public function handle(): int
     {
         $hours = max(1, (int) $this->option('hours'));
 
-        $orders = Order::where('payment_method', 'dpo')
+        $bookings = Booking::where('payment_method', 'dpo')
             ->where('payment_status', 'pending')
-            ->where('order_status', '!=', 'cancelled')
+            ->where('booking_status', '!=', 'cancelled')
             ->whereNull('reminder_sent_at')
             ->where('created_at', '<=', now()->subHours($hours))
             ->get();
 
-        if ($orders->isEmpty()) {
-            $this->info('No pending DPO orders need a reminder.');
+        if ($bookings->isEmpty()) {
+            $this->info('No pending DPO bookings need a reminder.');
             return self::SUCCESS;
         }
 
-        foreach ($orders as $order) {
+        foreach ($bookings as $booking) {
             try {
-                Mail::to($order->customer_email)->send(new PaymentReminderMail($order));
-                $order->update(['reminder_sent_at' => now()]);
-                $this->line("Reminded {$order->order_number}");
+                Mail::to($booking->customer_email)->send(new PaymentReminderMail($booking));
+                $booking->update(['reminder_sent_at' => now()]);
+                $this->line("Reminded {$booking->booking_number}");
             } catch (\Throwable $e) {
-                Log::warning('Payment reminder email failed', ['order' => $order->order_number, 'error' => $e->getMessage()]);
+                Log::warning('Payment reminder email failed', ['booking' => $booking->booking_number, 'error' => $e->getMessage()]);
             }
         }
 
-        $this->info("Sent {$orders->count()} payment reminder(s).");
+        $this->info("Sent {$bookings->count()} payment reminder(s).");
         return self::SUCCESS;
     }
 }

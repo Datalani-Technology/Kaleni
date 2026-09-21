@@ -6,7 +6,7 @@
 
 ## Right now (testing)
 
-- **Active:** **LOCAL TEST (old phpMyAdmin)** → `namsa_flora` @ `127.0.0.1`, user `root`.
+- **Active:** **LOCAL TEST (old phpMyAdmin)** → `kaleni_database` @ `127.0.0.1`, user `root`.
 - Migrations have been run on this DB.
 - Use this for local testing. Export/backup this DB manually if you need a copy.
 
@@ -16,7 +16,7 @@
 
 1. **Export the local test DB** from phpMyAdmin if you want a backup (you said you’ll do this manually).
 2. **Edit `.env`**:
-   - **Comment out** the **LOCAL TEST** block (all `DB_*` lines for namsa_flora).
+   - **Comment out** the **LOCAL TEST** block (all `DB_*` lines for kaleni_database).
    - **Uncomment** the **PRODUCTION / MAIN** block and set:
      - `DB_HOST` (often `localhost` on cPanel)
      - `DB_DATABASE` (your cPanel database name)

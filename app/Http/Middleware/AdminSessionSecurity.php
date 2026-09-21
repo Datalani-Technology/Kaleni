@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  *  - Idle timeout: force logout after N minutes with no admin activity,
  *    independent of the overall session lifetime (config('session.lifetime')).
- *  - Single active session: a fresh login (see AuthController/TwoFactorChallengeController)
+ *  - Single active session: a fresh login (see AuthController::login())
  *    stamps a random token on both the user record and the session. Any other
  *    session for that account — including one silently restored by a
  *    "remember me" cookie — won't carry that token and gets logged out, so at

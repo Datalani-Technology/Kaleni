@@ -11,10 +11,10 @@
         display: inline-flex; align-items: center; justify-content: center;
         font-size: 1.25rem; margin-bottom: 10px;
     }
-    .analytics-stat.tone-pink .stat-icon { background: rgba(214, 51, 132, .12); color: #d63384; }
+    .analytics-stat.tone-pink .stat-icon { background: rgba(104, 11, 28, .12); color: #680B1C; }
     .analytics-stat.tone-green .stat-icon { background: rgba(25, 135, 84, .12); color: #198754; }
     .analytics-stat.tone-blue .stat-icon { background: rgba(13, 110, 253, .12); color: #0d6efd; }
-    .analytics-stat.tone-amber .stat-icon { background: rgba(255, 153, 0, .14); color: #b36b00; }
+    .analytics-stat.tone-amber .stat-icon { background: rgba(248, 173, 39, .18); color: #a8710a; }
     .status-badge-row .badge { font-weight: 600; }
     @media (max-width: 575.98px) {
         .analytics-period-form { width: 100%; }
@@ -25,7 +25,7 @@
 
 @section('content')
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-    <h1 class="mb-0"><i class="bi bi-graph-up" style="color: #d63384;"></i> Analytics</h1>
+    <h1 class="mb-0"><i class="bi bi-graph-up" style="color: #680B1C;"></i> Analytics</h1>
     <form action="{{ route('admin.analytics.index') }}" method="GET" class="d-flex gap-2 analytics-period-form">
         <select name="period" class="form-select form-select-sm" style="min-width: 140px;" onchange="this.form.submit()">
             <option value="today" {{ $period === 'today' ? 'selected' : '' }}>Today</option>
@@ -51,8 +51,8 @@
         <div class="card analytics-stat tone-blue h-100">
             <div class="card-body">
                 <div class="stat-icon"><i class="bi bi-cart-check"></i></div>
-                <div class="text-muted small">Orders</div>
-                <div class="h4 mb-0">{{ number_format($orderCount) }}</div>
+                <div class="text-muted small">Bookings</div>
+                <div class="h4 mb-0">{{ number_format($bookingCount) }}</div>
             </div>
         </div>
     </div>
@@ -60,8 +60,8 @@
         <div class="card analytics-stat tone-green h-100">
             <div class="card-body">
                 <div class="stat-icon"><i class="bi bi-receipt"></i></div>
-                <div class="text-muted small">Avg. order value</div>
-                <div class="h4 mb-0">N$ {{ number_format($avgOrderValue, 2) }}</div>
+                <div class="text-muted small">Avg. booking value</div>
+                <div class="h4 mb-0">N$ {{ number_format($avgBookingValue, 2) }}</div>
             </div>
         </div>
     </div>
@@ -69,7 +69,7 @@
         <div class="card analytics-stat tone-amber h-100">
             <div class="card-body">
                 <div class="stat-icon"><i class="bi bi-signpost-split"></i></div>
-                <div class="text-muted small">Visit → order rate</div>
+                <div class="text-muted small">Visit → booking rate</div>
                 <div class="h4 mb-0">{{ number_format($conversionRate, 1) }}%</div>
             </div>
         </div>
@@ -86,17 +86,17 @@
 <div class="row mb-4 g-3">
     <div class="col-lg-4">
         <div class="card h-100">
-            <div class="card-header"><strong>Orders by status</strong></div>
+            <div class="card-header"><strong>Bookings by status</strong></div>
             <div class="card-body d-flex flex-wrap gap-2 status-badge-row">
                 @forelse(['pending' => 'warning text-dark', 'processing' => 'info', 'completed' => 'success', 'cancelled' => 'secondary'] as $status => $badgeClass)
-                    @php $count = $ordersByStatus[$status] ?? 0; @endphp
+                    @php $count = $bookingsByStatus[$status] ?? 0; @endphp
                     @if($count > 0)
                         <span class="badge bg-{{ $badgeClass }} py-2 px-3">{{ ucfirst($status) }}: {{ $count }}</span>
                     @endif
                 @empty
                 @endforelse
-                @if($ordersByStatus->sum() === 0)
-                    <span class="text-muted small">No orders in this period.</span>
+                @if($bookingsByStatus->sum() === 0)
+                    <span class="text-muted small">No bookings in this period.</span>
                 @endif
             </div>
         </div>
@@ -105,13 +105,13 @@
         <div class="card h-100">
             <div class="card-header"><strong>Payment method</strong></div>
             <div class="card-body">
-                @forelse($ordersByPaymentMethod as $method => $count)
+                @forelse($bookingsByPaymentMethod as $method => $count)
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <span><i class="bi {{ $method === 'dpo' ? 'bi-credit-card' : 'bi-whatsapp' }}"></i> {{ $method === 'dpo' ? 'DPO (card)' : 'WhatsApp' }}</span>
                         <strong>{{ $count }}</strong>
                     </div>
                 @empty
-                    <span class="text-muted small">No orders in this period.</span>
+                    <span class="text-muted small">No bookings in this period.</span>
                 @endforelse
             </div>
         </div>
@@ -134,20 +134,20 @@
 </div>
 
 <div class="card mb-4">
-    <div class="card-header"><strong>Top-selling products</strong></div>
+    <div class="card-header"><strong>Top-selling menu items</strong></div>
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
-                <thead><tr><th>Product</th><th class="text-end">Units sold</th><th class="text-end">Revenue</th></tr></thead>
+                <thead><tr><th>Menu item</th><th class="text-end">Units sold</th><th class="text-end">Revenue</th></tr></thead>
                 <tbody>
-                    @forelse($topProducts as $row)
+                    @forelse($topMenuItems as $row)
                         <tr>
                             <td>
-                                @if($row->product)
-                                    @include('admin.partials.product-image', ['product' => $row->product, 'size' => 36])
-                                    {{ $row->product->name }}
+                                @if($row->menuItem)
+                                    @include('admin.partials.menu-item-image', ['menuItem' => $row->menuItem, 'size' => 36])
+                                    {{ $row->menuItem->name }}
                                 @else
-                                    <span class="text-muted">Deleted product</span>
+                                    <span class="text-muted">Deleted item</span>
                                 @endif
                             </td>
                             <td class="text-end">{{ number_format($row->units) }}</td>
@@ -216,8 +216,8 @@
                 datasets: [{
                     label: 'Revenue (N$)',
                     data: {!! json_encode($trendData) !!},
-                    borderColor: '#d63384',
-                    backgroundColor: 'rgba(214, 51, 132, 0.1)',
+                    borderColor: '#680B1C',
+                    backgroundColor: 'rgba(104, 11, 28, 0.1)',
                     fill: true,
                     tension: 0.3,
                     pointRadius: 0,

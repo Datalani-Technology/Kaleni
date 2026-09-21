@@ -12,7 +12,7 @@ class RobotsController extends Controller
         
         $robots = "User-agent: *\n";
         $robots .= "Allow: /\n";
-        $robots .= "Disallow: /checkout/\n";
+        $robots .= "Disallow: /booking/\n";
         $robots .= "Disallow: /payment/\n";
         $robots .= "Disallow: /cart/\n";
         $robots .= "\n";

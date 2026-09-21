@@ -1,5 +1,5 @@
 ========================================
-  NAMSA FLORA - QUICK START GUIDE
+  KALENI CATERING SERVICES - QUICK START GUIDE
 ========================================
 
 EVERYTHING IS ALREADY SET UP! Just follow these steps:
@@ -14,7 +14,7 @@ EVERYTHING IS ALREADY SET UP! Just follow these steps:
    - Admin: http://localhost:8004/{your ADMIN_PATH from .env}/login
 
 3. ADMIN LOGIN:
-   Email: admin@namsa.com.na
+   Email: kalenilucas061@gmail.com
    Password: printed once to the terminal when the AdminUserSeeder runs (no fixed default).
    Two-factor authentication is required on first login.
 

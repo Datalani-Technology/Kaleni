@@ -1,15 +1,15 @@
-# Setup Guide for Namsa Flora E-Commerce
+# Setup Guide for Kaleni Catering Services E-Commerce
 
 ## Quick Start Guide
 
 ### Step 1: Database Setup
 1. Open phpMyAdmin (usually at http://localhost/phpmyadmin)
-2. Create a new database named `namsa_flora`
+2. Create a new database named `kaleni_database`
 3. The database will be automatically created when you run migrations
 
 ### Step 2: Environment Configuration
 1. The `.env` file is already configured with:
-   - Database name: `namsa_flora`
+   - Database name: `kaleni_database`
    - Database user: `root`
    - Database password: (empty by default in XAMPP)
 
@@ -22,13 +22,13 @@
 
 3. Contact & WhatsApp (used site-wide):
    ```
-   CONTACT_PHONE=+264815574680
-   CONTACT_EMAIL_INFO=info@namsa.com.na
-   CONTACT_EMAIL_ORDERS=order@namsa.com.na
-   WHATSAPP_PAYMENT_NUMBER=264815574680
-   SOCIAL_WHATSAPP=https://wa.me/264815574680
+   CONTACT_PHONE=+264813382817
+   CONTACT_EMAIL_INFO=kalenilucas061@gmail.com
+   CONTACT_EMAIL_ORDERS=kalenilucas061@gmail.com
+   WHATSAPP_PAYMENT_NUMBER=264813382817
+   SOCIAL_WHATSAPP=https://wa.me/264813382817
    ```
-   Domain: **namsa.com.na**. Set `APP_URL=https://namsa.com.na` for production.
+   Domain: **kalenicatering.example**. Set `APP_URL=https://kalenicatering.example` for production.
 
 4. Admin panel URL: set a private, unguessable `ADMIN_PATH` (never the default `admin`) —
    this becomes the only entry point to the admin panel and isn't listed anywhere public.
@@ -47,7 +47,7 @@ php artisan db:seed
 This will:
 - Create all database tables
 - Create an admin user with:
-  - Email: `admin@namsa.com.na`
+  - Email: `kalenilucas061@gmail.com`
   - Password: randomly generated and printed once to the terminal — copy it now
 
 ### Step 4: Create Storage Link
@@ -68,7 +68,7 @@ The application will be available at: http://localhost:8000
 
 - **Frontend (Customer)**: http://localhost:8000
 - **Admin Login**: http://localhost:8000/`{your ADMIN_PATH}`/login
-  - Email: `admin@namsa.com.na`
+  - Email: `kalenilucas061@gmail.com`
   - Password: printed once by the seeder (see Step 3)
 
 ## First Steps After Setup
@@ -97,12 +97,12 @@ The application will be available at: http://localhost:8000
 - Contact DPO Namibia to get your credentials
 
 ### WhatsApp & Contact
-- Default phone: `+264815574680`. Emails: `info@namsa.com.na`, `order@namsa.com.na`
+- Default phone: `+264813382817`. Emails: `kalenilucas061@gmail.com`, `kalenilucas061@gmail.com`
 - Override via `CONTACT_PHONE`, `CONTACT_EMAIL_INFO`, `CONTACT_EMAIL_ORDERS` in `.env`
-- `WHATSAPP_PAYMENT_NUMBER` and `SOCIAL_WHATSAPP` use the same number (264815574680)
+- `WHATSAPP_PAYMENT_NUMBER` and `SOCIAL_WHATSAPP` use the same number (264813382817)
 
 ### Contact form → info@
-- "Send us a Message" submissions are stored in DB and emailed to `CONTACT_EMAIL_INFO` (info@namsa.com.na).
+- "Send us a Message" submissions are stored in DB and emailed to `CONTACT_EMAIL_INFO` (kalenilucas061@gmail.com).
 - **To receive real emails:** set `MAIL_MAILER=smtp` and configure `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` (e.g. Gmail SMTP or your provider). Use `MAIL_FROM_ADDRESS` / `MAIL_FROM_NAME` as the sender.
 - **Otherwise:** keep `MAIL_MAILER=log`; emails are written to `storage/logs/laravel.log` only.
 
@@ -127,7 +127,7 @@ The application will be available at: http://localhost:8000
 ### Database Connection Error
 - Make sure MySQL is running in XAMPP
 - Check database credentials in `.env`
-- Verify database `namsa_flora` exists
+- Verify database `kaleni_database` exists
 
 ### Images Not Showing
 - Run `php artisan storage:link` again
@@ -136,7 +136,7 @@ The application will be available at: http://localhost:8000
 
 ### Admin Login Not Working
 - Make sure you ran `php artisan db:seed`
-- Check if user exists in database: `SELECT * FROM users WHERE email = 'admin@namsa.com.na'`
+- Check if user exists in database: `SELECT * FROM users WHERE email = 'kalenilucas061@gmail.com'`
 - Try resetting password manually in database
 
 ### Payment (WhatsApp vs DPO)

@@ -19,6 +19,10 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <!-- Never inherit the real .env's ADMIN_PATH here — AdminAuthTest
+             asserts the literal default '/admin' path is unreachable, which
+             only holds if tests use their own private value. -->
+        <env name="ADMIN_PATH" value="test-admin-panel"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>

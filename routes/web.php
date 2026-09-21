@@ -1,38 +1,43 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\MenuController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\TermsController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\FoodOfTheDayController;
+use App\Http\Controllers\SpecialRequestController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\LogoController as AdminLogoController;
-use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\MenuItemController as AdminMenuItemController;
 use App\Http\Controllers\Admin\StockController as AdminStockController;
 use App\Http\Controllers\Admin\PromotionCatalogController as AdminPromotionCatalogController;
-use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\BookingController as AdminBookingController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use App\Http\Controllers\Admin\GalleryController as AdminGalleryController;
-use App\Http\Controllers\Admin\TwoFactorController as AdminTwoFactorController;
-use App\Http\Controllers\Admin\TwoFactorChallengeController as AdminTwoFactorChallengeController;
 use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\ExpenseController as AdminExpenseController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
+use App\Http\Controllers\Admin\FoodOfTheDayController as AdminFoodOfTheDayController;
+use App\Http\Controllers\Admin\SpecialRequestController as AdminSpecialRequestController;
 
 // Public routes
-Route::get('/', [ProductController::class, 'home'])->name('home');
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/', [MenuController::class, 'home'])->name('home');
+Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
+Route::get('/menu/{id}', [MenuController::class, 'show'])->name('menu.show');
+Route::get('/food-of-the-day', [FoodOfTheDayController::class, 'index'])->name('food-of-the-day.index');
+Route::get('/special-requests', [SpecialRequestController::class, 'create'])->name('special-requests.create');
+Route::post('/special-requests', [SpecialRequestController::class, 'store'])->name('special-requests.store')->middleware('throttle:5,60');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store')->middleware('throttle:3,60');
 Route::get('/terms', [TermsController::class, 'index'])->name('terms');
 Route::get('/delivery', [TermsController::class, 'delivery'])->name('delivery');
-Route::get('/returns', [TermsController::class, 'returns'])->name('returns');
+Route::get('/cancellations', [TermsController::class, 'cancellations'])->name('cancellations');
 Route::get('/privacy', [\App\Http\Controllers\PrivacyController::class, 'index'])->name('privacy');
 Route::get('/promotion', [PromotionController::class, 'index'])->name('promotion');
 Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery');
@@ -41,7 +46,7 @@ Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [\App\Http\Controllers\RobotsController::class, 'index'])->name('robots');
 
-// Cart routes
+// Cart routes ("cart" kept as a generic UI term for the in-progress order)
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('cart.index');
     Route::post('/add', [CartController::class, 'add'])->name('cart.add');
@@ -52,23 +57,23 @@ Route::prefix('cart')->group(function () {
     Route::post('/remove-promo', [CartController::class, 'removePromo'])->name('cart.remove-promo');
 });
 
-// Checkout routes (throttle process to limit abuse)
-Route::prefix('checkout')->group(function () {
-    Route::get('/', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/', [CheckoutController::class, 'process'])->name('checkout.process')->middleware('throttle:10,1');
-    Route::get('/success/{orderNumber}', [CheckoutController::class, 'success'])->name('checkout.success');
-    Route::get('/receipt/{orderNumber}', [CheckoutController::class, 'receipt'])->name('checkout.receipt');
+// Booking routes (throttle process to limit abuse)
+Route::prefix('booking')->group(function () {
+    Route::get('/', [BookingController::class, 'index'])->name('booking.index');
+    Route::post('/', [BookingController::class, 'store'])->name('booking.store')->middleware('throttle:10,1');
+    Route::get('/success/{bookingNumber}', [BookingController::class, 'success'])->name('booking.success');
+    Route::get('/receipt/{bookingNumber}', [BookingController::class, 'receipt'])->name('booking.receipt');
 });
 
 // Payment routes
 Route::prefix('payment')->group(function () {
     Route::post('/dpo', [PaymentController::class, 'initiateDPO'])->name('payment.dpo')->middleware('throttle:20,1');
-    Route::get('/dpo/{order}', [PaymentController::class, 'initiateDPO'])->name('payment.dpo.init')->middleware('throttle:20,1');
+    Route::get('/dpo/{booking}', [PaymentController::class, 'initiateDPO'])->name('payment.dpo.init')->middleware('throttle:20,1');
     Route::get('/dpo/callback', [PaymentController::class, 'dpoCallback'])->name('payment.dpo.callback');
     // Server-to-server DPO Payment Notification (PNURL) — DPO posts here directly, not via the customer's browser.
     Route::post('/dpo/notify', [PaymentController::class, 'dpoNotify'])->name('payment.dpo.notify');
     Route::post('/whatsapp', [PaymentController::class, 'whatsappPayment'])->name('payment.whatsapp')->middleware('throttle:20,1');
-    Route::get('/whatsapp/{order}', [PaymentController::class, 'whatsappPayment'])->name('payment.whatsapp.init')->middleware('throttle:20,1');
+    Route::get('/whatsapp/{booking}', [PaymentController::class, 'whatsappPayment'])->name('payment.whatsapp.init')->middleware('throttle:20,1');
 });
 
 // Admin routes — served under a private, unguessable path (see config/admin.php).
@@ -84,26 +89,12 @@ Route::prefix(config('admin.path'))->middleware('noindex')->group(function () {
     Route::get('/reset-password', [AdminAuthController::class, 'showResetPassword'])->name('admin.reset-password');
     Route::post('/reset-password', [AdminAuthController::class, 'resetPassword'])->name('admin.reset-password.store')->middleware('throttle:10,10');
 
-    // Second login factor: password already verified, session not yet fully authenticated.
-    Route::get('/login/verify', [AdminTwoFactorChallengeController::class, 'show'])->name('admin.2fa.challenge');
-    Route::post('/login/verify', [AdminTwoFactorChallengeController::class, 'verify'])->name('admin.2fa.challenge.verify')->middleware('throttle:10,10');
-
     Route::middleware(['auth:web', 'admin', 'admin.session'])->group(function () {
-        // Reachable pre-2FA so a user without 2FA yet configured can actually set it up.
-        Route::get('/2fa/setup', [AdminTwoFactorController::class, 'showSetup'])->name('admin.2fa.setup');
-        Route::post('/2fa/enable', [AdminTwoFactorController::class, 'enable'])->name('admin.2fa.enable');
-        Route::get('/2fa/recovery-codes', [AdminTwoFactorController::class, 'showRecoveryCodes'])->name('admin.2fa.recovery-codes');
+        Route::get('/dashboard', function () {
+            return view('admin.dashboard');
+        })->name('admin.dashboard');
 
-        Route::middleware('two_factor')->group(function () {
-            Route::get('/dashboard', function () {
-                return view('admin.dashboard');
-            })->name('admin.dashboard');
-
-            Route::get('/2fa', [AdminTwoFactorController::class, 'manage'])->name('admin.2fa.manage');
-            Route::post('/2fa/regenerate-codes', [AdminTwoFactorController::class, 'regenerateCodes'])->name('admin.2fa.regenerate-codes');
-            Route::post('/2fa/reset', [AdminTwoFactorController::class, 'reset'])->name('admin.2fa.reset');
-
-            Route::middleware('can_manage_users')->group(function () {
+        Route::middleware('can_manage_users')->group(function () {
                 Route::get('/logo', [AdminLogoController::class, 'edit'])->name('admin.logo.edit');
                 Route::post('/logo', [AdminLogoController::class, 'update'])->name('admin.logo.update');
                 Route::get('/promotion', [AdminPromotionCatalogController::class, 'edit'])->name('admin.promotion.edit');
@@ -135,11 +126,26 @@ Route::prefix(config('admin.path'))->middleware('noindex')->group(function () {
             Route::get('/customers/{customer}', [AdminCustomerController::class, 'show'])->name('admin.customers.show');
             Route::post('/customers/{customer}', [AdminCustomerController::class, 'update'])->name('admin.customers.update');
 
-            Route::get('/orders/export/csv', [AdminOrderController::class, 'export'])->name('admin.orders.export');
-            Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
-            Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
-            Route::post('/orders/{order}', [AdminOrderController::class, 'update'])->name('admin.orders.update');
-            Route::get('/orders/{order}/invoice', [AdminOrderController::class, 'invoice'])->name('admin.orders.invoice');
+            Route::get('/bookings/export/csv', [AdminBookingController::class, 'export'])->name('admin.bookings.export');
+            Route::get('/bookings', [AdminBookingController::class, 'index'])->name('admin.bookings.index');
+            Route::get('/bookings/{booking}', [AdminBookingController::class, 'show'])->name('admin.bookings.show');
+            Route::post('/bookings/{booking}', [AdminBookingController::class, 'update'])->name('admin.bookings.update');
+            Route::get('/bookings/{booking}/invoice', [AdminBookingController::class, 'invoice'])->name('admin.bookings.invoice');
+
+            Route::get('/special-requests', [AdminSpecialRequestController::class, 'index'])->name('admin.special-requests.index');
+            Route::get('/special-requests/{specialRequest}', [AdminSpecialRequestController::class, 'show'])->name('admin.special-requests.show');
+            Route::post('/special-requests/{specialRequest}', [AdminSpecialRequestController::class, 'update'])->name('admin.special-requests.update');
+            Route::post('/special-requests/{specialRequest}/send-quote', [AdminSpecialRequestController::class, 'sendQuote'])->name('admin.special-requests.send-quote');
+            Route::get('/special-requests/{specialRequest}/quote', [AdminSpecialRequestController::class, 'quote'])->name('admin.special-requests.quote');
+
+            Route::resource('food-of-the-day', AdminFoodOfTheDayController::class)->names([
+                'index' => 'admin.food-of-the-day.index',
+                'create' => 'admin.food-of-the-day.create',
+                'store' => 'admin.food-of-the-day.store',
+                'edit' => 'admin.food-of-the-day.edit',
+                'update' => 'admin.food-of-the-day.update',
+                'destroy' => 'admin.food-of-the-day.destroy',
+            ])->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
             Route::get('/contacts', [AdminContactController::class, 'index'])->name('admin.contacts.index');
             Route::get('/contacts/{contact}', [AdminContactController::class, 'show'])->name('admin.contacts.show');
@@ -164,17 +170,16 @@ Route::prefix(config('admin.path'))->middleware('noindex')->group(function () {
                 'destroy' => 'admin.promo-codes.destroy',
             ])->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
-            Route::post('/products/bulk-destroy', [AdminProductController::class, 'bulkDestroy'])->name('admin.products.bulk-destroy');
-            Route::get('/products/export/csv', [AdminProductController::class, 'export'])->name('admin.products.export');
-            Route::resource('products', AdminProductController::class)->names([
-                'index' => 'admin.products.index',
-                'create' => 'admin.products.create',
-                'store' => 'admin.products.store',
-                'show' => 'admin.products.show',
-                'edit' => 'admin.products.edit',
-                'update' => 'admin.products.update',
-                'destroy' => 'admin.products.destroy',
+            Route::post('/menu-items/bulk-destroy', [AdminMenuItemController::class, 'bulkDestroy'])->name('admin.menu-items.bulk-destroy');
+            Route::get('/menu-items/export/csv', [AdminMenuItemController::class, 'export'])->name('admin.menu-items.export');
+            Route::resource('menu-items', AdminMenuItemController::class)->names([
+                'index' => 'admin.menu-items.index',
+                'create' => 'admin.menu-items.create',
+                'store' => 'admin.menu-items.store',
+                'show' => 'admin.menu-items.show',
+                'edit' => 'admin.menu-items.edit',
+                'update' => 'admin.menu-items.update',
+                'destroy' => 'admin.menu-items.destroy',
             ]);
-        });
     });
 });

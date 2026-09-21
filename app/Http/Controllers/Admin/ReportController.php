@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Booking;
 use App\Models\Expense;
-use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -14,12 +14,12 @@ class ReportController extends Controller
     {
         [$from, $to] = $this->resolveRange($request);
 
-        $orders = Order::where('order_status', '!=', 'cancelled')
+        $bookings = Booking::where('booking_status', '!=', 'cancelled')
             ->whereBetween('created_at', [$from, $to])
             ->get();
 
-        $revenue = (float) $orders->sum('total_amount');
-        $orderCount = $orders->count();
+        $revenue = (float) $bookings->sum('total_amount');
+        $bookingCount = $bookings->count();
 
         $expenses = Expense::whereBetween('spent_at', [$from->toDateString(), $to->toDateString()])->get();
         $totalExpenses = (float) $expenses->sum('amount');
@@ -28,7 +28,7 @@ class ReportController extends Controller
         $netProfit = $revenue - $totalExpenses;
 
         return view('admin.reports.index', compact(
-            'from', 'to', 'revenue', 'orderCount', 'totalExpenses', 'expensesByCategory', 'netProfit'
+            'from', 'to', 'revenue', 'bookingCount', 'totalExpenses', 'expensesByCategory', 'netProfit'
         ));
     }
 
@@ -36,8 +36,8 @@ class ReportController extends Controller
     {
         [$from, $to] = $this->resolveRange($request);
 
-        $orders = Order::with('items')
-            ->where('order_status', '!=', 'cancelled')
+        $bookings = Booking::with('items')
+            ->where('booking_status', '!=', 'cancelled')
             ->whereBetween('created_at', [$from, $to])
             ->orderBy('created_at')
             ->get();
@@ -46,14 +46,14 @@ class ReportController extends Controller
             ->orderBy('spent_at')
             ->get();
 
-        $revenue = (float) $orders->sum('total_amount');
+        $revenue = (float) $bookings->sum('total_amount');
         $totalExpenses = (float) $expenses->sum('amount');
         $netProfit = $revenue - $totalExpenses;
-        $orderCount = $orders->count();
-        $avgOrderValue = $revenue / max(1, $orderCount);
+        $bookingCount = $bookings->count();
+        $avgBookingValue = $revenue / max(1, $bookingCount);
 
         return view('admin.reports.document', compact(
-            'from', 'to', 'orders', 'expenses', 'revenue', 'totalExpenses', 'netProfit', 'orderCount', 'avgOrderValue'
+            'from', 'to', 'bookings', 'expenses', 'revenue', 'totalExpenses', 'netProfit', 'bookingCount', 'avgBookingValue'
         ));
     }
 

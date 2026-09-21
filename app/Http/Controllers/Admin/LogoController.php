@@ -12,7 +12,7 @@ class LogoController extends Controller
     public function edit()
     {
         $logoPath = Setting::get('logo_path');
-        $logoText = Setting::get('logo_text', '/Namsa Florals');
+        $logoText = Setting::get('logo_text', 'Kaleni Catering Services');
 
         return view('admin.logo.edit', compact('logoPath', 'logoText'));
     }
@@ -41,7 +41,7 @@ class LogoController extends Controller
         }
 
         if ($request->has('logo_text')) {
-            Setting::set('logo_text', $request->input('logo_text') ?: '/Namsa Florals');
+            Setting::set('logo_text', $request->input('logo_text') ?: 'Kaleni Catering Services');
         }
 
         return redirect()->route('admin.logo.edit')

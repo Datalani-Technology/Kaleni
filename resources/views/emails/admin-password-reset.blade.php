@@ -7,7 +7,7 @@
     <style>
         body { font-family: sans-serif; line-height: 1.5; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
         h1 { font-size: 1.25rem; margin-bottom: 1rem; }
-        .btn { display: inline-block; padding: 12px 24px; background: #d63384; color: white !important; text-decoration: none; border-radius: 8px; margin: 1rem 0; }
+        .btn { display: inline-block; padding: 12px 24px; background: #680B1C; color: white !important; text-decoration: none; border-radius: 8px; margin: 1rem 0; }
         .btn:hover { opacity: 0.9; }
         hr { border: none; border-top: 1px solid #ddd; margin: 1.5rem 0; }
         .footer { font-size: 0.85rem; color: #888; }
@@ -15,7 +15,7 @@
     </style>
 </head>
 <body>
-    <h1>Reset your /Namsa Florals admin password</h1>
+    <h1>Reset your Kaleni Catering Services admin password</h1>
     <p>You requested a password reset. Click the button below to set a new password. This link expires in 60 minutes.</p>
     <p><a href="{{ $url }}" class="btn">Reset password</a></p>
     <p class="muted">If the button doesn’t work, copy and paste this link into your browser:</p>

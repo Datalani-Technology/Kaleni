@@ -26,6 +26,7 @@ class GalleryController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:2000',
+            'occasion' => 'nullable|in:' . implode(',', GalleryItem::OCCASIONS),
         ]);
 
         $validated['image'] = $request->file('image')->store('gallery', 'public');
@@ -48,6 +49,7 @@ class GalleryController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:2000',
+            'occasion' => 'nullable|in:' . implode(',', GalleryItem::OCCASIONS),
         ]);
 
         if ($request->hasFile('image')) {

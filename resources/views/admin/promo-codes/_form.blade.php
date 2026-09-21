@@ -1,6 +1,6 @@
 @php
     $promoCode = $promoCode ?? null;
-    $selectedProductIds = old('product_ids', $promoCode?->products->pluck('id')->toArray() ?? []);
+    $selectedMenuItemIds = old('menu_item_ids', $promoCode?->menuItems->pluck('id')->toArray() ?? []);
 @endphp
 <div class="row g-3">
     <div class="col-md-6">
@@ -59,22 +59,22 @@
         <label class="form-label d-block">Applies to *</label>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="scope" id="scope_all" value="all" {{ old('scope', $promoCode?->scope ?? 'all') === 'all' ? 'checked' : '' }} onchange="document.getElementById('promoProductPicker').classList.add('d-none')">
-            <label class="form-check-label" for="scope_all">All products</label>
+            <label class="form-check-label" for="scope_all">All menu items</label>
         </div>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="scope" id="scope_products" value="products" {{ old('scope', $promoCode?->scope) === 'products' ? 'checked' : '' }} onchange="document.getElementById('promoProductPicker').classList.remove('d-none')">
-            <label class="form-check-label" for="scope_products">Specific products</label>
+            <label class="form-check-label" for="scope_products">Specific menu items</label>
         </div>
     </div>
     <div class="col-12 {{ old('scope', $promoCode?->scope) === 'products' ? '' : 'd-none' }}" id="promoProductPicker">
-        <label class="form-label">Eligible products</label>
-        <select class="form-select @error('product_ids') is-invalid @enderror" name="product_ids[]" multiple size="8">
-            @foreach($products as $product)
-                <option value="{{ $product->id }}" {{ in_array($product->id, $selectedProductIds) ? 'selected' : '' }}>{{ $product->name }}</option>
+        <label class="form-label">Eligible menu items</label>
+        <select class="form-select @error('menu_item_ids') is-invalid @enderror" name="menu_item_ids[]" multiple size="8">
+            @foreach($menuItems as $item)
+                <option value="{{ $item->id }}" {{ in_array($item->id, $selectedMenuItemIds) ? 'selected' : '' }}>{{ $item->name }}</option>
             @endforeach
         </select>
         <div class="form-text">Ctrl/Cmd-click to select multiple.</div>
-        @error('product_ids')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+        @error('menu_item_ids')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
     </div>
 
     <div class="col-12">

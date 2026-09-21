@@ -21,7 +21,10 @@
                         <img src="{{ asset('storage/' . $logoPath) }}" alt="Logo" class="logo-preview border rounded p-1 bg-light">
                         <span class="text-muted small">Custom image</span>
                     @else
-                        <span class="text-muted"><i class="bi bi-flower1 me-1" style="color: var(--primary-color, #d63384);"></i> {{ $logoText }} (default icon + text)</span>
+                        <span class="text-muted d-inline-flex align-items-center gap-2">
+                            <img src="{{ asset('images/kaleni/brand/kaleni-logo.jpg') }}" alt="Default logo" style="height: 28px; width: auto; border-radius: 4px;">
+                            {{ $logoText }} (default logo)
+                        </span>
                     @endif
                 </div>
             </div>
@@ -33,8 +36,8 @@
             </div>
             <div class="mb-3">
                 <label for="logo_text" class="form-label">Logo text</label>
-                <input type="text" class="form-control @error('logo_text') is-invalid @enderror" id="logo_text" name="logo_text" value="{{ old('logo_text', $logoText) }}" placeholder="/Namsa Florals" maxlength="100">
-                <div class="form-text">Shown next to the logo icon when no custom image is used.</div>
+                <input type="text" class="form-control @error('logo_text') is-invalid @enderror" id="logo_text" name="logo_text" value="{{ old('logo_text', $logoText) }}" placeholder="Kaleni Catering Services" maxlength="100">
+                <div class="form-text">Shown as the alt text/label alongside the logo image.</div>
                 @error('logo_text')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             @if($logoPath)

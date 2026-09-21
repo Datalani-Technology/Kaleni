@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class StockMovement extends Model
 {
     protected $fillable = [
-        'product_id',
+        'menu_item_id',
         'user_id',
         'type',
         'quantity_before',
@@ -23,9 +23,9 @@ class StockMovement extends Model
         'delta' => 'integer',
     ];
 
-    public function product(): BelongsTo
+    public function menuItem(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(MenuItem::class);
     }
 
     public function user(): BelongsTo

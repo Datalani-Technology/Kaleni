@@ -11,20 +11,20 @@
             <div class="notification-clear-state">
                 <i class="bi bi-check2-circle"></i>
                 <h3>Everything is clear.</h3>
-                <p>No pending orders, low-stock products, or unread enquiries need attention.</p>
+                <p>No pending bookings, low-stock menu items, or unread enquiries need attention.</p>
             </div>
         @else
             <section class="notification-group">
-                <a href="{{ route('admin.orders.index', ['status' => 'pending']) }}" class="notification-group-head">
-                    <span><i class="bi bi-bag-check"></i> Pending orders</span><span class="badge text-bg-dark">{{ $adminNotifications['pending_order_count'] }}</span>
+                <a href="{{ route('admin.bookings.index', ['status' => 'pending']) }}" class="notification-group-head">
+                    <span><i class="bi bi-bag-check"></i> Pending bookings</span><span class="badge text-bg-dark">{{ $adminNotifications['pending_order_count'] }}</span>
                 </a>
-                @forelse($adminNotifications['orders'] as $notificationOrder)
-                    <a href="{{ route('admin.orders.show', $notificationOrder) }}" class="notification-item">
+                @forelse($adminNotifications['orders'] as $notificationBooking)
+                    <a href="{{ route('admin.bookings.show', $notificationBooking) }}" class="notification-item">
                         <span class="notification-dot notification-dot-order"></span>
-                        <span><strong>{{ $notificationOrder->order_number }}</strong><small>{{ $notificationOrder->customer_name }} · N$ {{ number_format($notificationOrder->total_amount, 2) }} · {{ $notificationOrder->created_at->diffForHumans() }}</small></span>
+                        <span><strong>{{ $notificationBooking->booking_number }}</strong><small>{{ $notificationBooking->customer_name }} · N$ {{ number_format($notificationBooking->total_amount, 2) }} · {{ $notificationBooking->created_at->diffForHumans() }}</small></span>
                     </a>
                 @empty
-                    <p class="notification-empty">No orders waiting.</p>
+                    <p class="notification-empty">No bookings waiting.</p>
                 @endforelse
             </section>
 
@@ -32,10 +32,10 @@
                 <a href="{{ route('admin.stock.index', ['filter' => 'low']) }}" class="notification-group-head">
                     <span><i class="bi bi-box-seam"></i> Low stock</span><span class="badge text-bg-warning">{{ $adminNotifications['low_stock_count'] }}</span>
                 </a>
-                @forelse($adminNotifications['products'] as $notificationProduct)
-                    <a href="{{ route('admin.stock.index', ['search' => $notificationProduct->name]) }}" class="notification-item">
+                @forelse($adminNotifications['products'] as $notificationMenuItem)
+                    <a href="{{ route('admin.stock.index', ['search' => $notificationMenuItem->name]) }}" class="notification-item">
                         <span class="notification-dot notification-dot-stock"></span>
-                        <span><strong>{{ $notificationProduct->name }}</strong><small>{{ $notificationProduct->stock }} unit(s) remaining</small></span>
+                        <span><strong>{{ $notificationMenuItem->name }}</strong><small>{{ $notificationMenuItem->stock }} unit(s) remaining</small></span>
                     </a>
                 @empty
                     <p class="notification-empty">Stock levels look healthy.</p>
@@ -53,6 +53,20 @@
                     </a>
                 @empty
                     <p class="notification-empty">No unread enquiries.</p>
+                @endforelse
+            </section>
+
+            <section class="notification-group">
+                <a href="{{ route('admin.special-requests.index', ['status' => 'new']) }}" class="notification-group-head">
+                    <span><i class="bi bi-heart"></i> Special requests</span><span class="badge text-bg-primary">{{ $adminNotifications['new_special_request_count'] }}</span>
+                </a>
+                @forelse($adminNotifications['special_requests'] as $notificationSpecialRequest)
+                    <a href="{{ route('admin.special-requests.show', $notificationSpecialRequest) }}" class="notification-item">
+                        <span class="notification-dot notification-dot-special"></span>
+                        <span><strong>{{ $notificationSpecialRequest->name }}</strong><small>{{ $notificationSpecialRequest->occasion ?: 'No occasion given' }} · {{ $notificationSpecialRequest->created_at->diffForHumans() }}</small></span>
+                    </a>
+                @empty
+                    <p class="notification-empty">No new special requests.</p>
                 @endforelse
             </section>
         @endif

@@ -16,8 +16,8 @@ class TermsController extends Controller
         return view('delivery');
     }
 
-    public function returns()
+    public function cancellations()
     {
-        return view('returns');
+        return view('cancellations');
     }
 }
