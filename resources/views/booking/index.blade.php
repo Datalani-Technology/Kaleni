@@ -245,7 +245,7 @@
             <div class="col-lg-5">
                 <aside class="checkout-card checkout-summary" aria-labelledby="orderSummaryTitle">
                     <h2 id="orderSummaryTitle">Your order</h2>
-                    @foreach($cartItems as $item)
+                    @forelse($cartItems as $item)
                         <div class="checkout-summary-item">
                             @if($item->menuItem->image)
                                 <img src="{{ $item->menuItem->image_url }}" alt="{{ $item->menuItem->name }}">
@@ -255,35 +255,39 @@
                             <div><h3>{{ $item->menuItem->name }}</h3><p>Quantity {{ $item->quantity }}</p></div>
                             <span class="checkout-summary-price">N$ {{ number_format($item->menuItem->price * $item->quantity, 2) }}</span>
                         </div>
-                    @endforeach
-                    <div class="checkout-promo mt-2">
-                        <label for="promoCodeInput" class="form-label small mb-1">Promo code</label>
-                        <div class="input-group input-group-sm">
-                            <input type="text" class="form-control" id="promoCodeInput" placeholder="Enter code" value="{{ $appliedPromo->code ?? '' }}" {{ $appliedPromo ? 'readonly' : '' }} style="text-transform: uppercase;">
-                            @if($appliedPromo)
-                                <button type="button" class="btn btn-outline-danger" id="promoRemoveBtn">Remove</button>
-                            @else
-                                <button type="button" class="btn btn-outline-secondary" id="promoApplyBtn">Apply</button>
-                            @endif
+                    @empty
+                        <p class="text-muted small mb-0">No menu items added yet — that's fine, you can <a href="{{ route('menu.index') }}">browse the menu</a> now to add some, or we'll work out the details with you after you book.</p>
+                    @endforelse
+                    @if($cartItems->isNotEmpty())
+                        <div class="checkout-promo mt-2">
+                            <label for="promoCodeInput" class="form-label small mb-1">Promo code</label>
+                            <div class="input-group input-group-sm">
+                                <input type="text" class="form-control" id="promoCodeInput" placeholder="Enter code" value="{{ $appliedPromo->code ?? '' }}" {{ $appliedPromo ? 'readonly' : '' }} style="text-transform: uppercase;">
+                                @if($appliedPromo)
+                                    <button type="button" class="btn btn-outline-danger" id="promoRemoveBtn">Remove</button>
+                                @else
+                                    <button type="button" class="btn btn-outline-secondary" id="promoApplyBtn">Apply</button>
+                                @endif
+                            </div>
+                            <div id="promoMessage" class="small mt-1 {{ $appliedPromo ? 'text-success' : '' }}">
+                                @if($appliedPromo)
+                                    "{{ $appliedPromo->code }}" applied, you saved N$ {{ number_format($discount, 2) }}.
+                                @endif
+                            </div>
                         </div>
-                        <div id="promoMessage" class="small mt-1 {{ $appliedPromo ? 'text-success' : '' }}">
-                            @if($appliedPromo)
-                                "{{ $appliedPromo->code }}" applied, you saved N$ {{ number_format($discount, 2) }}.
-                            @endif
-                        </div>
-                    </div>
-                    @if($discount > 0)
-                        <div class="checkout-total" style="padding-top: 12px;">
-                            <div><span>Subtotal</span><strong style="font-size: 1rem; color: var(--ink);">N$ {{ number_format($subtotal, 2) }}</strong></div>
-                        </div>
-                        <div class="checkout-total" style="padding-top: 4px;">
-                            <div><span>Discount ({{ $appliedPromo->code }})</span><strong style="font-size: 1rem; color: #16864b;">&minus;N$ {{ number_format($discount, 2) }}</strong></div>
+                        @if($discount > 0)
+                            <div class="checkout-total" style="padding-top: 12px;">
+                                <div><span>Subtotal</span><strong style="font-size: 1rem; color: var(--ink);">N$ {{ number_format($subtotal, 2) }}</strong></div>
+                            </div>
+                            <div class="checkout-total" style="padding-top: 4px;">
+                                <div><span>Discount ({{ $appliedPromo->code }})</span><strong style="font-size: 1rem; color: #16864b;">&minus;N$ {{ number_format($discount, 2) }}</strong></div>
+                            </div>
+                        @endif
+                        <div class="checkout-total" style="{{ $discount > 0 ? 'padding-top: 4px;' : '' }}">
+                            <div><span>Booking total</span><strong>N$ {{ number_format($total, 2) }}</strong></div>
+                            <span>Confirmed separately</span>
                         </div>
                     @endif
-                    <div class="checkout-total" style="{{ $discount > 0 ? 'padding-top: 4px;' : '' }}">
-                        <div><span>Booking total</span><strong>N$ {{ number_format($total, 2) }}</strong></div>
-                        <span>Confirmed separately</span>
-                    </div>
                     <div class="checkout-assurance">
                         <span><i class="bi bi-check-circle-fill"></i> Cooked fresh for your event</span>
                         <span><i class="bi bi-check-circle-fill"></i> Free Windhoek delivery subject to availability</span>
@@ -418,7 +422,7 @@
         document.getElementById('confirmGuests').textContent = (document.getElementById('guest_count').value || 'Not specified') + ' guests';
         document.getElementById('confirmEventType').textContent = document.getElementById('event_type').value || 'Not specified';
         document.getElementById('confirmAddress').textContent = document.getElementById('event_address').value || 'Not specified';
-        document.getElementById('confirmTotal').textContent = 'N$ {{ number_format($total, 2) }}';
+        document.getElementById('confirmTotal').textContent = @json(($total ?? 0) > 0 ? 'N$ ' . number_format($total ?? 0, 2) : 'To be confirmed');
 
         var payDpo = document.getElementById('payment_dpo');
         var confirmBtn = document.getElementById('bookingConfirmSubmit');
@@ -438,10 +442,49 @@
         var btn = this;
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Booking…';
-        confirmed = true;
         var modal = getConfirmModal();
         if (modal) modal.hide();
-        form.requestSubmit();
+
+        // WhatsApp is a hand-off, not the destination — open a blank tab
+        // now, synchronously within this click, so the browser's popup
+        // blocker doesn't reject it once the async fetch below resolves
+        // (same pattern used for the admin "send quote via WhatsApp"
+        // button). The main tab stays on the site and lands on its own
+        // confirmation page with a pop-up success message instead of being
+        // navigated away with nothing to show for it.
+        var whatsappChecked = document.getElementById('payment_whatsapp');
+        var whatsappTab = (whatsappChecked && whatsappChecked.checked) ? window.open('', '_blank') : null;
+
+        // Submitted via fetch so the redirect to WhatsApp/DPO happens as a
+        // plain script-initiated navigation afterwards, not as the tail end
+        // of this form's own submission — the site's CSP restricts a form's
+        // own submission chain to same-origin destinations, and payment
+        // hand-off necessarily leaves the site. Any failure here (validation,
+        // stock, etc.) falls back to a normal submission so the existing
+        // server-rendered error handling still applies unchanged.
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { 'Accept': 'application/json' },
+        })
+            .then(function (r) {
+                if (!r.ok) throw new Error('non-ok response');
+                return r.json();
+            })
+            .then(function (data) {
+                if (!data.redirect) throw new Error('missing redirect');
+                if (whatsappTab && data.whatsapp_redirect) {
+                    whatsappTab.location.href = data.whatsapp_redirect;
+                } else if (whatsappTab) {
+                    whatsappTab.close();
+                }
+                window.location.href = data.redirect;
+            })
+            .catch(function () {
+                if (whatsappTab) whatsappTab.close();
+                confirmed = true;
+                form.requestSubmit();
+            });
     });
 })();
 </script>

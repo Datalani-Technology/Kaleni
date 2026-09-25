@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Booking Confirmed - Kaleni Catering Services')
+@php
+    $isQuickOrder = $booking->order_type === \App\Models\Booking::ORDER_TYPE_QUICK_ORDER;
+@endphp
+
+@section('title', ($isQuickOrder ? 'Order' : 'Booking') . ' Confirmed - Kaleni Catering Services')
 
 @section('content')
 <div class="container my-5">
@@ -9,14 +13,18 @@
             <div class="card">
                 <div class="card-body py-5">
                     <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
-                    <h1 class="mt-3">Booking Confirmed!</h1>
-                    <p class="lead">Thank you for booking with Kaleni Catering Services. We'll be in touch shortly.</p>
+                    <h1 class="mt-3">{{ $isQuickOrder ? 'Order' : 'Booking' }} Confirmed!</h1>
+                    <p class="lead">Thank you for {{ $isQuickOrder ? 'ordering from' : 'booking with' }} Kaleni Catering Services. We'll be in touch shortly.</p>
 
                     <div class="alert alert-info mt-4">
-                        <strong>Booking Number:</strong> {{ $booking->booking_number }}<br>
-                        <strong>Schedule:</strong> {{ $booking->schedule_summary }}<br>
-                        <strong>Total Amount:</strong> N$ {{ number_format($booking->total_amount, 2) }}<br>
-                        <strong>Payment Method:</strong> {{ strtoupper($booking->payment_method) }}<br>
+                        <strong>{{ $isQuickOrder ? 'Order' : 'Booking' }} Number:</strong> {{ $booking->booking_number }}<br>
+                        @if($isQuickOrder)
+                            <strong>Fulfillment:</strong> {{ ucfirst($booking->fulfillment_method ?: 'N/A') }}<br>
+                        @else
+                            <strong>Schedule:</strong> {{ $booking->schedule_summary }}<br>
+                        @endif
+                        <strong>Total Amount:</strong> {{ (float) $booking->total_amount > 0 ? 'N$ ' . number_format($booking->total_amount, 2) : 'To be confirmed' }}<br>
+                        <strong>Payment Method:</strong> {{ $booking->payment_method_label }}<br>
                         <strong>Status:</strong> {{ ucfirst($booking->booking_status) }}
                     </div>
 

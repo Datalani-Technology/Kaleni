@@ -35,9 +35,6 @@ class SitemapController extends Controller
         $xml .= $this->urlElement($baseUrl . '/delivery', '0.6', 'monthly');
         $xml .= $this->urlElement($baseUrl . '/cancellations', '0.5', 'yearly');
 
-        // Promotion page
-        $xml .= $this->urlElement($baseUrl . '/promotion', '0.7', 'weekly');
-
         // Gallery page
         $xml .= $this->urlElement($baseUrl . '/gallery', '0.8', 'weekly');
 

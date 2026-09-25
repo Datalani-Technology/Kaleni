@@ -10,12 +10,27 @@
 @push('styles')
 <style>
     .contact-page { max-width: 1180px; margin: 0 auto; padding: 58px 24px 20px; }
-    .contact-heading { display: grid; grid-template-columns: minmax(0,1fr) minmax(280px,.65fr); align-items: end; gap: 40px; margin-bottom: 36px; }
-    .contact-heading h1 { max-width: 700px; margin: 8px 0 0; font-size: clamp(2.5rem,5vw,4.7rem); font-weight: 800; line-height: 1; letter-spacing: -.05em; }
-    .contact-heading p { margin: 0; color: var(--muted); line-height: 1.75; }
+
+    /* ---------- First section: full-bleed photo hero band ---------- */
+    .contact-hero { position: relative; overflow: hidden; width: 100%; padding: clamp(56px,10vw,96px) 24px; }
+    .contact-hero-bg {
+        position: absolute !important; inset: 0; z-index: 0;
+        background-size: cover; background-position: center;
+        opacity: 0; transition: opacity 1.4s ease;
+    }
+    .contact-hero-bg.is-active { opacity: 1; }
+    .contact-hero-overlay {
+        position: absolute !important; inset: 0; z-index: 1;
+        background: linear-gradient(160deg, rgba(23,13,9,.6) 0%, rgba(20,12,9,.8) 55%, rgba(19,13,10,.92) 100%);
+    }
+    .contact-hero-content { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; }
+    .contact-hero-content .section-kicker { color: var(--secondary-color); }
+    .contact-hero-content h1 { margin: 10px 0 16px; color: #fff; font-size: clamp(2.3rem,5vw,4rem); font-weight: 800; line-height: 1.03; letter-spacing: -.04em; }
+    .contact-hero-content p { margin: 0; max-width: 58ch; color: rgba(255,255,255,.75); line-height: 1.75; }
+
     .contact-shell { display: grid; grid-template-columns: minmax(300px,.75fr) minmax(0,1.25fr); overflow: hidden; background: #fff; border: 1px solid var(--border); border-radius: 28px; box-shadow: 0 24px 65px rgba(41,33,31,.1); }
-    .contact-details { position: relative; overflow: hidden; padding: clamp(30px,5vw,52px); color: #fff; background: #221a16; }
-    .contact-details::after { content: ''; position: absolute; width: 300px; height: 300px; right: -160px; bottom: -150px; border: 45px solid rgba(104,11,28,.15); border-radius: 50%; }
+    .contact-details { position: relative; overflow: hidden; padding: clamp(30px,5vw,52px); color: #fff; background: #000; }
+    .contact-details::after { content: ''; position: absolute; width: 300px; height: 300px; right: -160px; bottom: -150px; border: 45px solid rgba(104,11,28,.18); border-radius: 50%; }
     .contact-details > * { position: relative; z-index: 1; }
     .contact-details h2 { margin: 0 0 10px; color: #fff; font-size: 1.45rem; font-weight: 800; }
     .contact-details > p { margin: 0 0 34px; color: rgba(255,255,255,.65); line-height: 1.7; }
@@ -38,17 +53,25 @@
     .human-verify { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #faf5f0; border: 1px solid var(--border); border-radius: 12px; }
     .human-verify .form-label { margin: 0; }
     .human-verify .form-control { width: 88px; flex: 0 0 88px; }
-    @media (max-width: 860px) { .contact-heading, .contact-shell { grid-template-columns: 1fr; } .contact-heading { gap: 15px; } }
-    @media (max-width: 520px) { .contact-page { padding: 36px 14px 10px; } .contact-shell { border-radius: 20px; } .human-verify { align-items: flex-start; flex-direction: column; } }
+    @media (max-width: 860px) { .contact-shell { grid-template-columns: 1fr; } }
+    @media (max-width: 520px) { .contact-page { padding: 36px 14px 10px; } .contact-hero { padding: 40px 18px; } .contact-shell { border-radius: 20px; } .human-verify { align-items: flex-start; flex-direction: column; } }
 </style>
 @endpush
 
 @section('content')
-<div class="contact-page">
-    <header class="contact-heading">
-        <div><span class="section-kicker">Talk to Chef K</span><h1>Let's plan a menu that feels exactly right.</h1></div>
+<header class="contact-hero" data-bg-carousel data-interval="7000">
+    @foreach($brandCarouselImages as $image)
+        <div class="contact-hero-bg {{ $loop->first ? 'is-active' : '' }}" data-bg-slide aria-hidden="true" style="background-image: url('{{ asset($image) }}');"></div>
+    @endforeach
+    <div class="contact-hero-overlay" aria-hidden="true"></div>
+    <div class="contact-hero-content">
+        <span class="section-kicker">Talk to Chef K</span>
+        <h1>Let's plan a menu that feels exactly right.</h1>
         <p>Ask about a booking, a pack order, or something completely bespoke. Our Windhoek team will help you shape the details.</p>
-    </header>
+    </div>
+</header>
+
+<div class="contact-page">
 
     <div class="contact-shell">
         <aside class="contact-details">

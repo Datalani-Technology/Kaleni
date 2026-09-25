@@ -51,7 +51,7 @@
         <div class="card analytics-stat tone-blue h-100">
             <div class="card-body">
                 <div class="stat-icon"><i class="bi bi-cart-check"></i></div>
-                <div class="text-muted small">Bookings</div>
+                <div class="text-muted small">Bookings &amp; Orders</div>
                 <div class="h4 mb-0">{{ number_format($bookingCount) }}</div>
             </div>
         </div>
@@ -60,7 +60,7 @@
         <div class="card analytics-stat tone-green h-100">
             <div class="card-body">
                 <div class="stat-icon"><i class="bi bi-receipt"></i></div>
-                <div class="text-muted small">Avg. booking value</div>
+                <div class="text-muted small">Avg. transaction value</div>
                 <div class="h4 mb-0">N$ {{ number_format($avgBookingValue, 2) }}</div>
             </div>
         </div>
@@ -69,7 +69,7 @@
         <div class="card analytics-stat tone-amber h-100">
             <div class="card-body">
                 <div class="stat-icon"><i class="bi bi-signpost-split"></i></div>
-                <div class="text-muted small">Visit → booking rate</div>
+                <div class="text-muted small">Visit → conversion rate</div>
                 <div class="h4 mb-0">{{ number_format($conversionRate, 1) }}%</div>
             </div>
         </div>
@@ -86,7 +86,7 @@
 <div class="row mb-4 g-3">
     <div class="col-lg-4">
         <div class="card h-100">
-            <div class="card-header"><strong>Bookings by status</strong></div>
+            <div class="card-header"><strong>Bookings &amp; Orders by status</strong></div>
             <div class="card-body d-flex flex-wrap gap-2 status-badge-row">
                 @forelse(['pending' => 'warning text-dark', 'processing' => 'info', 'completed' => 'success', 'cancelled' => 'secondary'] as $status => $badgeClass)
                     @php $count = $bookingsByStatus[$status] ?? 0; @endphp
@@ -96,7 +96,7 @@
                 @empty
                 @endforelse
                 @if($bookingsByStatus->sum() === 0)
-                    <span class="text-muted small">No bookings in this period.</span>
+                    <span class="text-muted small">No bookings or orders in this period.</span>
                 @endif
             </div>
         </div>
@@ -111,7 +111,7 @@
                         <strong>{{ $count }}</strong>
                     </div>
                 @empty
-                    <span class="text-muted small">No bookings in this period.</span>
+                    <span class="text-muted small">No bookings or orders in this period.</span>
                 @endforelse
             </div>
         </div>

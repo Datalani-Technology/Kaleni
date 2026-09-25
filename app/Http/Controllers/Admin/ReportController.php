@@ -14,7 +14,11 @@ class ReportController extends Controller
     {
         [$from, $to] = $this->resolveRange($request);
 
-        $bookings = Booking::where('booking_status', '!=', 'cancelled')
+        // Matches the Finance page's definition: revenue is money actually
+        // collected (payment_status completed), not the value of everything
+        // booked in the period — see FinanceController for the full reasoning.
+        $bookings = Booking::where('payment_status', 'completed')
+            ->where('booking_status', '!=', 'cancelled')
             ->whereBetween('created_at', [$from, $to])
             ->get();
 
@@ -37,6 +41,7 @@ class ReportController extends Controller
         [$from, $to] = $this->resolveRange($request);
 
         $bookings = Booking::with('items')
+            ->where('payment_status', 'completed')
             ->where('booking_status', '!=', 'cancelled')
             ->whereBetween('created_at', [$from, $to])
             ->orderBy('created_at')

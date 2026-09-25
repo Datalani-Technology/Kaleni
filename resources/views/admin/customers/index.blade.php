@@ -25,9 +25,9 @@
                     <tr>
                         <th>Customer</th>
                         <th>Contact</th>
-                        <th class="text-end">Bookings</th>
+                        <th class="text-end">Bookings &amp; Orders</th>
                         <th class="text-end">Lifetime Spend</th>
-                        <th>Last Booking</th>
+                        <th>Last Activity</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -39,9 +39,9 @@
                                 {{ $c->email }}<br>
                                 <small class="text-muted">{{ $c->phone }}</small>
                             </td>
-                            <td data-label="Bookings" class="text-end">{{ $c->bookings_count }}</td>
+                            <td data-label="Bookings & Orders" class="text-end">{{ $c->bookings_count }}</td>
                             <td data-label="Lifetime Spend" class="text-end">N$ {{ number_format($c->lifetime_spend ?? 0, 2) }}</td>
-                            <td data-label="Last Booking">{{ $c->bookings_max_created_at ? \Illuminate\Support\Carbon::parse($c->bookings_max_created_at)->format('d M Y') : 'N/A' }}</td>
+                            <td data-label="Last Activity">{{ $c->bookings_max_created_at ? \Illuminate\Support\Carbon::parse($c->bookings_max_created_at)->format('d M Y') : 'N/A' }}</td>
                             <td data-label="">
                                 <a href="{{ route('admin.customers.show', $c) }}" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i> View</a>
                             </td>

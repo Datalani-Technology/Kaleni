@@ -25,10 +25,21 @@
     .search-results-bar { margin-bottom: 20px; padding: 15px; background: white; border-radius: 12px; }
     .search-clear-link { color: var(--primary-color); text-decoration: none; margin-left: 10px; }
     .search-clear-link:hover { text-decoration: underline; }
-    .catalog-heading { margin-bottom: 8px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
-    .catalog-heading h1 { margin: 0; font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; }
-    .catalog-heading p { max-width: 580px; margin: 8px 0 0; color: var(--muted); }
-    .catalog-count { flex: 0 0 auto; padding: 8px 12px; color: var(--primary-dark); background: var(--primary-soft); border-radius: 999px; font-size: .72rem; font-weight: 800; }
+    .catalog-heading {
+        position: relative; overflow: hidden;
+        margin-bottom: 40px; padding: 54px 24px; text-align: center;
+        background: linear-gradient(120deg, var(--primary-color), var(--primary-dark));
+        box-shadow: 0 20px 50px rgba(104,11,28,.18);
+    }
+    .catalog-heading::after {
+        content: ''; position: absolute; width: 320px; height: 320px; right: -120px; top: -140px;
+        border: 46px solid rgba(248,173,39,.1); border-radius: 50%; pointer-events: none;
+    }
+    .catalog-heading > * { position: relative; z-index: 1; }
+    .catalog-heading .section-kicker { color: var(--secondary-color); }
+    .catalog-heading h1 { margin: 0; font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; color: #fff; }
+    .catalog-heading p { max-width: 580px; margin: 8px auto 0; color: rgba(255,255,255,.86); }
+    .catalog-count { display: inline-block; margin-top: 18px; padding: 8px 12px; color: var(--primary-dark); background: var(--secondary-color); border-radius: 999px; font-size: .72rem; font-weight: 800; }
 
     /* Category tab bar — icon over label, active tab picked out in burgundy */
     .menu-tabs {
@@ -104,7 +115,7 @@
     @media (max-width: 520px) {
         .search-results-bar { padding: 12px; margin-bottom: 16px; font-size: .9rem; }
         .search-clear-link { display: inline-block; margin-left: 0; margin-top: 6px; }
-        .catalog-heading { align-items: flex-start; flex-direction: column; gap: 12px; }
+        .catalog-heading { padding: 36px 20px; }
         .catalog-filter-form { grid-template-columns: 1fr; }
         .menu-list-card { flex-direction: column; }
         .menu-list-card-media { width: 100%; height: 200px; }
@@ -118,16 +129,14 @@
     ['name' => 'Menu', 'url' => route('menu.index')],
 ]])
 
-<div class="products-container">
-    <div class="catalog-heading">
-        <div>
-            <span class="section-kicker">The Kaleni menu</span>
-            <h1>Find your next meal</h1>
-            <p>Home-style Namibian dishes, packs and platters, made fresh in Windhoek for everyday meals and full events.</p>
-        </div>
-        <span class="catalog-count">{{ $menuItems->total() }} {{ \Illuminate\Support\Str::plural('dish', $menuItems->total()) }}</span>
-    </div>
+<div class="catalog-heading">
+    <span class="section-kicker">The Kaleni menu</span>
+    <h1>Find your next meal</h1>
+    <p>Home-style Namibian dishes, packs and platters, made fresh in Windhoek for everyday meals and full events.</p>
+    <span class="catalog-count">{{ $menuItems->total() }} {{ \Illuminate\Support\Str::plural('dish', $menuItems->total()) }}</span>
+</div>
 
+<div class="products-container">
     <nav class="menu-tabs" aria-label="Menu categories">
         <a href="{{ route('menu.index', array_filter(['search' => request('search'), 'sort' => request('sort'), 'in_stock' => request('in_stock')])) }}" class="menu-tab {{ request('category') ? '' : 'active' }}">
             <i class="bi bi-grid" aria-hidden="true"></i>

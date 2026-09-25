@@ -8,10 +8,22 @@
 <style>
     .fotd-page { max-width: 1120px; margin: 0 auto; padding: 48px 24px 90px; }
 
-    .fotd-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 40px; }
-    .fotd-heading h1 { margin: 6px 0 10px; font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; }
-    .fotd-heading p { max-width: 520px; margin: 0; color: var(--muted); }
-    .fotd-today-chip { flex: 0 0 auto; padding: 8px 14px; color: var(--primary-dark); background: var(--primary-soft); border-radius: 999px; font-size: .74rem; font-weight: 800; white-space: nowrap; }
+    .fotd-heading {
+        position: relative; overflow: hidden;
+        text-align: center;
+        margin-bottom: 40px; padding: 54px 24px;
+        background: linear-gradient(120deg, var(--primary-color), var(--primary-dark));
+        box-shadow: 0 20px 50px rgba(104,11,28,.18);
+    }
+    .fotd-heading::after {
+        content: ''; position: absolute; width: 320px; height: 320px; right: -120px; top: -140px;
+        border: 46px solid rgba(248,173,39,.1); border-radius: 50%; pointer-events: none;
+    }
+    .fotd-heading > * { position: relative; z-index: 1; }
+    .fotd-heading .section-kicker { color: var(--secondary-color); }
+    .fotd-heading h1 { margin: 6px 0 10px; font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; color: #fff; }
+    .fotd-heading p { max-width: 520px; margin: 0 auto; color: rgba(255,255,255,.86); }
+    .fotd-today-chip { display: inline-block; margin-top: 18px; padding: 8px 14px; color: var(--primary-dark); background: var(--secondary-color); border-radius: 999px; font-size: .74rem; font-weight: 800; white-space: nowrap; }
 
     /* ---------- Spotlight: today's special ---------- */
     .fotd-today {
@@ -98,7 +110,7 @@
     .fotd-cta .buy-now-btn { width: auto; padding: 0 22px; min-height: 48px; text-decoration: none; }
 
     @media (max-width: 640px) {
-        .fotd-heading { align-items: flex-start; flex-direction: column; }
+        .fotd-heading { padding: 36px 20px; }
         .fotd-today { grid-template-columns: 1fr; text-align: center; padding: 26px; }
         .fotd-today-img { max-width: 220px; margin: 0 auto; }
         .fotd-today-meta { justify-content: center; }
@@ -110,16 +122,14 @@
 @endpush
 
 @section('content')
-<div class="fotd-page">
-    <div class="fotd-heading">
-        <div>
-            <span class="section-kicker">From Chef K's kitchen</span>
-            <h1>Food of the Day</h1>
-            <p>A different home-style special every day. See what's cooking today, plus the full week ahead so you can plan around it.</p>
-        </div>
-        <span class="fotd-today-chip">{{ \Illuminate\Support\Carbon::today()->format('l, j F') }}</span>
-    </div>
+<div class="fotd-heading">
+    <span class="section-kicker">From Chef K's kitchen</span>
+    <h1>Food of the Day</h1>
+    <p>A different home-style special every day. See what's cooking today, plus the full week ahead so you can plan around it.</p>
+    <span class="fotd-today-chip">{{ \Illuminate\Support\Carbon::today()->format('l, j F') }}</span>
+</div>
 
+<div class="fotd-page">
     @if($todayEntry)
         <div class="fotd-today">
             <div class="fotd-today-media">

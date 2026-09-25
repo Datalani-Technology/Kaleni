@@ -29,7 +29,7 @@ class StockController extends Controller
 
         if ($request->filled('filter')) {
             if ($request->filter === 'low') {
-                $query->where('stock', '<=', $threshold);
+                $query->where('stock', '>', 0)->where('stock', '<=', $threshold);
             } elseif ($request->filter === 'out') {
                 $query->where('stock', 0);
             }
@@ -37,7 +37,10 @@ class StockController extends Controller
 
         $menuItems = $query->paginate(20)->withQueryString();
 
-        $lowStockCount = MenuItem::where('stock', '<=', $threshold)->count();
+        // "Low stock" and "out of stock" are deliberately mutually exclusive
+        // here — otherwise every out-of-stock item would double-count into
+        // the low-stock figure too, since 0 is <= any positive threshold.
+        $lowStockCount = MenuItem::where('stock', '>', 0)->where('stock', '<=', $threshold)->count();
         $outOfStockCount = MenuItem::where('stock', 0)->count();
         $totalUnits = (int) MenuItem::sum('stock');
         $menuItemsCount = MenuItem::count();

@@ -23,7 +23,15 @@
                 <tr><td class="muted">Occasion</td><td>{{ $specialRequest->occasion }}</td></tr>
             @endif
             @if($specialRequest->event_date)
-                <tr><td class="muted">Event date</td><td>{{ $specialRequest->event_date->format('D, j M Y') }}</td></tr>
+                <tr>
+                    <td class="muted">{{ $specialRequest->is_recurring ? 'Dates' : 'Event date' }}</td>
+                    <td>
+                        {{ $specialRequest->event_date->format('D, j M Y') }}
+                        @if($specialRequest->is_recurring && $specialRequest->recurring_end_date)
+                            &ndash; {{ $specialRequest->recurring_end_date->format('D, j M Y') }} (recurring)
+                        @endif
+                    </td>
+                </tr>
             @endif
             @if($specialRequest->guest_count)
                 <tr><td class="muted">Guests</td><td>{{ $specialRequest->guest_count }}</td></tr>

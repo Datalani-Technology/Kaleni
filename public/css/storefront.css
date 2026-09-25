@@ -44,6 +44,15 @@ a, button, input, select, textarea {
     font-family: inherit;
 }
 
+/* Bootstrap's own a{color:#0d6efd} / a:hover{color:#0a58ca} otherwise wins on
+   hover even where a component class already sets the resting link color
+   (a bare :hover pseudo-class outranks a plain class at equal specificity).
+   Links with their own dedicated :hover rule (nav, footer, buttons, etc.)
+   are unaffected since a class + :hover always outranks this. */
+a:hover {
+    color: var(--secondary-color);
+}
+
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -849,21 +858,6 @@ footer.site-footer {
 
 .scroll-top-btn {
     background: var(--ink);
-}
-
-.add-to-cart-toast {
-    bottom: 28px !important;
-    padding: 13px 18px !important;
-    background: var(--ink) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px !important;
-    box-shadow: 0 14px 34px rgba(33, 22, 28, 0.24) !important;
-    font-size: 0.86rem !important;
-    font-weight: 700;
-}
-
-.add-to-cart-toast-error {
-    background: #B3261E !important;
 }
 
 @media (max-width: 1199.98px) {

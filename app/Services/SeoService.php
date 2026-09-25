@@ -60,11 +60,6 @@ class SeoService
                 'description' => 'Our cancellation and refund policy for catering bookings and orders. Kaleni Catering Services, Windhoek, Namibia.',
                 'keywords' => 'catering cancellation policy namibia, kaleni catering refund policy',
             ],
-            'promotion' => [
-                'title' => 'Promotions and Packages | ' . $brand . ', Windhoek',
-                'description' => 'Seasonal catering packages and specials from Kaleni Catering Services. Download our catalog. Windhoek, Namibia.',
-                'keywords' => 'catering specials namibia, catering promotions windhoek, kaleni catering packages',
-            ],
             'gallery' => [
                 'title' => 'Gallery: Events, Platters and More | ' . $brand,
                 'description' => 'Browse the Kaleni Catering gallery: event moments, platters, and behind-the-scenes from Chef K\'s kitchen in Windhoek, Namibia.',

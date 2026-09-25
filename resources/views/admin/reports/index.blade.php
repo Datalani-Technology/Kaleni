@@ -33,8 +33,9 @@
     <div class="col-md-4">
         <div class="card border-success h-100">
             <div class="card-body">
-                <div class="text-muted small">Revenue ({{ $bookingCount }} bookings)</div>
+                <div class="text-muted small">Revenue ({{ $bookingCount }} paid {{ \Illuminate\Support\Str::plural('booking or order', $bookingCount) }})</div>
                 <div class="h3 text-success mb-0">N$ {{ number_format($revenue, 2) }}</div>
+                <div class="text-muted" style="font-size: .75rem;">Payments received; excludes unpaid and cancelled</div>
             </div>
         </div>
     </div>

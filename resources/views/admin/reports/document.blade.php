@@ -67,7 +67,7 @@
 
     <div class="summary-row">
         <div class="summary-card revenue">
-            <div class="label">Revenue ({{ $bookingCount }} bookings)</div>
+            <div class="label">Revenue ({{ $bookingCount }} paid {{ \Illuminate\Support\Str::plural('booking or order', $bookingCount) }})</div>
             <div class="value">N$ {{ number_format($revenue, 2) }}</div>
         </div>
         <div class="summary-card expenses">
@@ -79,17 +79,18 @@
             <div class="value">N$ {{ number_format($netProfit, 2) }}</div>
         </div>
         <div class="summary-card">
-            <div class="label">Avg. Booking Value</div>
+            <div class="label">Avg. Transaction Value</div>
             <div class="value">N$ {{ number_format($avgBookingValue, 2) }}</div>
         </div>
     </div>
 
-    <h3 class="section-title">Bookings</h3>
+    <h3 class="section-title">Paid Bookings &amp; Orders</h3>
     <table>
         <thead>
             <tr>
                 <th>Date</th>
-                <th>Booking #</th>
+                <th>Reference #</th>
+                <th>Type</th>
                 <th>Customer</th>
                 <th>Payment</th>
                 <th>Status</th>
@@ -101,19 +102,20 @@
                 <tr>
                     <td>{{ $b->created_at->format('d M Y') }}</td>
                     <td>{{ $b->booking_number }}</td>
+                    <td>{{ $b->order_type === 'quick_order' ? 'Order' : 'Booking' }}</td>
                     <td>{{ $b->customer_name }}</td>
-                    <td>{{ ucfirst($b->payment_method) }}</td>
+                    <td>{{ $b->payment_method_label }}</td>
                     <td><span class="badge badge-{{ $b->booking_status }}">{{ ucfirst($b->booking_status) }}</span></td>
                     <td class="text-end">N$ {{ number_format((float) $b->total_amount, 2) }}</td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="text-center text-muted py-3">No bookings in this period.</td></tr>
+                <tr><td colspan="7" class="text-center text-muted py-3">No paid bookings or orders in this period.</td></tr>
             @endforelse
         </tbody>
         @if($bookings->isNotEmpty())
         <tfoot>
             <tr>
-                <td colspan="5" class="text-end"><strong>Total Revenue</strong></td>
+                <td colspan="6" class="text-end"><strong>Total Revenue</strong></td>
                 <td class="text-end"><strong>N$ {{ number_format($revenue, 2) }}</strong></td>
             </tr>
         </tfoot>
@@ -153,7 +155,7 @@
     </table>
 
     <div class="doc-footer">
-        This report was generated from live booking and expense records for Kaleni Catering Services. Cancelled bookings are excluded from revenue.
+        This report was generated from live booking, order, and expense records for Kaleni Catering Services. Cancelled bookings/orders are excluded from revenue.
     </div>
 
     <div class="no-print">

@@ -26,10 +26,16 @@
     <a href="{{ route('admin.analytics.index') }}" class="{{ $active === 'analytics' ? 'active' : '' }}">
         <i class="bi bi-graph-up"></i><span>Analytics</span>
     </a>
+    <a href="{{ route('admin.finance.index') }}" class="{{ $active === 'finance' ? 'active' : '' }}">
+        <i class="bi bi-cash-coin"></i><span>Finance</span>
+    </a>
 
     <div class="sidebar-section-label">Sales &amp; operations</div>
     <a href="{{ route('admin.bookings.index') }}" class="{{ $active === 'bookings' ? 'active' : '' }}">
         <i class="bi bi-bag-check"></i><span>Bookings</span>
+    </a>
+    <a href="{{ route('admin.orders.index') }}" class="{{ $active === 'orders' ? 'active' : '' }}">
+        <i class="bi bi-basket"></i><span>Orders</span>
     </a>
     <a href="{{ route('admin.menu-items.index') }}" class="{{ $active === 'menu-items' ? 'active' : '' }}">
         <i class="bi bi-egg-fried"></i><span>Menu Items</span>
@@ -39,6 +45,9 @@
     </a>
     <a href="{{ route('admin.special-requests.index') }}" class="{{ $active === 'special-requests' ? 'active' : '' }}">
         <i class="bi bi-heart"></i><span>Special Requests</span>
+    </a>
+    <a href="{{ route('admin.quotes.index') }}" class="{{ $active === 'quotes' ? 'active' : '' }}">
+        <i class="bi bi-file-earmark-text"></i><span>Quotes</span>
     </a>
     <a href="{{ route('admin.stock.index') }}" class="{{ $active === 'stock' ? 'active' : '' }}">
         <i class="bi bi-box-seam"></i><span>Inventory</span>
@@ -61,14 +70,11 @@
 
     @if($isAdmin)
         <div class="sidebar-section-label">Content &amp; access</div>
-        <a href="{{ route('admin.promotion.edit') }}" class="{{ $active === 'promotion' ? 'active' : '' }}">
-            <i class="bi bi-megaphone"></i><span>Promotions</span>
-        </a>
         <a href="{{ route('admin.gallery.index') }}" class="{{ $active === 'gallery' ? 'active' : '' }}">
             <i class="bi bi-images"></i><span>Gallery</span>
         </a>
         <a href="{{ route('admin.logo.edit') }}" class="{{ $active === 'logo' ? 'active' : '' }}">
-            <i class="bi bi-palette"></i><span>Brand settings</span>
+            <i class="bi bi-palette"></i><span>Brand &amp; Invoice</span>
         </a>
         <a href="{{ route('admin.users.index') }}" class="{{ $active === 'users' ? 'active' : '' }}">
             <i class="bi bi-person-badge"></i><span>Team members</span>

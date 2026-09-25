@@ -25,6 +25,7 @@ class SpecialRequestController extends Controller
         $validated['details'] = strip_tags($validated['details']);
         $validated['occasion'] = isset($validated['occasion']) ? strip_tags($validated['occasion']) : null;
         $validated['budget_range'] = isset($validated['budget_range']) ? strip_tags($validated['budget_range']) : null;
+        $validated['source'] = $validated['source'] ?? SpecialRequest::SOURCE_SPECIAL_REQUEST_PAGE;
 
         $specialRequest = SpecialRequest::create($validated);
 
@@ -38,6 +39,11 @@ class SpecialRequestController extends Controller
             Mail::to($specialRequest->email)->send(new SpecialRequestReceivedMail($specialRequest));
         } catch (\Throwable $e) {
             Log::warning('Special request confirmation email failed', ['id' => $specialRequest->id, 'error' => $e->getMessage()]);
+        }
+
+        if ($specialRequest->source === SpecialRequest::SOURCE_HOME_QUOTE_FORM) {
+            return redirect(route('home') . '#get-a-quote')
+                ->with('success', "Thanks, we've received your quote request and will follow up by email or phone shortly.");
         }
 
         return redirect()->route('special-requests.create')

@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#29211F">
     <title>@yield('title', 'Admin') - Kaleni Catering Services</title>
+    @php
+        $adminFaviconLogo = \App\Models\Setting::get('logo_path');
+    @endphp
+    @if($adminFaviconLogo)
+        <link rel="icon" href="{{ asset('storage/' . $adminFaviconLogo) }}">
+    @else
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    @endif
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -266,7 +275,12 @@
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
     @stack('styles')
 </head>
-<body>
+<body data-admin-board="{{ trim(strip_tags((string) ($__env->yieldContent('sidebar_active') ?? ''))) ?: '' }}"
+      data-count-total="{{ $adminNotifications['total'] ?? 0 }}"
+      data-count-pending-order="{{ $adminNotifications['pending_order_count'] ?? 0 }}"
+      data-count-pending-quick-order="{{ $adminNotifications['pending_quick_order_count'] ?? 0 }}"
+      data-count-new-special-request="{{ $adminNotifications['new_special_request_count'] ?? 0 }}"
+      data-count-new-quote-request="{{ $adminNotifications['new_quote_request_count'] ?? 0 }}">
     <header class="admin-mobile-header d-lg-none">
         <button type="button" class="admin-menu-btn" id="adminMenuBtn" aria-label="Open menu">
             <i class="bi bi-list"></i>
@@ -404,14 +418,15 @@
                 };
 
                 if (form.dataset.confirmMode === 'booking-status') {
+                    var noun = form.dataset.recordNoun || 'booking';
                     var originalStatus = form.dataset.originalStatus;
                     var newStatus = form.querySelector('[name="booking_status"]')?.value;
                     var paymentStatus = form.querySelector('[name="payment_status"]')?.value;
-                    copy.title = newStatus === 'cancelled' && originalStatus !== 'cancelled' ? 'Cancel this booking?' : 'Save booking changes?';
+                    copy.title = newStatus === 'cancelled' && originalStatus !== 'cancelled' ? 'Cancel this ' + noun + '?' : 'Save ' + noun + ' changes?';
                     copy.message = newStatus === 'cancelled' && originalStatus !== 'cancelled'
-                        ? 'The booking will be cancelled. The customer is not notified automatically, so contact them separately.'
-                        : 'Booking status and payment status will be updated immediately to ' + newStatus + ' / ' + paymentStatus + '.';
-                    copy.label = newStatus === 'cancelled' ? 'Cancel booking' : 'Save changes';
+                        ? 'The ' + noun + ' will be cancelled. The customer is not notified automatically, so contact them separately.'
+                        : (noun.charAt(0).toUpperCase() + noun.slice(1)) + ' status and payment status will be updated immediately to ' + newStatus + ' / ' + paymentStatus + '.';
+                    copy.label = newStatus === 'cancelled' ? 'Cancel ' + noun : 'Save changes';
                     copy.variant = newStatus === 'cancelled' ? 'danger' : 'warning';
                 } else if (form.dataset.confirmMode === 'user-role') {
                     var originalRole = form.dataset.originalRole;
@@ -442,12 +457,6 @@
                     copy.title = 'Remove the custom logo?';
                     copy.message = 'The current uploaded logo will be removed and the storefront will revert to its default brand mark.';
                     copy.label = 'Remove logo';
-                    copy.variant = 'danger';
-                } else if (form.dataset.confirmMode === 'remove-catalog') {
-                    if (!form.querySelector('#remove_catalog')?.checked) return null;
-                    copy.title = 'Remove the promotion catalogue?';
-                    copy.message = 'Visitors will no longer be able to open or download the current promotion catalogue.';
-                    copy.label = 'Remove catalogue';
                     copy.variant = 'danger';
                 }
 
@@ -498,6 +507,79 @@
                 pendingForm = null;
                 pendingSubmitter = null;
             });
+        })();
+
+        (function () {
+            // Keeps the bell (and, if closed, its dropdown content) current
+            // without the admin needing to refresh an already-open page —
+            // a new booking/quote/enquiry shows up within a few seconds.
+            var pollUrl = '{{ route('admin.notifications.poll') }}';
+            var buttons = document.querySelectorAll('.admin-notification-btn');
+            var panel = document.getElementById('adminNotificationPanel');
+            if (!buttons.length || !panel) return;
+
+            function setBadges(total) {
+                buttons.forEach(function (btn) {
+                    var badge = btn.querySelector('.admin-notification-badge');
+                    if (total > 0) {
+                        if (!badge) {
+                            badge = document.createElement('span');
+                            badge.className = 'admin-notification-badge';
+                            btn.appendChild(badge);
+                        }
+                        badge.textContent = total > 99 ? '99+' : String(total);
+                    } else if (badge) {
+                        badge.remove();
+                    }
+                });
+            }
+
+            // Boards where a fresh submission (booking, order, special
+            // request, quote) — or, for the dashboard, anything the bell
+            // tracks — must appear without the admin manually refreshing.
+            // Reusing the same poll tick/response as the bell avoids a
+            // second network call just for this.
+            var boardCountKey = {
+                dashboard: 'total',
+                bookings: 'pending_order_count',
+                orders: 'pending_quick_order_count',
+                'special-requests': 'new_special_request_count',
+                quotes: 'new_quote_request_count',
+            }[document.body.dataset.adminBoard];
+            var boardCountAttr = {
+                total: 'countTotal',
+                pending_order_count: 'countPendingOrder',
+                pending_quick_order_count: 'countPendingQuickOrder',
+                new_special_request_count: 'countNewSpecialRequest',
+                new_quote_request_count: 'countNewQuoteRequest',
+            }[boardCountKey];
+            var lastKnownBoardCount = boardCountAttr ? parseInt(document.body.dataset[boardCountAttr] || '0', 10) : null;
+
+            function poll() {
+                if (document.hidden) return;
+                fetch(pollUrl, { headers: { 'Accept': 'application/json' } })
+                    .then(function (r) { return r.ok ? r.json() : null; })
+                    .then(function (data) {
+                        if (!data) return;
+                        setBadges(data.total);
+                        // Only swap the panel markup while it's closed, so we
+                        // never yank content out from under an admin reading it.
+                        if (!panel.classList.contains('show')) {
+                            var temp = document.createElement('div');
+                            temp.innerHTML = data.html;
+                            var fresh = temp.firstElementChild;
+                            if (fresh) panel.replaceWith(fresh);
+                            panel = document.getElementById('adminNotificationPanel');
+                        }
+
+                        if (boardCountKey && typeof data[boardCountKey] === 'number' && data[boardCountKey] !== lastKnownBoardCount) {
+                            location.reload();
+                        }
+                    })
+                    .catch(function () { /* silent — next tick tries again */ });
+            }
+
+            setInterval(poll, 25000);
         })();
     </script>
     @stack('scripts')

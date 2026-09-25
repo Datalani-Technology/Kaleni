@@ -50,7 +50,7 @@
             <div class="card-body">
                 <div class="row text-center g-3">
                     <div class="col-6">
-                        <div class="text-muted small">Bookings</div>
+                        <div class="text-muted small">Bookings &amp; Orders</div>
                         <div class="h4 mb-0">{{ $customer->bookings->count() }}</div>
                     </div>
                     <div class="col-6">
@@ -64,13 +64,14 @@
 
     <div class="col-lg-8">
         <div class="card">
-            <div class="card-header bg-light"><strong>Booking history</strong></div>
+            <div class="card-header bg-light"><strong>Booking &amp; order history</strong></div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0 admin-table-cards">
                         <thead>
                             <tr>
-                                <th>Booking</th>
+                                <th>Reference #</th>
+                                <th>Type</th>
                                 <th>Date</th>
                                 <th>Status</th>
                                 <th class="text-end">Total</th>
@@ -80,7 +81,8 @@
                         <tbody>
                             @forelse($customer->bookings as $b)
                                 <tr>
-                                    <td data-label="Booking"><strong>{{ $b->booking_number }}</strong></td>
+                                    <td data-label="Reference #"><strong>{{ $b->booking_number }}</strong></td>
+                                    <td data-label="Type">{{ $b->order_type === 'quick_order' ? 'Order' : 'Booking' }}</td>
                                     <td data-label="Date">{{ $b->created_at->format('d M Y') }}</td>
                                     <td data-label="Status">
                                         @if($b->booking_status === 'completed')
@@ -99,7 +101,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="5" class="text-center text-muted py-4" data-label="">No bookings yet.</td></tr>
+                                <tr><td colspan="6" class="text-center text-muted py-4" data-label="">No bookings or orders yet.</td></tr>
                             @endforelse
                         </tbody>
                     </table>

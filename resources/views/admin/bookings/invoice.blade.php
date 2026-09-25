@@ -33,6 +33,7 @@
     @php
         $logoPath = \App\Models\Setting::get('logo_path');
         $logoText = \App\Models\Setting::get('logo_text', 'Kaleni Catering Services');
+        $isQuickOrder = $booking->order_type === \App\Models\Booking::ORDER_TYPE_QUICK_ORDER;
     @endphp
     <div class="invoice-header">
         <div class="invoice-brand">
@@ -63,20 +64,35 @@
             <div>{{ $booking->customer_phone }}</div>
         </div>
         <div style="flex: 1;">
-            <h3>Event Details</h3>
-            <div><strong>{{ $booking->onsite_contact_name ?: $booking->customer_name }}</strong></div>
-            <div>{{ $booking->onsite_contact_phone ?: $booking->customer_phone }}</div>
-            <div>{{ $booking->event_address }}</div>
-            <div>{{ $booking->schedule_summary }} · {{ ucfirst(str_replace('_', ' ', $booking->serving_period ?: 'custom')) }} service</div>
-            <div>{{ $booking->guest_count ? $booking->guest_count . ' guests' : '' }}</div>
+            @if($isQuickOrder)
+                <h3>Fulfillment</h3>
+                <div><strong>{{ ucfirst($booking->fulfillment_method ?: 'N/A') }}</strong></div>
+                @if($booking->fulfillment_method === 'delivery')
+                    <div>{{ $booking->event_address }}</div>
+                @endif
+            @else
+                <h3>Event Details</h3>
+                <div><strong>{{ $booking->onsite_contact_name ?: $booking->customer_name }}</strong></div>
+                <div>{{ $booking->onsite_contact_phone ?: $booking->customer_phone }}</div>
+                <div>{{ $booking->event_address }}</div>
+                <div>{{ $booking->schedule_summary }} · {{ ucfirst(str_replace('_', ' ', $booking->serving_period ?: 'custom')) }} service</div>
+                <div>{{ $booking->guest_count ? $booking->guest_count . ' guests' : '' }}</div>
+            @endif
         </div>
         <div style="flex: 1;">
             <h3>Payment</h3>
-            <div>Method: {{ ucfirst($booking->payment_method) }}</div>
+            <div>Method: {{ $booking->payment_method_label }}</div>
             <div>Status: {{ ucfirst($booking->payment_status) }}</div>
-            <div>Booking status: {{ ucfirst($booking->booking_status) }}</div>
+            <div>{{ $isQuickOrder ? 'Order status' : 'Booking status' }}: {{ ucfirst($booking->booking_status) }}</div>
         </div>
     </div>
+
+    @if($paymentAccountDetails = \App\Models\Setting::get('invoice_payment_account'))
+        <div class="invoice-section" style="margin-top: 8px; padding: 14px 16px; background: #f8f8f8; border-radius: 8px;">
+            <h3 style="margin-bottom: 4px;">Pay to</h3>
+            <div style="white-space: pre-line;">{{ $paymentAccountDetails }}</div>
+        </div>
+    @endif
 
     <table>
         <thead>
@@ -106,7 +122,7 @@
         </tr>
     </table>
 
-    <p class="text-muted" style="font-size: 0.85rem;">Thank you for booking with Kaleni Catering Services, home-style catering in Windhoek, Namibia.</p>
+    <p class="text-muted" style="font-size: 0.85rem;">Thank you for {{ $isQuickOrder ? 'ordering from' : 'booking with' }} Kaleni Catering Services, home-style catering in Windhoek, Namibia.</p>
 
     <div class="no-print">
         <button onclick="window.print()" class="btn btn-dark" style="background:#222;color:#fff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;">

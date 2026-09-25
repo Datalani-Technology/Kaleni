@@ -13,8 +13,16 @@ use Illuminate\Support\Carbon;
  */
 class Booking extends Model
 {
+    const ORDER_TYPE_CATERING_BOOKING = 'catering_booking';
+    const ORDER_TYPE_QUICK_ORDER = 'quick_order';
+
+    const FULFILLMENT_PICKUP = 'pickup';
+    const FULFILLMENT_DELIVERY = 'delivery';
+
     protected $fillable = [
         'booking_number',
+        'order_type',
+        'fulfillment_method',
         'customer_id',
         'customer_name',
         'customer_email',
@@ -57,6 +65,21 @@ class Booking extends Model
     public function items(): HasMany
     {
         return $this->hasMany(BookingItem::class);
+    }
+
+    /**
+     * Single source of truth for how a payment method reads on invoices and
+     * admin lists — "whatsapp" alone reads oddly out of context, since it
+     * means the customer arranges payment over chat rather than paying by
+     * card, not that WhatsApp itself processed a payment.
+     */
+    public function getPaymentMethodLabelAttribute(): string
+    {
+        return match ($this->payment_method) {
+            'dpo' => 'Card (DPO)',
+            'whatsapp' => 'WhatsApp confirmation',
+            default => ucfirst((string) $this->payment_method),
+        };
     }
 
     /**
@@ -113,7 +136,8 @@ class Booking extends Model
 
         static::creating(function ($booking) {
             if (empty($booking->booking_number)) {
-                $booking->booking_number = 'BKG-' . strtoupper(uniqid());
+                $prefix = $booking->order_type === self::ORDER_TYPE_QUICK_ORDER ? 'ORD' : 'BKG';
+                $booking->booking_number = $prefix . '-' . strtoupper(uniqid());
             }
         });
     }

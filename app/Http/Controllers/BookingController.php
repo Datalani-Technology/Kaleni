@@ -26,26 +26,24 @@ class BookingController extends Controller
             ->with('menuItem')
             ->get();
 
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Your order is empty. Please add menu items first.');
-        }
-
         // Verify all menu items still exist and are active
         $validCartItems = $cartItems->filter(function ($item) {
             return $item->menuItem && $item->menuItem->is_active;
-        });
-
-        if ($validCartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'No valid items in your order. Please add items again.');
-        }
+        })->values();
 
         $subtotal = $validCartItems->sum(function ($item) {
             return $item->menuItem->price * $item->quantity;
         });
 
+        // A booking reserves the event itself — unlike a quick food order,
+        // the menu doesn't have to be finalized up front. The homepage's
+        // "Book Catering" button links straight here before a visitor has
+        // necessarily chosen anything, so the form (and submission) work
+        // fine with zero items; the kitchen details can follow over
+        // WhatsApp/phone once the booking is confirmed.
         $appliedPromo = null;
         $discount = 0.0;
-        if ($code = session('promo_code')) {
+        if ($validCartItems->isNotEmpty() && ($code = session('promo_code'))) {
             $promo = PromoCode::findUsable($code);
             if ($promo && $promo->isCurrentlyValid()) {
                 if ($promo->scope === 'products') {
@@ -62,10 +60,8 @@ class BookingController extends Controller
             }
         }
 
-        $cartItemsForView = $validCartItems->values();
-
         return view('booking.index', [
-            'cartItems' => $cartItemsForView,
+            'cartItems' => $validCartItems,
             'subtotal' => $subtotal,
             'appliedPromo' => $appliedPromo,
             'discount' => $discount,
@@ -79,18 +75,15 @@ class BookingController extends Controller
 
         $sessionId = session()->getId();
 
+        // Zero items is a valid booking here — see index() for why — so
+        // unlike OrderController::store() there's no empty-cart bailout.
         $cartItems = CartItem::where('session_id', $sessionId)
             ->with(['menuItem' => function ($query) {
                 $query->where('is_active', true);
             }])
             ->get()
-            ->filter(fn ($item) => $item->menuItem !== null);
-
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Your order is empty. Please add menu items first.');
-        }
-
-        $cartItems = $cartItems->values();
+            ->filter(fn ($item) => $item->menuItem !== null)
+            ->values();
 
         foreach ($cartItems as $cartItem) {
             $menuItem = MenuItem::find($cartItem->menu_item_id);
@@ -149,6 +142,7 @@ class BookingController extends Controller
             $customer->save();
 
             $booking = Booking::create([
+                'order_type' => Booking::ORDER_TYPE_CATERING_BOOKING,
                 'customer_id' => $customer->id,
                 'customer_name' => $customerName,
                 'customer_email' => $customerEmail,
@@ -220,11 +214,38 @@ class BookingController extends Controller
 
             $this->sendBookingAlerts($booking, $lowStockCrossed, $threshold);
 
-            if ($request->payment_method === 'dpo') {
-                return redirect()->route('payment.dpo.init', ['booking' => $booking->id]);
-            } else {
-                return redirect()->route('payment.whatsapp.init', ['booking' => $booking->id]);
+            $isWhatsapp = $request->payment_method !== 'dpo';
+            $nextUrl = $isWhatsapp
+                ? route('payment.whatsapp.init', ['booking' => $booking->id])
+                : route('payment.dpo.init', ['booking' => $booking->id]);
+
+            // The checkout page submits this via fetch specifically so that
+            // the hand-off to an external payment/WhatsApp URL happens as a
+            // separate, plain navigation afterwards — the site's CSP allows
+            // this form to submit only to itself (form-action 'self'), and
+            // that restriction is enforced against the whole redirect chain,
+            // not just the first hop.
+            if ($request->wantsJson()) {
+                // WhatsApp is a hand-off, not a destination — the customer
+                // should land back on the site's own confirmation page (with
+                // its pop-up success message) while WhatsApp opens
+                // separately, rather than being navigated away with nothing
+                // to show for it. DPO isn't finished yet at this point (the
+                // gateway itself still has to run), so it keeps navigating
+                // the current tab straight there.
+                if ($isWhatsapp) {
+                    session()->flash('success', 'Booking ' . $booking->booking_number . ' confirmed! Continue in the new WhatsApp tab to finalize the details.');
+
+                    return response()->json([
+                        'redirect' => route('booking.success', $booking->booking_number),
+                        'whatsapp_redirect' => $nextUrl,
+                    ]);
+                }
+
+                return response()->json(['redirect' => $nextUrl]);
             }
+
+            return redirect($nextUrl);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Booking error: ' . $e->getMessage(), [

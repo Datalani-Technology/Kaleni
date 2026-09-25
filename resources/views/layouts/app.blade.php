@@ -65,6 +65,10 @@
         <link rel="apple-touch-icon" href="{{ asset('storage/' . $faviconLogo) }}">
     @else
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('favicon-48x48.png') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
     @endif
     
     <!-- Stylesheets -->
@@ -561,7 +565,6 @@
                     <li><a href="{{ route('menu.index') }}" class="{{ request()->routeIs('menu.*') ? 'active' : '' }}" @if(request()->routeIs('menu.*')) aria-current="page" @endif>Menu</a></li>
                     <li><a href="{{ route('food-of-the-day.index') }}" class="{{ request()->routeIs('food-of-the-day.*') ? 'active' : '' }}" @if(request()->routeIs('food-of-the-day.*')) aria-current="page" @endif>Food of the Day</a></li>
                     <li><a href="{{ route('special-requests.create') }}" class="{{ request()->routeIs('special-requests.*') ? 'active' : '' }}" @if(request()->routeIs('special-requests.*')) aria-current="page" @endif>Special Request</a></li>
-                    <li><a href="{{ route('promotion') }}" class="{{ request()->routeIs('promotion') ? 'active' : '' }}" @if(request()->routeIs('promotion')) aria-current="page" @endif>Packages</a></li>
                     <li><a href="{{ route('gallery') }}" class="{{ request()->routeIs('gallery') ? 'active' : '' }}" @if(request()->routeIs('gallery')) aria-current="page" @endif>Gallery</a></li>
                     <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}" @if(request()->routeIs('contact')) aria-current="page" @endif>Contact</a></li>
                 </ul>
@@ -584,26 +587,25 @@
     </header>
 
     <main>
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show layout-alert" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show layout-alert" role="alert">
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+        @if(session('success') || session('error'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    @if(session('success'))
+                        showConfirmPopup(@json(session('success')), false);
+                    @endif
+                    @if(session('error'))
+                        showConfirmPopup(@json(session('error')), true);
+                    @endif
+                });
+            </script>
         @endif
 
         @yield('content')
     </main>
 
-    <footer role="contentinfo" class="site-footer" id="siteFooter" data-footer-carousel data-interval="6000">
+    <footer role="contentinfo" class="site-footer" id="siteFooter" data-bg-carousel data-interval="6000">
         @foreach($brandCarouselImages as $i => $image)
-            <div class="site-footer-bg {{ $loop->first ? 'is-active' : '' }}" data-footer-bg-slide aria-hidden="true" style="background-image: url('{{ asset($image) }}');"></div>
+            <div class="site-footer-bg {{ $loop->first ? 'is-active' : '' }}" data-bg-slide aria-hidden="true" style="background-image: url('{{ asset($image) }}');"></div>
         @endforeach
         <div class="site-footer-overlay" aria-hidden="true"></div>
         <svg class="site-footer-wave" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
@@ -667,8 +669,8 @@
                     <h5>Our Services</h5>
                     <ul class="footer-links footer-links-single">
                         <li><a href="{{ route('food-of-the-day.index') }}">Food of the Day</a></li>
-                        <li><a href="{{ route('special-requests.create') }}">Event &amp; Special Catering</a></li>
-                        <li><a href="{{ route('promotion') }}">Packages &amp; Promotions</a></li>
+                        <li><a href="{{ route('home') }}#get-a-quote">Get a Quote</a></li>
+                        <li><a href="{{ route('special-requests.create') }}">Special Requests</a></li>
                         <li><a href="{{ route('delivery') }}">Delivery &amp; Setup</a></li>
                     </ul>
                 </div>
@@ -718,7 +720,59 @@
     </a>
 
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Centered pop-up (icon, title, message, button) for confirmations
+        // that end a flow — form submissions, bookings, orders. Add to Cart
+        // deliberately keeps the lighter showToast() below instead, since
+        // people add several items in a row while browsing and a blocking
+        // centered dialog on every click would slow that down.
+        function showConfirmPopup(msg, isError, duration) {
+            if (typeof Swal === 'undefined') return;
+            Swal.fire({
+                icon: isError ? 'error' : 'success',
+                title: isError ? 'Oops!' : 'Success!',
+                text: msg,
+                confirmButtonText: 'OK',
+                confirmButtonColor: isError ? '#dc3545' : '#198754',
+                timer: duration || 5000,
+                timerProgressBar: true,
+            });
+        }
+        function showToast(msg, isError, duration) {
+            var t = document.createElement('div');
+            t.className = 'add-to-cart-toast' + (isError ? ' add-to-cart-toast-error' : '');
+            t.setAttribute('role', 'alert');
+
+            var icon = document.createElement('i');
+            icon.className = 'bi ' + (isError ? 'bi-exclamation-circle-fill' : 'bi-check-circle-fill') + ' add-to-cart-toast-icon';
+
+            var text = document.createElement('span');
+            text.className = 'add-to-cart-toast-text';
+            text.textContent = msg;
+
+            var close = document.createElement('button');
+            close.type = 'button';
+            close.className = 'add-to-cart-toast-close';
+            close.setAttribute('aria-label', 'Dismiss');
+            close.innerHTML = '&times;';
+
+            t.appendChild(icon);
+            t.appendChild(text);
+            t.appendChild(close);
+            document.body.appendChild(t);
+
+            var hideTimer;
+            function dismiss() {
+                clearTimeout(hideTimer);
+                t.classList.remove('add-to-cart-toast-show');
+                setTimeout(function() { t.remove(); }, 300);
+            }
+            close.addEventListener('click', dismiss);
+
+            requestAnimationFrame(function() { t.classList.add('add-to-cart-toast-show'); });
+            hideTimer = setTimeout(dismiss, duration || 2500);
+        }
         (function() {
             var toggle = document.getElementById('navToggle');
             var group = document.getElementById('navGroup');
@@ -745,26 +799,27 @@
             }
         })();
         (function() {
-            var footer = document.querySelector('[data-footer-carousel]');
-            if (!footer) return;
-            var slides = Array.prototype.slice.call(footer.querySelectorAll('[data-footer-bg-slide]'));
-            var interval = Number(footer.getAttribute('data-interval')) || 6000;
             var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            var current = 0;
-            var timer = null;
-            if (slides.length < 2 || reduceMotion) return;
-            function showSlide(index) {
-                current = (index + slides.length) % slides.length;
-                slides.forEach(function(slide, i) { slide.classList.toggle('is-active', i === current); });
-            }
-            function schedule() {
-                window.clearTimeout(timer);
-                timer = window.setTimeout(function() { showSlide(current + 1); schedule(); }, interval);
-            }
-            document.addEventListener('visibilitychange', function() {
-                if (document.hidden) window.clearTimeout(timer); else schedule();
+            var containers = Array.prototype.slice.call(document.querySelectorAll('[data-bg-carousel]'));
+            containers.forEach(function(container) {
+                var slides = Array.prototype.slice.call(container.querySelectorAll('[data-bg-slide]'));
+                var interval = Number(container.getAttribute('data-interval')) || 6000;
+                var current = 0;
+                var timer = null;
+                if (slides.length < 2 || reduceMotion) return;
+                function showSlide(index) {
+                    current = (index + slides.length) % slides.length;
+                    slides.forEach(function(slide, i) { slide.classList.toggle('is-active', i === current); });
+                }
+                function schedule() {
+                    window.clearTimeout(timer);
+                    timer = window.setTimeout(function() { showSlide(current + 1); schedule(); }, interval);
+                }
+                document.addEventListener('visibilitychange', function() {
+                    if (document.hidden) window.clearTimeout(timer); else schedule();
+                });
+                schedule();
             });
-            schedule();
         })();
         (function() {
             var items = document.querySelectorAll('.footer-animate');
@@ -800,18 +855,6 @@
             var cartAddForms = document.querySelectorAll('form[data-add-to-cart]');
             var cartBadges = document.querySelectorAll('.cart-badge');
             var cartAddUrl = '{{ route("cart.add") }}';
-            function showToast(msg, isError) {
-                var t = document.createElement('div');
-                t.className = 'add-to-cart-toast' + (isError ? ' add-to-cart-toast-error' : '');
-                t.textContent = msg;
-                t.setAttribute('role', 'alert');
-                document.body.appendChild(t);
-                requestAnimationFrame(function() { t.classList.add('add-to-cart-toast-show'); });
-                setTimeout(function() {
-                    t.classList.remove('add-to-cart-toast-show');
-                    setTimeout(function() { t.remove(); }, 300);
-                }, 2500);
-            }
             cartAddForms.forEach(function(form) {
                 form.addEventListener('submit', function(e) {
                     if (form.dataset.addToCart === 'no') return;
@@ -828,6 +871,15 @@
                     .then(function(_a) {
                         var ok = _a.ok, data = _a.data;
                         if (ok && data.success) {
+                            // On the cart page itself, the order table/totals
+                            // above this "recommended items" section were
+                            // rendered server-side at page load — a reload is
+                            // the simplest way to reflect the newly added
+                            // item there instead of just the nav badge.
+                            if (document.querySelector('.cart-page')) {
+                                location.reload();
+                                return;
+                            }
                             var n = data.cart_count || 0;
                             cartBadges.forEach(function(b) {
                                 b.textContent = n;
@@ -848,12 +900,30 @@
     </script>
     <style>
         .add-to-cart-toast {
-            position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%) translateY(20px);
-            background: #333; color: #fff; padding: 12px 24px; border-radius: 8px; font-size: 0.95rem;
-            z-index: 9999; opacity: 0; transition: opacity 0.3s, transform 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            display: flex; align-items: flex-start; gap: 10px;
+            min-width: 280px; max-width: 360px;
+            background: #fff; color: var(--ink, #29211F);
+            padding: 14px 34px 14px 16px; border-radius: 12px; font-size: 0.92rem; line-height: 1.4;
+            border-left: 4px solid #198754;
+            box-shadow: 0 14px 38px rgba(32, 25, 30, .2);
+            opacity: 0; transform: translateX(24px);
+            transition: opacity 0.3s, transform 0.3s;
         }
-        .add-to-cart-toast.add-to-cart-toast-show { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .add-to-cart-toast-error { background: #dc3545; }
+        .add-to-cart-toast.add-to-cart-toast-show { opacity: 1; transform: translateX(0); }
+        .add-to-cart-toast-error { border-left-color: #dc3545; }
+        .add-to-cart-toast-icon { color: #198754; font-size: 1.1rem; margin-top: 1px; flex-shrink: 0; }
+        .add-to-cart-toast-error .add-to-cart-toast-icon { color: #dc3545; }
+        .add-to-cart-toast-text { flex: 1; }
+        .add-to-cart-toast-close {
+            position: absolute; top: 8px; right: 8px; width: 24px; height: 24px;
+            border: none; background: none; color: #999; font-size: 1.15rem; line-height: 1;
+            cursor: pointer; border-radius: 6px;
+        }
+        .add-to-cart-toast-close:hover { background: rgba(0,0,0,.05); color: #333; }
+        @media (max-width: 480px) {
+            .add-to-cart-toast { left: 16px; right: 16px; top: 12px; max-width: none; min-width: 0; }
+        }
     </style>
     @stack('scripts')
 </body>

@@ -67,7 +67,12 @@
         <div style="flex: 1;">
             <h3>Event Details</h3>
             <div>{{ $specialRequest->occasion ?: 'Occasion not specified' }}</div>
-            <div>{{ optional($specialRequest->event_date)->format('D, j M Y') ?: 'Date not specified' }}</div>
+            <div>
+                {{ optional($specialRequest->event_date)->format('D, j M Y') ?: 'Date not specified' }}
+                @if($specialRequest->is_recurring && $specialRequest->recurring_end_date)
+                    &ndash; {{ $specialRequest->recurring_end_date->format('D, j M Y') }} (recurring)
+                @endif
+            </div>
             <div>{{ $specialRequest->guest_count ? $specialRequest->guest_count . ' guests' : 'Guest count not specified' }}</div>
         </div>
     </div>

@@ -2,10 +2,6 @@
 
 namespace App\Providers;
 
-use App\Models\Booking;
-use App\Models\Contact;
-use App\Models\MenuItem;
-use App\Models\SpecialRequest;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Pagination\Paginator;
@@ -56,29 +52,7 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         View::composer('admin.layout', function ($view) {
-            $threshold = (int) config('inventory.low_stock_threshold', 5);
-
-            $pendingBookingsQuery = Booking::where('booking_status', 'pending');
-            $lowStockQuery = MenuItem::where('is_active', true)->where('stock', '<=', $threshold);
-            $unreadContactsQuery = Contact::where('is_read', false);
-            $newSpecialRequestsQuery = SpecialRequest::where('status', 'new');
-
-            $pendingBookingCount = (clone $pendingBookingsQuery)->count();
-            $lowStockCount = (clone $lowStockQuery)->count();
-            $unreadContactCount = (clone $unreadContactsQuery)->count();
-            $newSpecialRequestCount = (clone $newSpecialRequestsQuery)->count();
-
-            $view->with('adminNotifications', [
-                'total' => $pendingBookingCount + $lowStockCount + $unreadContactCount + $newSpecialRequestCount,
-                'pending_order_count' => $pendingBookingCount,
-                'low_stock_count' => $lowStockCount,
-                'unread_contact_count' => $unreadContactCount,
-                'new_special_request_count' => $newSpecialRequestCount,
-                'orders' => $pendingBookingsQuery->latest()->limit(5)->get(['id', 'booking_number', 'customer_name', 'total_amount', 'created_at']),
-                'products' => $lowStockQuery->orderBy('stock')->limit(5)->get(['id', 'name', 'stock', 'updated_at']),
-                'contacts' => $unreadContactsQuery->latest()->limit(5)->get(['id', 'name', 'subject', 'created_at']),
-                'special_requests' => $newSpecialRequestsQuery->latest()->limit(5)->get(['id', 'name', 'occasion', 'event_date', 'created_at']),
-            ]);
+            $view->with('adminNotifications', \App\Support\AdminNotifications::compute());
         });
 
         // Applies everywhere Password::defaults() is used (admin password

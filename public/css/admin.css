@@ -18,6 +18,12 @@ html {
     background: var(--admin-bg);
 }
 
+/* Same fix as storefront.css: stop Bootstrap's bare a:hover{color:#0a58ca}
+   from beating a component's own resting-color class on hover. */
+a:hover {
+    color: #F8AD27;
+}
+
 /* Bootstrap 5 draws its own checked-state fill/border (not the native
    browser accent-color), so the blue default has to be overridden directly.
    Unscoped from .admin-content (unlike the structural rules below) because
@@ -405,6 +411,31 @@ textarea:focus-visible {
 .badge.bg-info,
 .badge.text-bg-info {
     background-color: #6c757d !important;
+}
+
+/* text-bg-* combined utilities were only added in Bootstrap 5.3; this admin
+   theme still ships 5.1.3, so without these the badge below renders with no
+   background/text color at all (invisible on a white panel) rather than
+   falling back to anything. */
+.badge.text-bg-dark {
+    background-color: var(--ink, #29211F) !important;
+    color: #fff !important;
+}
+.badge.text-bg-warning {
+    background-color: var(--secondary-color, #F8AD27) !important;
+    color: var(--ink, #29211F) !important;
+}
+.badge.text-bg-success {
+    background-color: #198754 !important;
+    color: #fff !important;
+}
+.badge.text-bg-danger {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+.badge.text-bg-secondary {
+    background-color: #6c757d !important;
+    color: #fff !important;
 }
 
 /* Bootstrap's default <code> pink (#d63384) clashes with the brand palette. */

@@ -15,13 +15,13 @@ class PaymentController extends Controller
         $booking = Booking::findOrFail($bookingId);
 
         if ($booking->payment_method !== 'dpo') {
-            return redirect()->route('booking.index')->with('error', 'Invalid payment method.');
+            return redirect()->route($this->checkoutIndexRoute($booking))->with('error', 'Invalid payment method.');
         }
 
         $companyToken = config('services.dpo.company_token');
         if (empty($companyToken)) {
             Log::warning('DPO payment attempted without a configured company token', ['booking' => $booking->booking_number]);
-            return redirect()->route('booking.index')
+            return redirect()->route($this->checkoutIndexRoute($booking))
                 ->with('error', 'Card payment isn\'t available yet. Please choose "Pay via WhatsApp" instead.');
         }
 
@@ -38,7 +38,7 @@ class PaymentController extends Controller
             . '<PaymentCurrency>' . $this->escapeXml(config('services.dpo.currency', 'NAD')) . '</PaymentCurrency>' . "\n"
             . '<CompanyRef>' . $this->escapeXml($booking->booking_number) . '</CompanyRef>' . "\n"
             . '<RedirectURL>' . $this->escapeXml(route('payment.dpo.callback')) . '</RedirectURL>' . "\n"
-            . '<BackURL>' . $this->escapeXml(route('booking.index')) . '</BackURL>' . "\n"
+            . '<BackURL>' . $this->escapeXml(route($this->checkoutIndexRoute($booking))) . '</BackURL>' . "\n"
             . '<CompanyRefUnique>0</CompanyRefUnique>' . "\n"
             . '<PTL>5</PTL>' . "\n"
             . '<PnURL>' . $this->escapeXml(route('payment.dpo.notify')) . '</PnURL>' . "\n"
@@ -58,13 +58,13 @@ class PaymentController extends Controller
                 ->post(config('services.dpo.api_url'));
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
             Log::error('DPO createToken connection failed', ['booking' => $booking->booking_number, 'error' => $e->getMessage()]);
-            return redirect()->route('booking.index')
+            return redirect()->route($this->checkoutIndexRoute($booking))
                 ->with('error', 'Could not reach the payment gateway. Please try "Pay via WhatsApp" or try again shortly.');
         }
 
         if (!$response->successful()) {
             Log::error('DPO createToken HTTP error', ['booking' => $booking->booking_number, 'status' => $response->status()]);
-            return redirect()->route('booking.index')
+            return redirect()->route($this->checkoutIndexRoute($booking))
                 ->with('error', 'Failed to initialize payment. Please try again.');
         }
 
@@ -78,7 +78,7 @@ class PaymentController extends Controller
 
         Log::error('DPO createToken rejected', ['booking' => $booking->booking_number, 'result' => $data['Result'] ?? null, 'explanation' => $data['ResultExplanation'] ?? null]);
 
-        return redirect()->route('booking.index')
+        return redirect()->route($this->checkoutIndexRoute($booking))
             ->with('error', 'Payment initialization failed: ' . ($data['ResultExplanation'] ?? 'Please try again.'));
     }
 
@@ -103,9 +103,9 @@ class PaymentController extends Controller
         return match ($result['status']) {
             'completed' => redirect()->route('booking.success', $result['booking']->booking_number)
                 ->with('success', 'Payment completed successfully!'),
-            'pending' => redirect()->route('booking.index')
+            'pending' => redirect()->route($this->checkoutIndexRoute($result['booking']))
                 ->with('error', 'Payment is still pending. Please complete the payment process.'),
-            default => redirect()->route('booking.index')
+            default => redirect()->route($this->checkoutIndexRoute($result['booking']))
                 ->with('error', 'Payment failed: ' . $result['message']),
         };
     }
@@ -209,37 +209,52 @@ class PaymentController extends Controller
         $booking = Booking::findOrFail($bookingId);
 
         if ($booking->payment_method !== 'whatsapp') {
-            return redirect()->route('booking.index')->with('error', 'Invalid payment method.');
+            return redirect()->route($this->checkoutIndexRoute($booking))->with('error', 'Invalid payment method.');
         }
 
         $whatsappNumber = env('WHATSAPP_PAYMENT_NUMBER', '264813382817'); // Namibia format
         $whatsappNumber = preg_replace('/[^0-9]/', '', $whatsappNumber);
 
-        $message = "🍽️ *New Booking: {$booking->booking_number}*\n\n";
+        $isQuickOrder = $booking->order_type === Booking::ORDER_TYPE_QUICK_ORDER;
+
+        $message = $isQuickOrder
+            ? "🍽️ *New Order: {$booking->booking_number}*\n\n"
+            : "🍽️ *New Booking: {$booking->booking_number}*\n\n";
         $message .= "👤 *Customer Details:*\n";
         $message .= "Name: {$booking->customer_name}\n";
         $message .= "Email: {$booking->customer_email}\n";
         $message .= "Phone: {$booking->customer_phone}\n";
-        $message .= "\n*Event:*\n";
-        $message .= "Type: " . ($booking->event_type ?: 'N/A') . "\n";
-        $message .= "On-site contact: " . ($booking->onsite_contact_name ?: $booking->customer_name) . "\n";
-        $message .= "Contact phone: " . ($booking->onsite_contact_phone ?: $booking->customer_phone) . "\n";
-        $message .= "Schedule: " . $booking->schedule_summary . "\n";
-        $message .= "Serving period: " . ucfirst(str_replace('_', ' ', $booking->serving_period ?: 'custom')) . "\n";
-        $message .= "Guests: " . ($booking->guest_count ?: 'N/A') . "\n";
-        $message .= "Address: {$booking->event_address}\n";
-        if ($booking->special_message) {
-            $message .= "Special message: {$booking->special_message}\n";
+        if ($isQuickOrder) {
+            $message .= "\n*Fulfillment:*\n";
+            $message .= "Method: " . ucfirst($booking->fulfillment_method ?: 'N/A') . "\n";
+            if ($booking->fulfillment_method === Booking::FULFILLMENT_DELIVERY) {
+                $message .= "Address: {$booking->event_address}\n";
+            }
+        } else {
+            $message .= "\n*Event:*\n";
+            $message .= "Type: " . ($booking->event_type ?: 'N/A') . "\n";
+            $message .= "On-site contact: " . ($booking->onsite_contact_name ?: $booking->customer_name) . "\n";
+            $message .= "Contact phone: " . ($booking->onsite_contact_phone ?: $booking->customer_phone) . "\n";
+            $message .= "Schedule: " . $booking->schedule_summary . "\n";
+            $message .= "Serving period: " . ucfirst(str_replace('_', ' ', $booking->serving_period ?: 'custom')) . "\n";
+            $message .= "Guests: " . ($booking->guest_count ?: 'N/A') . "\n";
+            $message .= "Address: {$booking->event_address}\n";
+            if ($booking->special_message) {
+                $message .= "Special message: {$booking->special_message}\n";
+            }
         }
         if ($booking->event_notes) {
             $message .= "Notes: {$booking->event_notes}\n";
         }
         $message .= "\n";
-        $message .= "💰 *Total Amount: N$ " . number_format($booking->total_amount, 2) . "*\n\n";
-        $message .= "📦 *Order Items:*\n";
-
-        foreach ($booking->items as $item) {
-            $message .= "• {$item->menuItem->name} x{$item->quantity} = N$ " . number_format($item->subtotal, 2) . "\n";
+        if ($booking->items->isEmpty()) {
+            $message .= "📋 *No menu items selected yet* — let's work out the menu together.\n";
+        } else {
+            $message .= "💰 *Total Amount: N$ " . number_format($booking->total_amount, 2) . "*\n\n";
+            $message .= "📦 *Order Items:*\n";
+            foreach ($booking->items as $item) {
+                $message .= "• {$item->menuItem->name} x{$item->quantity} = N$ " . number_format($item->subtotal, 2) . "\n";
+            }
         }
 
         $message .= "\n✅ Please confirm payment and booking details.";
@@ -271,5 +286,15 @@ class PaymentController extends Controller
     private function escapeXml(?string $value): string
     {
         return htmlspecialchars((string) $value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+    }
+
+    /**
+     * Error/cancel redirects must send the customer back to whichever
+     * checkout form they actually came from — a quick order back to
+     * order.index, an event booking back to booking.index.
+     */
+    private function checkoutIndexRoute(Booking $booking): string
+    {
+        return $booking->order_type === Booking::ORDER_TYPE_QUICK_ORDER ? 'order.index' : 'booking.index';
     }
 }

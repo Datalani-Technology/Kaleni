@@ -13,8 +13,9 @@ class LogoController extends Controller
     {
         $logoPath = Setting::get('logo_path');
         $logoText = Setting::get('logo_text', 'Kaleni Catering Services');
+        $invoicePaymentAccount = Setting::get('invoice_payment_account', '');
 
-        return view('admin.logo.edit', compact('logoPath', 'logoText'));
+        return view('admin.logo.edit', compact('logoPath', 'logoText', 'invoicePaymentAccount'));
     }
 
     public function update(Request $request)
@@ -23,6 +24,7 @@ class LogoController extends Controller
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:20480',
             'logo_text' => 'nullable|string|max:100',
             'remove_logo' => 'nullable|boolean',
+            'invoice_payment_account' => 'nullable|string|max:1000',
         ]);
 
         if ($request->boolean('remove_logo')) {
@@ -42,6 +44,10 @@ class LogoController extends Controller
 
         if ($request->has('logo_text')) {
             Setting::set('logo_text', $request->input('logo_text') ?: 'Kaleni Catering Services');
+        }
+
+        if ($request->has('invoice_payment_account')) {
+            Setting::set('invoice_payment_account', $request->input('invoice_payment_account', ''));
         }
 
         return redirect()->route('admin.logo.edit')

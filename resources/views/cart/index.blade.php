@@ -52,7 +52,7 @@
             <span class="section-kicker">Your selection</span>
             <h1>Your Order</h1>
         </div>
-        <p>Review your dishes, then choose the event date and serving time when you book.</p>
+        <p>Review your dishes, then book us to cater your event, or order for pickup/delivery instead.</p>
     </div>
 
     @if($cartItems->count() > 0)
@@ -154,8 +154,11 @@
                             <span><strong>Total:</strong></span>
                             <strong style="font-size: 1.3rem; color: #333;">N$ {{ number_format($total, 2) }}</strong>
                         </div>
-                        <a href="{{ route('booking.index') }}" class="buy-now-btn w-100" style="background: #333; color: white; text-align: center; text-decoration: none; display: block;">
-                            Continue to Booking
+                        <a href="{{ route('booking.index') }}" class="buy-now-btn w-100" style="text-align: center; text-decoration: none; display: block;">
+                            <i class="bi bi-calendar-event"></i> Book for an Event
+                        </a>
+                        <a href="{{ route('order.index') }}" class="buy-now-btn w-100 mt-2" style="background: #333; color: white; text-align: center; text-decoration: none; display: block;">
+                            <i class="bi bi-bag-check"></i> Order Food Now
                         </a>
                         <a href="{{ route('menu.index') }}" class="buy-now-btn w-100 mt-2" style="background: #666; color: white; text-align: center; text-decoration: none; display: block;">
                             Continue Browsing
@@ -168,7 +171,7 @@
         <div class="empty-cart-card">
             <span class="empty-cart-icon"><i class="bi bi-basket" aria-hidden="true"></i></span>
             <h2>Something delicious belongs here.</h2>
-            <p>Begin with one of Chef K's home-style dishes. Every booking includes an event date, serving time, and guest count.</p>
+            <p>Ready to book us for your next event? Or browse Chef K's home-style dishes to order for pickup/delivery in minutes.</p>
             <a href="{{ route('menu.index') }}" class="buy-now-btn" style="max-width: 220px; margin: 0 auto; display: block; text-decoration: none;">
                 Browse the menu
             </a>

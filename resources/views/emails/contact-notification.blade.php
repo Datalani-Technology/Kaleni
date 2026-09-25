@@ -33,7 +33,7 @@
     </div>
     <div class="field">
         <div class="label">Message</div>
-        <div class="value message-box">{{ $message }}</div>
+        <div class="value message-box">{{ $messageBody }}</div>
     </div>
 
     <hr>

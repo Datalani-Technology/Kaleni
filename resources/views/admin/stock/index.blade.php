@@ -31,7 +31,7 @@
     </div>
     <div class="col-6 col-md-3">
         <div class="card border-0 admin-stat-white">
-            <div class="card-body"><h6 class="card-title text-muted">Low stock (≤{{ $threshold }})</h6><h3 class="mb-0 {{ $lowStockCount > 0 ? 'text-danger' : 'text-muted' }}">{{ $lowStockCount }}</h3></div>
+            <div class="card-body"><h6 class="card-title text-muted">Low stock (1&ndash;{{ $threshold }})</h6><h3 class="mb-0 {{ $lowStockCount > 0 ? 'text-danger' : 'text-muted' }}">{{ $lowStockCount }}</h3></div>
         </div>
     </div>
     <div class="col-6 col-md-3">
@@ -58,8 +58,8 @@
     <div class="col-md-6">
         <div class="card border-success">
             <div class="card-body">
-                <h6 class="card-title text-muted">Total sales (bookings)</h6>
-                <p class="mb-0 small text-muted">Sum of booking totals · counts as customers order</p>
+                <h6 class="card-title text-muted">Total sales (bookings &amp; orders)</h6>
+                <p class="mb-0 small text-muted">Sum of booking and order totals · counts as customers order</p>
                 <h3 class="text-success mt-1 mb-0">N$ {{ number_format($totalSales, 2) }}</h3>
             </div>
         </div>

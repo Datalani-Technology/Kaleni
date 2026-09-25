@@ -17,8 +17,10 @@ class NewBookingAlertMail extends Mailable
 
     public function envelope(): Envelope
     {
+        $noun = $this->booking->order_type === Booking::ORDER_TYPE_QUICK_ORDER ? 'order' : 'booking';
+
         return new Envelope(
-            subject: 'New booking ' . $this->booking->booking_number . ' - N$ ' . number_format((float) $this->booking->total_amount, 2),
+            subject: 'New ' . $noun . ' ' . $this->booking->booking_number . ' - N$ ' . number_format((float) $this->booking->total_amount, 2),
         );
     }
 

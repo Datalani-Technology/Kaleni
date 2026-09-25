@@ -82,7 +82,7 @@
                                 @else
                                     <span class="badge bg-warning text-dark">Pending</span>
                                 @endif
-                                <small class="d-block text-muted">{{ ucfirst($booking->payment_method) }}</small>
+                                <small class="d-block text-muted">{{ $booking->payment_method_label }}</small>
                             </td>
                             <td data-label="Status">
                                 @if($booking->booking_status === 'completed')
@@ -99,6 +99,13 @@
                                 <a href="{{ route('admin.bookings.show', $booking) }}" class="btn btn-sm btn-primary" title="View">
                                     <i class="bi bi-eye"></i> View
                                 </a>
+                                <form action="{{ route('admin.bookings.destroy', $booking) }}" method="POST" class="d-inline" data-confirm-message="This permanently deletes booking {{ $booking->booking_number }} and restores {{ $booking->items->sum('quantity') }} unit(s) of stock for its items. This cannot be undone." data-confirm-label="Delete booking">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     @empty

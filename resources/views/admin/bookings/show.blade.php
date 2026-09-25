@@ -1,19 +1,39 @@
 @extends('admin.layout')
 
-@section('title', 'Booking ' . $booking->booking_number)
-@section('sidebar_active', 'bookings')
+@php
+    $isQuickOrder = $booking->order_type === \App\Models\Booking::ORDER_TYPE_QUICK_ORDER;
+@endphp
+@section('title', ($isQuickOrder ? 'Order ' : 'Booking ') . $booking->booking_number)
+@section('sidebar_active', $isQuickOrder ? 'orders' : 'bookings')
 
 @section('content')
 <div class="mb-4">
-    <h1 class="mb-3">Booking {{ $booking->booking_number }}</h1>
+    <h1 class="mb-3">{{ $isQuickOrder ? 'Order' : 'Booking' }} {{ $booking->booking_number }}</h1>
     <div class="d-flex flex-wrap gap-2 admin-page-actions">
-        <a href="{{ route('admin.bookings.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> All Bookings</a>
+        @if($isQuickOrder)
+            <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> All Orders</a>
+        @else
+            <a href="{{ route('admin.bookings.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> All Bookings</a>
+        @endif
         @php
             $wa = 'https://wa.me/' . preg_replace('/[^0-9]/', '', $booking->customer_phone);
+            $receiptUrl = route('booking.receipt', $booking->booking_number);
+            $waInvoiceMessage = "Hi {$booking->customer_name}, here's your Kaleni Catering invoice for {$booking->booking_number} (N$ " . number_format((float) $booking->total_amount, 2) . "):\n{$receiptUrl}";
+            $waInvoice = $wa . '?text=' . urlencode($waInvoiceMessage);
         @endphp
         <a href="{{ $wa }}" target="_blank" rel="noopener" class="btn btn-success"><i class="bi bi-whatsapp"></i> WhatsApp</a>
         <a href="tel:{{ $booking->customer_phone }}" class="btn btn-outline-primary"><i class="bi bi-telephone"></i> Call</a>
         <button type="button" onclick="openAdminDocument('{{ route('admin.bookings.invoice', $booking) }}')" class="btn btn-outline-dark"><i class="bi bi-receipt"></i> Invoice</button>
+        <form action="{{ route('admin.bookings.invoice.email', $booking) }}" method="POST" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-outline-dark"><i class="bi bi-envelope"></i> Email Invoice</button>
+        </form>
+        <a href="{{ $waInvoice }}" target="_blank" rel="noopener" class="btn btn-outline-dark"><i class="bi bi-whatsapp"></i> Send Invoice via WhatsApp</a>
+        <form action="{{ route('admin.bookings.destroy', $booking) }}" method="POST" class="d-inline" data-confirm-message="This permanently deletes this {{ $isQuickOrder ? 'order' : 'booking' }} and restores {{ $booking->items->sum('quantity') }} unit(s) of stock for its items. This cannot be undone." data-confirm-label="Delete {{ $isQuickOrder ? 'order' : 'booking' }}">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Delete {{ $isQuickOrder ? 'Order' : 'Booking' }}</button>
+        </form>
     </div>
 </div>
 
@@ -21,7 +41,7 @@
     <div class="col-lg-8">
         <div class="card mb-4">
             <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                <span class="fw-semibold">Booking items</span>
+                <span class="fw-semibold">{{ $isQuickOrder ? 'Order items' : 'Booking items' }}</span>
                 <span class="badge bg-primary">{{ $booking->items->count() }} item(s)</span>
             </div>
             <div class="card-body p-0">
@@ -60,32 +80,40 @@
         </div>
 
         <div class="card mb-4">
-            <div class="card-header bg-light fw-semibold">Customer &amp; event</div>
+            <div class="card-header bg-light fw-semibold">{{ $isQuickOrder ? 'Customer & fulfillment' : 'Customer & event' }}</div>
             <div class="card-body">
                 <p class="mb-2"><strong>Name:</strong> {{ $booking->customer_name }}</p>
                 <p class="mb-2"><strong>Email:</strong> <a href="mailto:{{ $booking->customer_email }}">{{ $booking->customer_email }}</a></p>
                 <p class="mb-2"><strong>Phone:</strong> <a href="tel:{{ $booking->customer_phone }}">{{ $booking->customer_phone }}</a></p>
                 <hr>
-                <p class="mb-2"><strong>On-site contact:</strong> {{ $booking->onsite_contact_name ?: $booking->customer_name }}</p>
-                <p class="mb-2"><strong>On-site contact phone:</strong> <a href="tel:{{ $booking->onsite_contact_phone ?: $booking->customer_phone }}">{{ $booking->onsite_contact_phone ?: $booking->customer_phone }}</a></p>
-                <p class="mb-2"><strong>Schedule:</strong> {{ $booking->schedule_summary }} · {{ ucfirst(str_replace('_', ' ', $booking->serving_period ?: 'custom')) }} service</p>
-                <p class="mb-2"><strong>Event type:</strong> {{ $booking->event_type ?: 'N/A' }}</p>
-                <p class="mb-2"><strong>Guests:</strong> {{ $booking->guest_count ?: 'N/A' }}</p>
-                <p class="mb-2"><strong>Event address:</strong><br>{{ nl2br(e($booking->event_address)) }}</p>
-                @if($booking->event_notes)<p class="mb-2"><strong>Event notes:</strong><br>{{ nl2br(e($booking->event_notes)) }}</p>@endif
-                @if($booking->special_message)<p class="mb-0"><strong>Special message:</strong><br>{{ nl2br(e($booking->special_message)) }}</p>@endif
+                @if($isQuickOrder)
+                    <p class="mb-2"><strong>Fulfillment:</strong> {{ ucfirst($booking->fulfillment_method ?: 'N/A') }}</p>
+                    @if($booking->fulfillment_method === 'delivery')
+                        <p class="mb-2"><strong>Delivery address:</strong><br>{{ nl2br(e($booking->event_address)) }}</p>
+                    @endif
+                    @if($booking->event_notes)<p class="mb-0"><strong>Order notes:</strong><br>{{ nl2br(e($booking->event_notes)) }}</p>@endif
+                @else
+                    <p class="mb-2"><strong>On-site contact:</strong> {{ $booking->onsite_contact_name ?: $booking->customer_name }}</p>
+                    <p class="mb-2"><strong>On-site contact phone:</strong> <a href="tel:{{ $booking->onsite_contact_phone ?: $booking->customer_phone }}">{{ $booking->onsite_contact_phone ?: $booking->customer_phone }}</a></p>
+                    <p class="mb-2"><strong>Schedule:</strong> {{ $booking->schedule_summary }} · {{ ucfirst(str_replace('_', ' ', $booking->serving_period ?: 'custom')) }} service</p>
+                    <p class="mb-2"><strong>Event type:</strong> {{ $booking->event_type ?: 'N/A' }}</p>
+                    <p class="mb-2"><strong>Guests:</strong> {{ $booking->guest_count ?: 'N/A' }}</p>
+                    <p class="mb-2"><strong>Event address:</strong><br>{{ nl2br(e($booking->event_address)) }}</p>
+                    @if($booking->event_notes)<p class="mb-2"><strong>Event notes:</strong><br>{{ nl2br(e($booking->event_notes)) }}</p>@endif
+                    @if($booking->special_message)<p class="mb-0"><strong>Special message:</strong><br>{{ nl2br(e($booking->special_message)) }}</p>@endif
+                @endif
             </div>
         </div>
     </div>
 
     <div class="col-lg-4">
         <div class="card mb-4">
-            <div class="card-header bg-light fw-semibold">Update booking</div>
+            <div class="card-header bg-light fw-semibold">{{ $isQuickOrder ? 'Update order' : 'Update booking' }}</div>
             <div class="card-body">
-                <form action="{{ route('admin.bookings.update', $booking) }}" method="POST" id="bookingUpdateForm" data-original-status="{{ $booking->booking_status }}" data-confirm-mode="booking-status">
+                <form action="{{ route('admin.bookings.update', $booking) }}" method="POST" id="bookingUpdateForm" data-original-status="{{ $booking->booking_status }}" data-confirm-mode="booking-status" data-record-noun="{{ $isQuickOrder ? 'order' : 'booking' }}">
                     @csrf
                     <div class="mb-3">
-                        <label class="form-label">Booking status</label>
+                        <label class="form-label">{{ $isQuickOrder ? 'Order status' : 'Booking status' }}</label>
                         <select name="booking_status" class="form-select" id="bookingStatusSelect">
                             <option value="pending" {{ $booking->booking_status === 'pending' ? 'selected' : '' }}>Pending</option>
                             <option value="processing" {{ $booking->booking_status === 'processing' ? 'selected' : '' }}>Processing</option>
@@ -102,8 +130,18 @@
                         </select>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Total amount (N$)</label>
+                        <input type="number" step="0.01" min="0" name="total_amount" class="form-control @error('total_amount') is-invalid @enderror" value="{{ old('total_amount', number_format((float) $booking->total_amount, 2, '.', '')) }}">
+                        @error('total_amount')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        @if($booking->items->isEmpty())
+                            <div class="form-text">No menu items were selected — set the final agreed price here before sending an invoice.</div>
+                        @else
+                            <div class="form-text">Overrides the amount shown on the invoice and used for revenue reporting.</div>
+                        @endif
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Admin notes</label>
-                        <textarea name="admin_notes" class="form-control" rows="3" placeholder="Setup instructions, gate code, etc.">{{ old('admin_notes', $booking->admin_notes) }}</textarea>
+                        <textarea name="admin_notes" class="form-control" rows="3" placeholder="{{ $isQuickOrder ? 'Delivery/pickup instructions, allergy notes, etc.' : 'Setup instructions, gate code, etc.' }}">{{ old('admin_notes', $booking->admin_notes) }}</textarea>
                         <div class="form-text">Internal only. Not sent to customer.</div>
                     </div>
                     <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check2"></i> Save changes</button>
@@ -113,7 +151,7 @@
 
         <div class="card">
             <div class="card-body">
-                <p class="mb-1 small text-muted">Payment: {{ ucfirst($booking->payment_method) }}</p>
+                <p class="mb-1 small text-muted">Payment: {{ $booking->payment_method_label }}</p>
                 <p class="mb-1 small text-muted">Placed: {{ $booking->created_at->format('M j, Y H:i') }}</p>
                 @if($booking->updated_at != $booking->created_at)
                     <p class="mb-0 small text-muted">Updated: {{ $booking->updated_at->format('M j, Y H:i') }}</p>

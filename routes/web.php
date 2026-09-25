@@ -4,10 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\TermsController;
-use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\FoodOfTheDayController;
 use App\Http\Controllers\SpecialRequestController;
@@ -15,7 +15,6 @@ use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\LogoController as AdminLogoController;
 use App\Http\Controllers\Admin\MenuItemController as AdminMenuItemController;
 use App\Http\Controllers\Admin\StockController as AdminStockController;
-use App\Http\Controllers\Admin\PromotionCatalogController as AdminPromotionCatalogController;
 use App\Http\Controllers\Admin\BookingController as AdminBookingController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use App\Http\Controllers\Admin\GalleryController as AdminGalleryController;
@@ -39,7 +38,6 @@ Route::get('/terms', [TermsController::class, 'index'])->name('terms');
 Route::get('/delivery', [TermsController::class, 'delivery'])->name('delivery');
 Route::get('/cancellations', [TermsController::class, 'cancellations'])->name('cancellations');
 Route::get('/privacy', [\App\Http\Controllers\PrivacyController::class, 'index'])->name('privacy');
-Route::get('/promotion', [PromotionController::class, 'index'])->name('promotion');
 Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery');
 
 // SEO Routes
@@ -65,6 +63,14 @@ Route::prefix('booking')->group(function () {
     Route::get('/receipt/{bookingNumber}', [BookingController::class, 'receipt'])->name('booking.receipt');
 });
 
+// Quick food order routes — ordering without booking a full catered event.
+// success/receipt are shared with booking.* since they just look up a
+// Booking by number regardless of order_type.
+Route::prefix('order')->group(function () {
+    Route::get('/', [OrderController::class, 'index'])->name('order.index');
+    Route::post('/', [OrderController::class, 'store'])->name('order.store')->middleware('throttle:10,1');
+});
+
 // Payment routes
 Route::prefix('payment')->group(function () {
     Route::post('/dpo', [PaymentController::class, 'initiateDPO'])->name('payment.dpo')->middleware('throttle:20,1');
@@ -80,6 +86,9 @@ Route::prefix('payment')->group(function () {
 // Never reference '/admin' literally elsewhere; use the admin.* route names or
 // config('admin.path'). This whole group is also marked noindex/nofollow.
 Route::prefix(config('admin.path'))->middleware('noindex')->group(function () {
+    Route::get('/', function () {
+        return auth('web')->check() ? redirect()->route('admin.dashboard') : redirect()->route('admin.login');
+    })->name('admin.home');
     Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
     Route::post('/login', [AdminAuthController::class, 'login']);
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
@@ -94,11 +103,11 @@ Route::prefix(config('admin.path'))->middleware('noindex')->group(function () {
             return view('admin.dashboard');
         })->name('admin.dashboard');
 
+        Route::get('/notifications/poll', [\App\Http\Controllers\Admin\NotificationController::class, 'poll'])->name('admin.notifications.poll');
+
         Route::middleware('can_manage_users')->group(function () {
                 Route::get('/logo', [AdminLogoController::class, 'edit'])->name('admin.logo.edit');
                 Route::post('/logo', [AdminLogoController::class, 'update'])->name('admin.logo.update');
-                Route::get('/promotion', [AdminPromotionCatalogController::class, 'edit'])->name('admin.promotion.edit');
-                Route::post('/promotion', [AdminPromotionCatalogController::class, 'update'])->name('admin.promotion.update');
                 Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->names([
                     'index' => 'admin.users.index',
                     'create' => 'admin.users.create',
@@ -130,13 +139,22 @@ Route::prefix(config('admin.path'))->middleware('noindex')->group(function () {
             Route::get('/bookings', [AdminBookingController::class, 'index'])->name('admin.bookings.index');
             Route::get('/bookings/{booking}', [AdminBookingController::class, 'show'])->name('admin.bookings.show');
             Route::post('/bookings/{booking}', [AdminBookingController::class, 'update'])->name('admin.bookings.update');
+            Route::delete('/bookings/{booking}', [AdminBookingController::class, 'destroy'])->name('admin.bookings.destroy');
             Route::get('/bookings/{booking}/invoice', [AdminBookingController::class, 'invoice'])->name('admin.bookings.invoice');
+            Route::post('/bookings/{booking}/invoice/email', [AdminBookingController::class, 'emailInvoice'])->name('admin.bookings.invoice.email');
+
+            Route::get('/orders/export/csv', [\App\Http\Controllers\Admin\OrderController::class, 'export'])->name('admin.orders.export');
+            Route::get('/orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('admin.orders.index');
 
             Route::get('/special-requests', [AdminSpecialRequestController::class, 'index'])->name('admin.special-requests.index');
             Route::get('/special-requests/{specialRequest}', [AdminSpecialRequestController::class, 'show'])->name('admin.special-requests.show');
             Route::post('/special-requests/{specialRequest}', [AdminSpecialRequestController::class, 'update'])->name('admin.special-requests.update');
+            Route::delete('/special-requests/{specialRequest}', [AdminSpecialRequestController::class, 'destroy'])->name('admin.special-requests.destroy');
             Route::post('/special-requests/{specialRequest}/send-quote', [AdminSpecialRequestController::class, 'sendQuote'])->name('admin.special-requests.send-quote');
+            Route::post('/special-requests/{specialRequest}/send-quote-whatsapp', [AdminSpecialRequestController::class, 'sendQuoteWhatsapp'])->name('admin.special-requests.send-quote-whatsapp');
             Route::get('/special-requests/{specialRequest}/quote', [AdminSpecialRequestController::class, 'quote'])->name('admin.special-requests.quote');
+
+            Route::get('/quotes', [\App\Http\Controllers\Admin\QuoteController::class, 'index'])->name('admin.quotes.index');
 
             Route::resource('food-of-the-day', AdminFoodOfTheDayController::class)->names([
                 'index' => 'admin.food-of-the-day.index',
@@ -160,6 +178,7 @@ Route::prefix(config('admin.path'))->middleware('noindex')->group(function () {
             ])->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
             Route::get('/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('admin.analytics.index');
+            Route::get('/finance', [\App\Http\Controllers\Admin\FinanceController::class, 'index'])->name('admin.finance.index');
 
             Route::resource('promo-codes', \App\Http\Controllers\Admin\PromoCodeController::class)->names([
                 'index' => 'admin.promo-codes.index',

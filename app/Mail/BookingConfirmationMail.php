@@ -17,8 +17,10 @@ class BookingConfirmationMail extends Mailable
 
     public function envelope(): Envelope
     {
+        $noun = $this->booking->order_type === Booking::ORDER_TYPE_QUICK_ORDER ? 'order' : 'booking';
+
         return new Envelope(
-            subject: 'Your Kaleni Catering booking ' . $this->booking->booking_number . ' is confirmed',
+            subject: 'Your Kaleni Catering ' . $noun . ' ' . $this->booking->booking_number . ' is confirmed',
         );
     }
 

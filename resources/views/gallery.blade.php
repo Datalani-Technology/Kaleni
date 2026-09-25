@@ -138,7 +138,7 @@
                 <h3>Inspired by what you see?</h3>
                 <p>Let Chef K bring this same home-style cooking to your next event.</p>
                 <div class="gallery-cta-actions">
-                    <a href="{{ route('special-requests.create') }}" class="buy-now-btn">Get a quote</a>
+                    <a href="{{ route('home') }}#get-a-quote" class="buy-now-btn">Get a quote</a>
                     <a href="{{ route('contact') }}" class="gallery-cta-secondary">Contact us</a>
                 </div>
             </div>

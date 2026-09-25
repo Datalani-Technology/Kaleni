@@ -264,7 +264,7 @@
         <h1 class="hero-full-title">Planning an event?</h1>
         <p class="hero-full-lede">Home-style Namibian catering for weddings, birthdays, corporate functions and everything in between. Cooked fresh by Chef K, delivered free around Windhoek.</p>
         <div class="hero-full-actions">
-            <a href="{{ route('menu.index') }}" class="hero-full-btn">View the menu</a>
+            <a href="{{ route('booking.index') }}" class="hero-full-btn">Book Catering</a>
             <a href="#get-a-quote" class="hero-full-link">or get a quote for your event</a>
         </div>
         @if(count($heroImages) > 1)
@@ -356,11 +356,9 @@
         </div>
     </div>
     <div class="home-quote-form-wrap">
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
         <form action="{{ route('special-requests.store') }}" method="POST">
             @csrf
+            <input type="hidden" name="source" value="{{ \App\Models\SpecialRequest::SOURCE_HOME_QUOTE_FORM }}">
             <div class="row g-3">
                 <div class="col-md-6">
                     <label for="quote_name" class="form-label">Full name *</label>

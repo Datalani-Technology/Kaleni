@@ -20,7 +20,7 @@
         <tr><td class="muted">Name</td><td>{{ $specialRequest->name }}</td></tr>
         <tr><td class="muted">Email</td><td>{{ $specialRequest->email }}</td></tr>
         <tr><td class="muted">Phone</td><td>{{ $specialRequest->phone }}</td></tr>
-        <tr><td class="muted">Event date</td><td>{{ $specialRequest->event_date?->format('D, j M Y') ?: 'Not specified' }}</td></tr>
+        <tr><td class="muted">{{ $specialRequest->is_recurring ? 'Dates' : 'Event date' }}</td><td>{{ $specialRequest->event_date?->format('D, j M Y') ?: 'Not specified' }}@if($specialRequest->is_recurring && $specialRequest->recurring_end_date) &ndash; {{ $specialRequest->recurring_end_date->format('D, j M Y') }} (recurring)@endif</td></tr>
         <tr><td class="muted">Guests</td><td>{{ $specialRequest->guest_count ?: 'Not specified' }}</td></tr>
         <tr><td class="muted">Occasion</td><td>{{ $specialRequest->occasion ?: 'Not specified' }}</td></tr>
         <tr><td class="muted">Budget</td><td>{{ $specialRequest->budget_range ?: 'Not specified' }}</td></tr>
